@@ -20,6 +20,9 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'URL working' });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
