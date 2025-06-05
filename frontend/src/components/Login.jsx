@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import aicteLogo from '../assets/aicte_logo.png';
 import './Auth.css';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -28,7 +30,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${BACKEND_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
