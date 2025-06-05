@@ -11,7 +11,7 @@ import axios from 'axios';
  */
 
 // Backend API URL - this points to our Express server
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 // Token management in browser's localStorage
 const TokenService = {
