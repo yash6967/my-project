@@ -63,29 +63,56 @@ const Signup = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
-    
+
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       return;
     }
 
-    // Check if email already exists (in a real app, this would be an API call)
-    const existingUsers = ['superadmin@example.com', 'admin@example.com', 'provider@example.com', 'user@example.com'];
-    
-    if (existingUsers.includes(formData.email)) {
-      setErrors({ email: 'An account with this email already exists' });
-      return;
-    }
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          userType: formData.userType
+        })
+      });
 
-    // Simulate successful registration
-    alert(`Account created successfully for ${formData.name}!\nUser Type: ${formData.userType.replace('_', ' ')}\nYou can now login with your credentials.`);
-    
-    // Redirect to login page
-    navigate('/login');
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle validation errors from backend
+        if (data.errors && Array.isArray(data.errors)) {
+          const backendErrors = {};
+          data.errors.forEach(err => {
+            if (err.param && err.msg) {
+              backendErrors[err.param] = err.msg;
+            }
+          });
+          setErrors(backendErrors);
+        } else if (data.message) {
+          setErrors({ email: data.message });
+        } else {
+          setErrors({ general: 'Signup failed. Please try again.' });
+        }
+        return;
+      }
+
+      // Success
+      alert(`Account created successfully for ${formData.name}!\nUser Type: ${formData.userType.replace('_', ' ')}\nYou can now login with your credentials.`);
+      navigate('/login');
+    } catch (error) {
+      setErrors({ general: 'Server error. Please try again later.' });
+    }
   };
 
   return (

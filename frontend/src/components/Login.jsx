@@ -6,20 +6,14 @@ import './Auth.css';
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    userType: 'normal'
+    password: ''
   });
   const [error, setError] = useState('');
   const [showCredentials, setShowCredentials] = useState(false);
   const navigate = useNavigate();
 
   // Predefined user credentials
-  const users = {
-    'superadmin@example.com': { password: 'super123', type: 'super_admin' },
-    'admin@example.com': { password: 'admin123', type: 'admin' },
-    'provider@example.com': { password: 'provider123', type: 'service_provider' },
-    'user@example.com': { password: 'user123', type: 'normal' }
-  };
+
 
   const handleChange = (e) => {
     setFormData({
@@ -29,38 +23,47 @@ const Login = () => {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const user = users[formData.email];
-    
-    if (!user) {
-      setError('Invalid email address');
-      return;
-    }
-    
-    if (user.password !== formData.password) {
-      setError('Invalid password');
-      return;
-    }
-    
-    if (user.type !== formData.userType) {
-      setError('Invalid user type selected');
-      return;
-    }
+    setError('');
 
-    // Store login state
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userType', user.type);
-    localStorage.setItem('userEmail', formData.email);
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
 
-    // Redirect based on user type
-    if (user.type === 'normal') {
-      navigate('/marketplace');
-    } else if (user.type === 'service_provider') {
-      navigate('/service-calendar');
-    } else {
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data && data.message) {
+          setError(data.message);
+        } else {
+          setError('Login failed. Please try again.');
+        }
+        return;
+      }
+
+      // Store login state, user info, and token
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', data.user?.email || formData.email);
+      if (data.user && data.user.userType) {
+        localStorage.setItem('userType', data.user.userType);
+      }
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      // Redirect to dashboard
       navigate('/dashboard');
+    } catch (err) {
+      setError('Server error. Please try again later.');
     }
   };
 
@@ -76,22 +79,7 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="userType">User Type</label>
-            <select
-              id="userType"
-              name="userType"
-              value={formData.userType}
-              onChange={handleChange}
-              required
-            >
-              <option value="normal">Normal User</option>
-              <option value="service_provider">Service Provider</option>
-              <option value="admin">Admin</option>
-              <option value="super_admin">Super Admin</option>
-            </select>
-          </div>
-
+          
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -140,7 +128,7 @@ const Login = () => {
             </span>
           </div>
           
-          {showCredentials && (
+          {/* {showCredentials && (
             <div className="credentials-grid">
               <div className="credential-item">
                 <strong>Super Admin:</strong>
@@ -159,7 +147,7 @@ const Login = () => {
                 <span>user@example.com / user123</span>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

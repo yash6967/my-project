@@ -57,12 +57,9 @@ const ServiceCalendar = () => {
   useEffect(() => {
     // Check if user is logged in and is a service provider
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userType = localStorage.getItem('userType');
     
     if (!isLoggedIn) {
       navigate('/login');
-    } else if (userType !== 'service_provider') {
-      navigate('/dashboard');
     } else {
       // Load saved data
       const savedSlots = localStorage.getItem('serviceSlots');
@@ -88,7 +85,6 @@ const ServiceCalendar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
     navigate('/login');
   };
 

@@ -59,13 +59,11 @@ const Marketplace = () => {
   useEffect(() => {
     // Check if user is logged in and is a normal user
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userType = localStorage.getItem('userType');
+
     
     if (!isLoggedIn) {
       navigate('/login');
-    } else if (userType !== 'normal') {
-      navigate('/dashboard');
-    } else {
+    }  else {
       setEvents(sampleEvents);
       // Load registrations from localStorage
       const savedRegistrations = localStorage.getItem('eventRegistrations');
@@ -82,7 +80,7 @@ const Marketplace = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
+
     localStorage.removeItem('eventRegistrations');
     navigate('/login');
   };

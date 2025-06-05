@@ -9,24 +9,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const storedUserType = localStorage.getItem('userType');
+
     
-    if (!isLoggedIn || !storedUserType) {
+    if (!isLoggedIn ) {
       navigate('/login');
-    } else if (storedUserType === 'normal') {
-      // Redirect normal users to marketplace
-      navigate('/marketplace');
-    } else if (storedUserType === 'service_provider') {
-      // Redirect service providers to their calendar
-      navigate('/service-calendar');
-    } else {
-      setUserType(storedUserType);
     }
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
     navigate('/login');
   };
 

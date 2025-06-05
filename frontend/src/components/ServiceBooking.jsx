@@ -63,12 +63,10 @@ const ServiceBooking = () => {
   useEffect(() => {
     // Check if user is logged in and is a normal user
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userType = localStorage.getItem('userType');
+
     
     if (!isLoggedIn) {
       navigate('/login');
-    } else if (userType !== 'normal') {
-      navigate('/dashboard');
     } else {
       setServiceProviders(sampleProviders);
       
@@ -82,7 +80,6 @@ const ServiceBooking = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
     navigate('/login');
   };
 

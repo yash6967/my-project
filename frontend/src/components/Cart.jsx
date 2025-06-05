@@ -10,12 +10,9 @@ const Cart = () => {
   useEffect(() => {
     // Check if user is logged in and is a normal user
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userType = localStorage.getItem('userType');
     
     if (!isLoggedIn) {
       navigate('/login');
-    } else if (userType !== 'normal') {
-      navigate('/dashboard');
     } else {
       // Load cart from localStorage
       const savedCart = localStorage.getItem('eventCart');
@@ -32,7 +29,6 @@ const Cart = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
     localStorage.removeItem('eventCart');
     navigate('/login');
   };

@@ -22,14 +22,10 @@ const Profile = () => {
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const storedUserType = localStorage.getItem('userType');
     
     if (!isLoggedIn) {
       navigate('/login');
-    } else if (storedUserType !== 'normal') {
-      navigate('/dashboard');
     } else {
-      setUserType(storedUserType);
       setUserInfo(profileData);
     }
   }, [navigate]);
