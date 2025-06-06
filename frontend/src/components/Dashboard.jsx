@@ -31,6 +31,7 @@ const Dashboard = () => {
         <div className="header-left">
           <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
           <h1>Welcome, {localStorage.getItem('userEmail')}</h1>
+          <br />
           <h2>Admin Dashboard</h2>
         </div>
         <div className="header-actions">
