@@ -30,7 +30,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch(`${BACKEND_URL}api/auth/login`, {
+      const response = await fetch(`${BACKEND_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -54,13 +54,11 @@ const Login = () => {
 
       // Store login state, user info, and token
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', data.user?.email || formData.email);
-      if (data.user && data.user.userType) {
-        localStorage.setItem('userType', data.user.userType);
-      }
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
+      localStorage.setItem('userEmail', data.user.email);
+      localStorage.setItem('userId', data.user.id);
+      localStorage.setItem('userName', data.user.name);
+      localStorage.setItem('userType', data.user.userType);
+      localStorage.setItem('token', data.token);
 
       // Redirect to dashboard
       navigate('/dashboard');
@@ -156,4 +154,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

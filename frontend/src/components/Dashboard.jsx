@@ -3,15 +3,19 @@ import { useNavigate, Link } from 'react-router-dom';
 import aicteLogo from '../assets/aicte_logo.png';
 import './Dashboard.css';
 
+
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+
 const Dashboard = () => {
   const [userType, setUserType] = useState('');
+  const [requests, setRequests] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
 
-    
-    if (!isLoggedIn ) {
+    if (!isLoggedIn) {
       navigate('/login');
     }
   }, [navigate]);
@@ -25,6 +29,67 @@ const Dashboard = () => {
     return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
+  const fetchRequests = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await fetch(`${BACKEND_URL}/requests/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setRequests(data);
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+    }
+  };
+
+  const applyForServiceProvider = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const userEmail = localStorage.getItem('userEmail');
+      const newRequest = {
+        userEmail,
+        requested_user_type: 'service_provider',
+      };
+      const response = await fetch(`${BACKEND_URL}/requests/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newRequest),
+      });
+      if (response.ok) {
+        alert('Request submitted successfully!');
+        fetchRequests();
+      } else {
+        console.error('Error submitting request:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error submitting request:', error);
+    }
+  };
+
+  const deleteRequest = async (id) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/requests/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        alert('Request deleted successfully!');
+        fetchRequests();
+      } else {
+        console.error('Error deleting request:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error deleting request:', error);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -32,7 +97,7 @@ const Dashboard = () => {
           <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
           <h1>Welcome, {localStorage.getItem('userEmail')}</h1>
           <br />
-          <h2>Admin Dashboard</h2>
+          <h2> Dashboard</h2>
         </div>
         <div className="header-actions">
           <Link to="/service-booking" className="nav-button">
@@ -116,8 +181,28 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      <div className="dashboard-actions">
+        <button onClick={applyForServiceProvider} className="nav-button">
+          Apply for Service Provider
+        </button>
+        <button onClick={fetchRequests} className="nav-button">
+          View Requests
+        </button>
+      </div>
+      <div className="requests-list">
+        {requests.map((request) => (
+          <div key={request._id} className="request-item">
+            <p>Type: {request.type}</p>
+            <p>Status: {request.status}</p>
+            <button onClick={() => deleteRequest(request._id)} className="delete-button">
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

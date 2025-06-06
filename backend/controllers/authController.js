@@ -100,7 +100,18 @@ exports.login = async (req, res) => {
     }
 
     // Send token response
-    sendTokenResponse(user, 200, res);
+    const token = user.getSignedJwtToken();
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        userType: user.userType
+      }
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
@@ -138,4 +149,4 @@ exports.getMe = async (req, res) => {
       message: 'Server error while fetching user data'
     });
   }
-}; 
+};
