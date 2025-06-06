@@ -147,6 +147,7 @@ const Marketplace = () => {
         <div className="header-content">
           <div className="header-left">
             <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
+            <h1>Welcome, {localStorage.getItem('userEmail')}</h1>
             <h1>AICTE Events</h1>
           </div>
           <div className="header-actions">

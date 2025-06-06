@@ -30,7 +30,8 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <div className="header-left">
           <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
-          <h1>Admin Dashboard</h1>
+          <h1>Welcome, {localStorage.getItem('userEmail')}</h1>
+          <h2>Admin Dashboard</h2>
         </div>
         <div className="header-actions">
           <Link to="/service-booking" className="nav-button">
