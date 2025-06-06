@@ -30,8 +30,49 @@ const userSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['normal', 'service_provider', 'admin', 'super_admin'],
+    enum: ['normal', 'domain_expert', 'admin', 'super_admin'],
     default: 'normal'
+  },
+  mobileNumber: {
+    type: String,
+    match: [/^\d{10}$/, 'Please provide a valid mobile number'],
+    required: false
+  },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other'],
+    required: false
+  },
+  photo: {
+    type: String,
+    required: false
+  },
+  organization: {
+    type: String,
+    required: false
+  },
+  role: {
+    type: String,
+    required: false
+  },
+  locationOfWork: {
+    type: String,
+    required: false
+  },
+  dateOfBirth: {
+    type: Date,
+    required: false
+  },
+  linkedinProfile: {
+    type: String,
+    required: false,
+    match: [/^(https?:\/\/)?([\w]+\.)?linkedin\.com\/.*$/, 'Please provide a valid LinkedIn profile URL']
+  },
+  Domain:{
+    type: String,
+    required: [true, 'Please provide a password'],
+    minlength: 6,
+    select: false
   }
 });
 
@@ -53,4 +94,4 @@ userSchema.methods.getSignedJwtToken = function () {
     expiresIn: process.env.JWT_EXPIRES_IN || '1d'
   });
 };
-module.exports = mongoose.model('User', userSchema); 
+module.exports = mongoose.model('User', userSchema);

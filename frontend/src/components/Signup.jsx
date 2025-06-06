@@ -12,7 +12,9 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: 'normal'
+    userType: 'normal',
+    mobileNumber: '',
+    gender: ''
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -63,6 +65,11 @@ const Signup = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    // Mobile number validation
+    if (formData.mobileNumber && !/^\d{10}$/.test(formData.mobileNumber)) {
+      newErrors.mobileNumber = 'Please enter a valid 10-digit mobile number';
+    }
+
     return newErrors;
   };
 
@@ -86,7 +93,9 @@ const Signup = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          userType: formData.userType
+          userType: formData.userType,
+          mobileNumber: formData.mobileNumber,
+          gender: formData.gender
         })
       });
 
@@ -173,6 +182,35 @@ const Signup = () => {
           </div>
 
           <div className="form-group">
+            <label htmlFor="mobileNumber">Mobile Number</label>
+            <input
+              type="text"
+              id="mobileNumber"
+              name="mobileNumber"
+              value={formData.mobileNumber}
+              onChange={handleChange}
+              placeholder="Enter your mobile number"
+              className={errors.mobileNumber ? 'error' : ''}
+            />
+            {errors.mobileNumber && <span className="error-text">{errors.mobileNumber}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="gender">Gender</label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
               type="password"
@@ -231,4 +269,4 @@ const Signup = () => {
   );
 };
 
-export default Signup; 
+export default Signup;
