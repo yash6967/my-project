@@ -22,6 +22,11 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('token');
     navigate('/login');
   };
 
