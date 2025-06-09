@@ -29,7 +29,7 @@ router.get('/:userId', async (req, res) => {
 router.get('/all-requests', async (req, res) => {
   try {
     console.log('Fetching all requests from MongoDB');
-    const requests = await Request.find().select('userEmail requested_user_type');
+    const requests = await Request.find({}).select('userEmail requested_user_type');
     console.log('Fetched requests:', requests);
     res.status(200).json(requests);
   } catch (error) {

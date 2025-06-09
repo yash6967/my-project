@@ -32,7 +32,7 @@ const Dashboard = () => {
   const fetchRequests = async () => {
     try {
       const userId = localStorage.getItem('userId');
-      const response = await fetch(`${BACKEND_URL}/requests/${userId}`, {
+      const response = await fetch(`${BACKEND_URL}api/requests/${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const Dashboard = () => {
         userEmail,
         requested_user_type: 'service_provider',
       };
-      const response = await fetch(`${BACKEND_URL}/requests/${userId}`, {
+      const response = await fetch(`${BACKEND_URL}api/requests/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const Dashboard = () => {
 
   const deleteRequest = async (id) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/requests/${id}`, {
+      const response = await fetch(`${BACKEND_URL}api/requests/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
