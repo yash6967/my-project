@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 import aicteLogo from '../assets/aicte_logo.png';
 import './Auth.css';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,9 +14,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [showCredentials, setShowCredentials] = useState(false);
   const navigate = useNavigate();
-
-  // Predefined user credentials
-
+  const { setUser } = useUser(); // <-- get setUser from context
 
   const handleChange = (e) => {
     setFormData({
@@ -60,8 +59,18 @@ const Login = () => {
       localStorage.setItem('userType', data.user.userType);
       localStorage.setItem('token', data.token);
 
-      // Redirect to dashboard
-      navigate('/dashboard');
+      // Update context
+      setUser(data.user);
+
+      // Redirect based on userType
+      if (data.user.userType === 'admin') {
+        navigate('/admin-dashboard');
+      } else if (data.user.userType === 'expert') {
+        navigate('/expert-dashboard');
+      } else {
+        navigate('/admin-dashboard');
+      }
+
     } catch (err) {
       setError('Server error. Please try again later.');
     }
