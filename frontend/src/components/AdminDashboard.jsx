@@ -7,6 +7,25 @@ const AdminDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [users, setUsers] = useState([]);
 
+  const fetchRequests = async () => {
+    try {
+      console.log('Calling API to fetch all requests');
+      const response = await fetch(`${BACKEND_URL}api/requests/all-requests`);
+      const data = await response.json();
+      console.log('API response:', data);
+      setRequests(data);
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (view === 'requests') {
+      console.log('View changed to requests, fetching data');
+      fetchRequests();
+    }
+  }, [view]);
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -95,10 +114,17 @@ const AdminDashboard = () => {
           />
           Experts
         </label>
+        <label>
+          <input
+            type="radio"
+            name="view"
+            value="requests"
+            checked={view === 'requests'}
+            onChange={() => setView('requests')}
+          />
+          Requests
+        </label>
       </div>
-      <button className="notification-button" onClick={fetchNotifications}>
-        Show Notifications
-      </button>
 
       {view === 'users' && (
         <table className="users-table">
@@ -136,6 +162,25 @@ const AdminDashboard = () => {
                 <td>{user.name}</td>
                 <td>{user.mobileNumber}</td>
                 <td>{user.email}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {view === 'requests' && (
+        <table className="requests-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Requested User Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((request) => (
+              <tr key={request._id}>
+                <td>{request.userEmail}</td>
+                <td>{request.requested_user_type}</td>
               </tr>
             ))}
           </tbody>

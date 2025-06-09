@@ -25,6 +25,19 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+// Get all requests with email and requested user type
+router.get('/all-requests', async (req, res) => {
+  try {
+    console.log('Fetching all requests from MongoDB');
+    const requests = await Request.find().select('userEmail requested_user_type');
+    console.log('Fetched requests:', requests);
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error('Error fetching requests:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Delete a request by ID
 router.delete('/:id', async (req, res) => {
   try {
