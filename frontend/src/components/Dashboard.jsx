@@ -122,7 +122,7 @@ const Dashboard = () => {
             </span>
           </div>
           
-          <div className="permissions">
+          {/* <div className="permissions">
             <h3>Your Permissions:</h3>
             <ul>
               {userType === 'super_admin' && (
@@ -146,9 +146,9 @@ const Dashboard = () => {
                 </>
               )}
             </ul>
-          </div>
+          </div> */}
 
-          <div className="admin-actions">
+          {/* <div className="admin-actions">
             <h3>Quick Actions:</h3>
             <div className="action-buttons">
               <button className="action-btn">Manage Events</button>
@@ -159,9 +159,9 @@ const Dashboard = () => {
               </Link>
               <button className="action-btn">System Settings</button>
             </div>
-          </div>
+          </div> */}
 
-          <div className="system-overview">
+          {/* <div className="system-overview">
             <h3>System Overview:</h3>
             <div className="overview-stats">
               <div className="stat-item">
@@ -181,18 +181,18 @@ const Dashboard = () => {
                 <span className="stat-label">Total Bookings</span>
               </div>
             </div>
+          </div> */}
+          <div className="dashboard-actions">
+            <button onClick={applyForServiceProvider} className="nav-button">
+              Apply for Service Provider
+            </button>
+            <button onClick={fetchRequests} className="nav-button">
+              View Requests
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="dashboard-actions">
-        <button onClick={applyForServiceProvider} className="nav-button">
-          Apply for Service Provider
-        </button>
-        <button onClick={fetchRequests} className="nav-button">
-          View Requests
-        </button>
-      </div>
       <div className="requests-list">
         {requests.map((request) => (
           <div key={request._id} className="request-item">

@@ -124,8 +124,18 @@ const AdminDashboard = () => {
           </button>
         </div>
       </div>
+      <div className="dashboard-content">
 
-      {/* Admin-specific features */}
+      
+      <div className="user-info-card">
+          <h2>User Information</h2>
+          {/* <div className="user-type-badge">
+            <span className="badge-label">User Type:</span>
+            <span className={`badge `}>
+              
+            </span>
+          </div> */}
+          {/* Admin-specific features */}
       <div className="view-toggle">
         <label>
           <input
@@ -230,6 +240,14 @@ const AdminDashboard = () => {
           </ul>
         </div>
       )}
+      </div>
+
+
+
+
+        </div>
+
+      
     </div>
   );
 };
