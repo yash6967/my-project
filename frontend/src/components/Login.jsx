@@ -68,7 +68,7 @@ const Login = () => {
       } else if (data.user.userType === 'expert') {
         navigate('/expert-dashboard');
       } else {
-        navigate('/admin-dashboard');
+        navigate('/dashboard');
       }
 
     } catch (err) {
