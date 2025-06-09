@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
 import './Profile.css';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
 const Profile = () => {
   const [profileData, setProfileData] = useState({});
   const navigate = useNavigate();
@@ -15,8 +15,12 @@ const Profile = () => {
           throw new Error('User ID not found in localStorage');
         }
 
-        const response = await api.get(`/users/${userId}`);
-        setProfileData(response.data);
+        const response = await fetch(`${BACKEND_URL}/users/${userId}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setProfileData(data);
       } catch (error) {
         console.error('Error fetching profile data:', error);
         navigate('/login');

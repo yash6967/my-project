@@ -202,15 +202,19 @@ const ServiceBooking = () => {
         <div className="header-content">
           <div className="header-left">
             <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
-            <h1>Book Service Providers</h1>
+            <h1>AICTE Domain Experts</h1>
           </div>
           <div className="header-actions">
             <Link to="/marketplace" className="nav-button">
-              🏪 Marketplace
+              🏪 Events
+            </Link>
+            <Link to="/service-booking" className="nav-button">
+              📅 Services
             </Link>
             <Link to="/profile" className="nav-button">
               👤 Profile
             </Link>
+            
             <button onClick={handleLogout} className="logout-button">
               Logout
             </button>
@@ -222,7 +226,7 @@ const ServiceBooking = () => {
         {!selectedProvider ? (
           /* Service Providers List */
           <div className="providers-section">
-            <h2>Available Service Providers</h2>
+            <h2>Available Domain Experts</h2>
             <div className="providers-grid">
               {serviceProviders.map(provider => (
                 <div key={provider.id} className="provider-card">

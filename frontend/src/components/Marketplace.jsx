@@ -147,13 +147,13 @@ const Marketplace = () => {
         <div className="header-content">
           <div className="header-left">
             <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
-            <h1>Welcome, {localStorage.getItem('userEmail')}</h1>
-            <br />
             <h1>AICTE Events</h1>
+            <br />
+            <h2>Welcome, {localStorage.getItem('userName')}</h2>
           </div>
           <div className="header-actions">
             <Link to="/service-booking" className="nav-button">
-              📅 Events
+              🏪 Events
             </Link>
             <Link to="/service-booking" className="nav-button">
               📅 Services
