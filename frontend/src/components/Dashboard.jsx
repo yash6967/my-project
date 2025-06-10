@@ -196,13 +196,19 @@ const Dashboard = () => {
             <span className="badge-label">User Type:</span>
             <span className={`badge ${userType}`}>{formatUserType(userType)}</span>
           </div>
-          {/* User details fetched from backend */}
+          {/* Updated User details fetched from backend */}
           <div className="user-details">
             <h3>Details:</h3>
             <p><strong>Name:</strong> {user?.name}</p>
             <p><strong>Email:</strong> {user?.email}</p>
             <p><strong>Mobile:</strong> {user?.mobileNumber}</p>
             <p><strong>Address:</strong> {user?.address}</p>
+            <p><strong>Gender:</strong> {user?.gender}</p>
+            <p><strong>Organization:</strong> {user?.organization}</p>
+            <p><strong>Role:</strong> {user?.role}</p>
+            <p><strong>Location of Work:</strong> {user?.locationOfWork}</p>
+            <p><strong>Date of Birth:</strong> {user?.dateOfBirth}</p>
+            <p><strong>LinkedIn Profile:</strong> <a href={user?.linkedinProfile} target="_blank" rel="noopener noreferrer">{user?.linkedinProfile}</a></p>
             <button className="edit-button" onClick={openEditModal}>Edit</button>
           </div>
           {/* Admin-specific features */}
