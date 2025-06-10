@@ -8,6 +8,9 @@ import Marketplace from './components/Marketplace';
 import Cart from './components/Cart';
 import ServiceCalendar from './components/ServiceCalendar';
 import ServiceBooking from './components/ServiceBooking';
+import ManageEvents from './components/ManageEvents';
+import ApplyForDomainExpert from './components/ApplyForDomainExpert';
+import CreateEvent from './components/CreateEvent';
 import './App.css';
 
 function App() {
@@ -24,6 +27,9 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/service-calendar" element={<ServiceCalendar />} />
           <Route path="/service-booking" element={<ServiceBooking />} />
+          <Route path="/apply-for-domain-expert" element={<ApplyForDomainExpert />} />
+          <Route path="/manage-events" element={<ManageEvents />} />
+          <Route path="/create-event" element={<CreateEvent />} />
         </Routes>
       </div>
     </Router>

@@ -74,7 +74,13 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
     default: 'normal'
-  }
+  },
+  events: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Event',
+    },
+  ],
 });
 
 // Hash password before saving
