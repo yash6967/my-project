@@ -278,6 +278,160 @@
   letter-spacing: 0.5px;
 }
 
+/* Styling for the user details section */
+.user-info-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-details p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.user-details a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.user-details a:hover {
+  text-decoration: underline;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+/* Styling for the modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-content button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.modal-content button:first-child {
+  background-color: #007bff;
+  color: white;
+}
+
+.modal-content button:first-child:hover {
+  background-color: #0056b3;
+}
+
+.modal-content button:last-child {
+  background-color: #ccc;
+  color: black;
+}
+
+.modal-content button:last-child:hover {
+  background-color: #999;
+}
+
+/* Styling for the table */
+.users-table, .experts-table, .requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.users-table th, .experts-table th, .requests-table th {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.users-table td, .experts-table td, .requests-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.users-table tr:nth-child(even), .experts-table tr:nth-child(even), .requests-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.users-table tr:hover, .experts-table tr:hover, .requests-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.action-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  background-color: #218838;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-header {
@@ -339,4 +493,4 @@
   .stat-number {
     font-size: 1.5rem;
   }
-} 
+}
