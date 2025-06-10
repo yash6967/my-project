@@ -55,4 +55,39 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// Route to fetch user details by userId
+router.get('/user-details/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId).select('name email mobileNumber gender organization role locationOfWork dateOfBirth linkedinProfile');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Route to update user details by userId
+router.put('/user-details/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const updates = req.body;
+
+    const user = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    }).select('name email mobileNumber gender organization role locationOfWork dateOfBirth linkedinProfile');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

@@ -1,59 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import aicteLogo from '../assets/aicte_logo.png';
 import './AdminDashboard.css';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
-
 const AdminDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [view, setView] = useState('users');
   const [notifications, setNotifications] = useState([]);
   const [users, setUsers] = useState([]);
-  const navigate = useNavigate();
-
-  // Header logic (copied from Dashboard)
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userType');
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
-  const fetchRequests = async () => {
-    try {
-      console.log('Calling API to fetch all requests');
-      const response = await fetch(`${BACKEND_URL}api/requests/all-requests`);
-      const data = await response.json();
-      console.log('API response:', data);
-      setRequests(data);
-    } catch (error) {
-      console.error('Error fetching requests:', error);
-    }
-  };
 
   useEffect(() => {
-    if (view === 'requests') {
-      console.log('View changed to requests, fetching data');
-      fetchRequests();
-    }
-  }, [view]);
+    const fetchRequests = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}api/requests`);
+        const data = await response.json();
+        setRequests(data);
+      } catch (error) {
+        console.error('Error fetching requests:', error);
+      }
+    };
 
-  // useEffect(() => {
-  //   const fetchRequests = async () => {
-  //     try {
-  //       const response = await fetch(`${BACKEND_URL}api/requests`);
-  //       const data = await response.json();
-  //       setRequests(data);
-  //     } catch (error) {
-  //       console.error('Error fetching requests:', error);
-  //     }
-  //   };
-
-  //   fetchRequests();
-  // }, []);
+    fetchRequests();
+  }, []);
 
   const handleAccept = async (requestId, userId) => {
     try {
@@ -67,32 +33,34 @@ const AdminDashboard = () => {
     }
   };
 
-  // const handleReject = async (requestId) => {
-  //   try {
-  //     await fetch(`${BACKEND_URL}api/requests/${requestId}`, {
-  //       method: 'DELETE',
-  //     });
-  //     alert('Request rejected successfully!');
-  //     setRequests(requests.filter((request) => request._id !== requestId));
-  //   } catch (error) {
-  //     console.error('Error rejecting request:', error);
-  //   }
-  // };
+  const handleReject = async (requestId) => {
+    try {
+      await fetch(`${BACKEND_URL}api/requests/${requestId}`, {
+        method: 'DELETE',
+      });
+      alert('Request rejected successfully!');
+      setRequests(requests.filter((request) => request._id !== requestId));
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+    }
+  };
 
-  // const fetchNotifications = async () => {
-  //   try {
-  //     const response = await fetch(`${BACKEND_URL}api/requests`);
-  //     const data = await response.json();
-  //     setNotifications(data);
-  //   } catch (error) {
-  //     console.error('Error fetching notifications:', error);
-  //   }
-  // };
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}api/requests`);
+      const data = await response.json();
+      setNotifications(data);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
 
   const fetchUsers = async (userType) => {
     try {
+      console.log(`Fetching users of type: ${userType}`);
       const response = await fetch(`${BACKEND_URL}api/auth/users?userType=${userType}`);
       const data = await response.json();
+      console.log('Fetched users:', data);
       setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -104,30 +72,8 @@ const AdminDashboard = () => {
   }, [view]);
 
   return (
-    <div className="dashboard-container">
-      {/* Header (copied from Dashboard) */}
-      <div className="dashboard-header">
-        <div className="header-left">
-          <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
-          <h1>Welcome, {localStorage.getItem('userName')}</h1>
-          <span className="user-type-badge">Admin</span>
-        </div>
-        <div className="header-actions">
-          
-        </div>
-      </div>
-      <div className="dashboard-content">
-
-      
-      <div className="user-info-card">
-          <h2>User Information</h2>
-          {/* <div className="user-type-badge">
-            <span className="badge-label">User Type:</span>
-            <span className={`badge `}>
-              
-            </span>
-          </div> */}
-          {/* Admin-specific features */}
+    <div className="admin-dashboard">
+      <h1>Admin Dashboard</h1>
       <div className="view-toggle">
         <label>
           <input
@@ -160,6 +106,9 @@ const AdminDashboard = () => {
           Requests
         </label>
       </div>
+      {/* <button className="notification-button" onClick={fetchNotifications}>
+        Show Notifications
+      </button> */}
 
       {view === 'users' && (
         <table className="users-table">
@@ -203,25 +152,6 @@ const AdminDashboard = () => {
         </table>
       )}
 
-      {view === 'requests' && (
-        <table className="requests-table">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Requested User Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map((request) => (
-              <tr key={request._id}>
-                <td>{request.userEmail}</td>
-                <td>{request.requested_user_type}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
       {notifications.length > 0 && (
         <div className="notifications">
           <h2>Notifications</h2>
@@ -232,14 +162,6 @@ const AdminDashboard = () => {
           </ul>
         </div>
       )}
-      </div>
-
-
-
-
-        </div>
-
-      
     </div>
   );
 };

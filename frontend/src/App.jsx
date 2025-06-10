@@ -4,7 +4,6 @@ import NavBar from './components/NavBar';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
-import AdminDashboard from './components/AdminDashboard';
 import Marketplace from './components/Marketplace';
 import Profile from './components/Profile';
 import Cart from './components/Cart';
@@ -22,7 +21,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cart" element={<Cart />} />

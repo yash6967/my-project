@@ -12,6 +12,13 @@ const Dashboard = () => {
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
   const [view, setView] = useState('users');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editDetails, setEditDetails] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    mobileNumber: user?.mobileNumber || '',
+    address: user?.address || '',
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,6 +64,19 @@ const Dashboard = () => {
     } else {
       fetchRequests();
     }
+
+    // Fetch user details for all user types
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}api/auth/user-details/${user.id}`);
+        const data = await response.json();
+        console.log('User Details:', data);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      }
+    };
+
+    fetchUserDetails();
   }, [userType, view]);
 
   const handleLogout = () => {
@@ -115,9 +135,47 @@ const Dashboard = () => {
     }
   };
 
+  const handleEdit = async (updatedDetails) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}api/auth/user-details/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedDetails),
+      });
+      if (response.ok) {
+        alert('User details updated successfully!');
+        // Optionally, refetch user details to update the UI
+        const updatedUser = await response.json();
+        console.log('Updated User:', updatedUser);
+      } else {
+        console.error('Error updating user details:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error updating user details:', error);
+    }
+  };
+
   const formatUserType = (type) => {
     if (!type) return '';
     return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const openEditModal = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
+  };
+
+  const saveChanges = () => {
+    handleEdit(editDetails);
+    closeEditModal();
   };
 
   return (
@@ -139,6 +197,15 @@ const Dashboard = () => {
           <div className="user-type-badge">
             <span className="badge-label">User Type:</span>
             <span className={`badge ${userType}`}>{formatUserType(userType)}</span>
+          </div>
+          {/* User details fetched from backend */}
+          <div className="user-details">
+            <h3>Details:</h3>
+            <p><strong>Name:</strong> {user?.name}</p>
+            <p><strong>Email:</strong> {user?.email}</p>
+            <p><strong>Mobile:</strong> {user?.mobileNumber}</p>
+            <p><strong>Address:</strong> {user?.address}</p>
+            <button className="edit-button" onClick={openEditModal}>Edit</button>
           </div>
           {/* Admin-specific features */}
           {(userType === 'admin' || userType === 'super_admin') && (
@@ -243,6 +310,51 @@ const Dashboard = () => {
               <button onClick={() => deleteRequest(request._id)} className="delete-button">Delete</button>
             </div>
           ))}
+        </div>
+      )}
+      {isEditModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Edit User Details</h3>
+            <label>
+              Name:
+              <input
+                type="text"
+                name="name"
+                value={editDetails.name}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Email:
+              <input
+                type="email"
+                name="email"
+                value={editDetails.email}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Mobile Number:
+              <input
+                type="text"
+                name="mobileNumber"
+                value={editDetails.mobileNumber}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Address:
+              <input
+                type="text"
+                name="address"
+                value={editDetails.address}
+                onChange={handleInputChange}
+              />
+            </label>
+            <button onClick={saveChanges}>Save</button>
+            <button onClick={closeEditModal}>Cancel</button>
+          </div>
         </div>
       )}
     </div>
