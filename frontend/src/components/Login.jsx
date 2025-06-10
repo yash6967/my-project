@@ -122,8 +122,8 @@ const Login = () => {
           <p>Don't have an account? <Link to="/signup">Sign up here</Link></p>
         </div>
 
-        <div className="demo-credentials">
-          <div 
+        {/* <div className="demo-credentials"> */}
+          {/* <div 
             className="credentials-header"
             onClick={() => setShowCredentials(!showCredentials)}
           >
@@ -131,7 +131,7 @@ const Login = () => {
             <span className={`dropdown-arrow ${showCredentials ? 'open' : ''}`}>
               ▼
             </span>
-          </div>
+          </div> */}
           
           {/* {showCredentials && (
             <div className="credentials-grid">
@@ -153,7 +153,7 @@ const Login = () => {
               </div>
             </div>
           )} */}
-        </div>
+        {/* </div> */}
       </div>
     </div>
   );
