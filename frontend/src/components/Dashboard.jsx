@@ -59,8 +59,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (userType === 'admin' || userType === 'super_admin') {
-      fetchUsers(view === 'users' ? 'normal' : 'domain_expert');
-      if (view === 'requests') fetchRequests();
+      if (view === 'users') {
+        fetchUsers('normal');
+      } else if (view === 'experts') {
+        fetchUsers('domain_expert');
+      } else if (view === 'requests') {
+        fetchRequests();
+      }
     } else {
       fetchRequests();
     }

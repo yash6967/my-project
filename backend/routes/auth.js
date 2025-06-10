@@ -44,16 +44,16 @@ router.put('/users/:id/toggle-usertype', async (req, res) => {
   }
 });
 
-/*// // Route to fetch users based on their userType (normal or expert)
-// router.get('/users', async (req, res) => {
-//   try {
-//     const userType = req.query.userType;
-//     const users = await User.find({ userType }).select('name mobileNumber email');
-//     res.status(200).json(users);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });*/
+// Route to fetch users based on their userType (normal or expert)
+router.get('/users', async (req, res) => {
+  try {
+    const userType = req.query.userType;
+    const users = await User.find({ userType }).select('name mobileNumber email');
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Route to fetch user details by userId
 router.get('/user-details/:userId', async (req, res) => {

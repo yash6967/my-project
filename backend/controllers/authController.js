@@ -140,7 +140,14 @@ exports.getMe = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        userType: user.userType
+        userType: user.userType,
+        mobileNumber: user.mobileNumber,
+        gender: user.gender,
+        organization: user.organization,
+        role: user.role,
+        locationOfWork: user.locationOfWork,
+        dateOfBirth: user.dateOfBirth,
+        linkedinProfile: user.linkedinProfile
       }
     });
   } catch (error) {
