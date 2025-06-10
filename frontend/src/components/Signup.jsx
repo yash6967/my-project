@@ -247,7 +247,7 @@ const Signup = () => {
           <p>Already have an account? <Link to="/login">Sign in here</Link></p>
         </div>
 
-        <div className="signup-info">
+        {/* <div className="signup-info">
           <h3>Account Types:</h3>
           <div className="account-types">
             <div className="account-type">
@@ -263,7 +263,7 @@ const Signup = () => {
               <p>Manage platform, moderate content, and oversee operations</p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

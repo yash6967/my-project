@@ -17,6 +17,19 @@
   z-index: 100;
 }
 
+.marketplace-section h2 {
+  color: #282769;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+}
+.market-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
 .header-content {
   max-width: 1400px;
   margin: 0 auto;

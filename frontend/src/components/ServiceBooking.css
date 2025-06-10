@@ -4,6 +4,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-bottom: 50px;
 }
 
 /* Header */
@@ -178,6 +179,38 @@
   font-size: 1rem;
   margin-bottom: 5px;
 }
+
+  .filters-section {
+    padding: 20px 15px 15px;
+  }
+
+  .filters-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+}
+.category-filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.category-filters {
+  justify-content: center;
+}
+
+.category-filters {
+  gap: 8px;
+}
+
 
 .experience {
   color: #666;

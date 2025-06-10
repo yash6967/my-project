@@ -180,17 +180,15 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
+      {/* <div className="dashboard-header">
         <div className="header-left">
           <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
           <h1>Welcome, {user?.name}</h1>
           <br />
           <h2>Dashboard</h2>
         </div>
-        <div className="header-actions">
-          <button onClick={handleLogout} className="logout-btn">Logout</button>
-        </div>
-      </div>
+        
+      </div> */}
       <div className="dashboard-content">
         <div className="user-info-card">
           <h2>User Information</h2>

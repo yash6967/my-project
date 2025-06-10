@@ -142,24 +142,10 @@ const Marketplace = () => {
 
   return (
     <div className="marketplace-container">
-      {/* Header */}
-      <div className="marketplace-header">
-        <div className="header-content">
-          <div className="header-left">
-            <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
-            <h1>AICTE Events</h1>
-            <br />
-            <h2>Welcome, {localStorage.getItem('userName')}</h2>
-          </div>
-          <div className="header-actions">
-            
-            
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
       <div className="filters-section">
+        {/* <div className='marketplace-section'>
+          <h2>Events </h2>
+        </div> */}
         <div className="search-bar">
           <input
             type="text"
@@ -181,8 +167,28 @@ const Marketplace = () => {
           ))}
         </div>
       </div>
+      <div className="market-content">
+      {/* Header */}
+      {/* <div className="marketplace-header">
+        <div className="header-content">
+          <div className="header-left">
+            <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
+            <h1>AICTE Events</h1>
+            <br />
+            <h2>Welcome, {localStorage.getItem('userName')}</h2>
+          </div>
+          <div className="header-actions">
+            
+            
+          </div>
+        </div>
+      </div> */}
+
+      {/* Filters */}
+      
 
       {/* Events Grid */}
+        
       <div className="events-grid">
         {filteredEvents.map(event => (
           <div key={event.id} className="event-card">
@@ -252,6 +258,7 @@ const Marketplace = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

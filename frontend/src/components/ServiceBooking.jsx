@@ -18,6 +18,8 @@ const ServiceBooking = () => {
     notes: ''
   });
   const [myBookings, setMyBookings] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const navigate = useNavigate();
 
   // Sample service providers data
@@ -195,10 +197,29 @@ const ServiceBooking = () => {
     }
   };
 
+  // Add categories for filtering
+  const categories = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'Consultation', label: 'Consultation' },
+    { value: 'Technical Support', label: 'Technical Support' },
+    { value: 'Training Session', label: 'Training Session' },
+    { value: 'Project Review', label: 'Project Review' },
+    { value: 'Custom Service', label: 'Custom Service' }
+  ];
+
+  // Filter providers by search and category
+  const filteredProviders = serviceProviders.filter(provider => {
+    const matchesCategory = selectedCategory === 'all' || provider.services.includes(selectedCategory);
+    const matchesSearch = provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
     <div className="service-booking-container">
       {/* Header */}
-      <div className="booking-header">
+      {/* <div className="booking-header">
         <div className="header-content">
           <div className="header-left">
             <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
@@ -208,15 +229,39 @@ const ServiceBooking = () => {
             
           </div>
         </div>
-      </div>
+      </div> */}
+      
 
+        {/* Search bar and category filters (copied from Marketplace) */}
+        <div className="filters-section">
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search domain experts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="category-filters">
+            {categories.map(category => (
+              <button
+                key={category.value}
+                className={`category-btn ${selectedCategory === category.value ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(category.value)}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
+        </div>
       <div className="booking-content">
         {!selectedProvider ? (
           /* Service Providers List */
           <div className="providers-section">
-            <h2>Available Domain Experts</h2>
+            {/* <h2>Available Domain Experts</h2> */}
             <div className="providers-grid">
-              {serviceProviders.map(provider => (
+              {filteredProviders.map(provider => (
                 <div key={provider.id} className="provider-card">
                   <div className="provider-image">
                     <img src={provider.image} alt={provider.name} />
@@ -402,4 +447,4 @@ const ServiceBooking = () => {
   );
 };
 
-export default ServiceBooking; 
+export default ServiceBooking;
