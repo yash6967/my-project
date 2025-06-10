@@ -70,9 +70,10 @@ const userSchema = new mongoose.Schema({
   },
   Domain:{
     type: String,
-    required: [true, 'Please provide a password'],
+    required: [true, 'Please provide a domain'],
     minlength: 6,
-    select: false
+    select: false,
+    default: 'normal'
   }
 });
 

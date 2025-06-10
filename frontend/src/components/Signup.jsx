@@ -167,7 +167,7 @@ const Signup = () => {
             {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="userType">Account Type</label>
             <select
               id="userType"
@@ -179,7 +179,7 @@ const Signup = () => {
               <option value="service_provider">Service Provider - Offer services and manage calendar</option>
               <option value="admin">Admin - Manage platform and users</option>
             </select>
-          </div>
+          </div> */}
 
           <div className="form-group">
             <label htmlFor="mobileNumber">Mobile Number</label>

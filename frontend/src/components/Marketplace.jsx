@@ -152,18 +152,8 @@ const Marketplace = () => {
             <h2>Welcome, {localStorage.getItem('userName')}</h2>
           </div>
           <div className="header-actions">
-            <Link to="/service-booking" className="nav-button">
-              🏪 Events
-            </Link>
-            <Link to="/service-booking" className="nav-button">
-              📅 Services
-            </Link>
-            <Link to="/profile" className="nav-button">
-              👤 Profile
-            </Link>
-            <button onClick={handleLogout} className="logout-button">
-              Logout
-            </button>
+            
+            
           </div>
         </div>
       </div>

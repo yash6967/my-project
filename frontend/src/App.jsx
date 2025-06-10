@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import NavBar from './components/NavBar';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
@@ -8,12 +10,12 @@ import Profile from './components/Profile';
 import Cart from './components/Cart';
 import ServiceCalendar from './components/ServiceCalendar';
 import ServiceBooking from './components/ServiceBooking';
-// import AdminDashboard from './components/AdminDashboard';
 import './App.css';
 
 function App() {
   return (
     <Router>
+      <NavBar />
       <div className="App">
         <Routes>
           <Route path="/" element={<Login />} />
@@ -32,4 +34,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

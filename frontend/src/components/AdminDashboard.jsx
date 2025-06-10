@@ -113,15 +113,7 @@ const AdminDashboard = () => {
           <span className="user-type-badge">Admin</span>
         </div>
         <div className="header-actions">
-          <Link to="/service-booking" className="nav-button">
-            📅 Domain Experts
-          </Link>
-          <Link to="/marketplace" className="nav-button">
-            📅 Events
-          </Link>
-          <button onClick={handleLogout} className="logout-button">
-            Logout
-          </button>
+          
         </div>
       </div>
       <div className="dashboard-content">

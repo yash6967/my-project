@@ -63,13 +63,9 @@ const Login = () => {
       setUser(data.user);
 
       // Redirect based on userType
-      if (data.user.userType === 'admin') {
-        navigate('/admin-dashboard');
-      } else if (data.user.userType === 'expert') {
-        navigate('/expert-dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      
+      navigate('/dashboard');
+      
 
     } catch (err) {
       setError('Server error. Please try again later.');

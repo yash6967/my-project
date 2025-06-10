@@ -93,8 +93,8 @@ const Cart = () => {
             <Link to="/marketplace" className="nav-button">
               🏪 Continue Shopping
             </Link>
-            <Link to="/profile" className="nav-button">
-              👤 Profile
+            <Link to="/dashboard" className="nav-button">
+              👤 Dashboard
             </Link>
             <button onClick={handleLogout} className="logout-button">
               Logout
