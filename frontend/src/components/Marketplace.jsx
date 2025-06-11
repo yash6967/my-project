@@ -53,7 +53,8 @@ const Marketplace = () => {
       image: event3Image,
       availableSeats: 300,
       organizer: "JIC Indovation Hub"
-    }
+    },
+    
   ];
 
   useEffect(() => {

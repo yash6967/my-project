@@ -186,6 +186,10 @@ const Dashboard = () => {
     closeEditModal();
   };
 
+  const navigateToDomainExpertForm = () => {
+    navigate('/apply-for-domain-expert');
+  };
+
   return (
     <div className="dashboard-container">
       {/* <div className="dashboard-header">
@@ -231,12 +235,13 @@ const Dashboard = () => {
               <label>
                 <input type="radio" name="view" value="requests" checked={view === 'requests'} onChange={() => setView('requests')} /> Requests
               </label>
+              {/* <button className="manage-events-button" onClick={() => navigate('/manage-events')}>Manage Events</button> */}
             </div>
           )}
           {/* Normal user actions */}
           {userType === 'normal' && (
             <div className="dashboard-actions">
-              <button onClick={applyForServiceProvider} className="nav-button">Apply for Service Provider</button>
+              <button onClick={navigateToDomainExpertForm} className="nav-button">Apply for Domain Expert</button>
               <button onClick={fetchRequests} className="nav-button">View Requests</button>
             </div>
           )}
@@ -254,9 +259,7 @@ const Dashboard = () => {
               <p>Feature coming soon...</p>
             </div>
           )}
-        </div>
-      </div>
-      {/* Admin tables */}
+          {/* Admin tables */}
       {(userType === 'admin' || userType === 'super_admin') && (
         <div className="dashboard-content">
           {view === 'users' && (
@@ -312,6 +315,9 @@ const Dashboard = () => {
           )}
         </div>
       )}
+        </div>
+      </div>
+      
       {/* User requests list */}
       {userType === 'normal' && (
         <div className="requests-list">

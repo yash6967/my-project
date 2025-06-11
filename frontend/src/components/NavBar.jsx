@@ -2,10 +2,12 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import aicteLogo from '../assets/aicte_logo.png';
 import './NavBar.css';
+import { useUser } from '../context/UserContext';
 
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useUser();
 
   const handleLogout = () => {
     localStorage.clear();
@@ -34,6 +36,9 @@ const NavBar = () => {
         {isLoggedIn && (
           <Link to="/dashboard" className={`navbar-link${location.pathname === '/dashboard' ? ' active' : ''}`}>Dashboard</Link>
         )}
+        {user?.userType === 'admin' || user?.userType === 'super_admin' ? (
+          <Link to="/manage-events" className="navbar-link">Manage Events</Link>
+        ) : null}
         {!isLoggedIn ? (
           <Link to="/login" className={`navbar-link${location.pathname === '/login' ? ' active' : ''}`}>Login</Link>
         ) : (

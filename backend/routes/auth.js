@@ -52,9 +52,19 @@ router.get('/users', async (req, res) => {
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
+  }
 });
 
+
+// Route to fetch all users
+router.get('/allusers', async (req, res) => {
+  try {
+    const users = await User.find().select('name email mobileNumber userType');
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 // Route to fetch user details by userId
 router.get('/user-details/:userId', async (req, res) => {
   try {
@@ -85,6 +95,39 @@ router.put('/user-details/:userId', async (req, res) => {
     }
 
     res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Route to handle domain expert application
+router.post('/apply-domain-expert', async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming user is authenticated and user ID is available
+
+    const updates = {
+      mobileNumber: req.body.mobileNumber,
+      gender: req.body.gender,
+      photo: req.body.photo,
+      organization: req.body.organization,
+      role: req.body.role,
+      locationOfWork: req.body.locationOfWork,
+      dateOfBirth: req.body.dateOfBirth,
+      linkedinProfile: req.body.linkedinProfile,
+      domain: req.body.domain,
+      cv: req.file ? req.file.path : undefined, // Assuming file upload middleware is used
+    };
+
+    const user = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'Application submitted successfully', user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

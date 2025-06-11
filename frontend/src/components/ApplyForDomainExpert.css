@@ -1,0 +1,56 @@
+/* Styling for the Apply for Domain Expert form */
+.apply-domain-expert-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.apply-domain-expert-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.apply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.apply-form label {
+  font-weight: bold;
+  color: #555;
+}
+
+.apply-form input,
+.apply-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.apply-form input[type="file"] {
+  padding: 5px;
+}
+
+.apply-form button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.apply-form button:hover {
+  background-color: #0056b3;
+}
