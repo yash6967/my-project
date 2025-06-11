@@ -62,9 +62,10 @@ const Marketplace = () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
 
     
-    if (!isLoggedIn) {
-      navigate('/login');
-    }  else {
+    // if (!isLoggedIn) {
+    //   navigate('/login');
+    // }  else 
+    {
       setEvents(sampleEvents);
       // Load registrations from localStorage
       const savedRegistrations = localStorage.getItem('eventRegistrations');

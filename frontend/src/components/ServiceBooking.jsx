@@ -67,9 +67,10 @@ const ServiceBooking = () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
 
     
-    if (!isLoggedIn) {
-      navigate('/login');
-    } else {
+    // if (!isLoggedIn) {
+    //   navigate('/login');
+    // } else 
+    {
       setServiceProviders(sampleProviders);
       
       // Load user's bookings

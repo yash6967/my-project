@@ -24,19 +24,19 @@ const NavBar = () => {
       </div>
       <div className="navbar-links">
         
-        {isLoggedIn && (
-        <Link to="/marketplace" className={`navbar-link${location.pathname === '/marketplace' ? ' active' : ''}`}>Events</Link>
+        {(
+        <Link to="/events" className={`navbar-link${location.pathname === '/events' ? ' active' : ''}`}>Events</Link>
         )}
 
         
-        {isLoggedIn && (
+        {(
         <Link to="/service-booking" className={`navbar-link${location.pathname === '/service-booking' ? ' active' : ''}`}>Domain Experts</Link>
         )}
         
         {isLoggedIn && (
           <Link to="/dashboard" className={`navbar-link${location.pathname === '/dashboard' ? ' active' : ''}`}>Dashboard</Link>
         )}
-        {user?.userType === 'admin' || user?.userType === 'super_admin' ? (
+        {(isLoggedIn && (user?.userType === 'admin' || user?.userType === 'super_admin')) ? (
           <Link to="/manage-events" className="navbar-link">Manage Events</Link>
         ) : null}
         {!isLoggedIn ? (
