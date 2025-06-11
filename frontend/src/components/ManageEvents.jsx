@@ -30,12 +30,11 @@ const ManageEvents = () => {
       fetchEvents();
       return;
     }
-
     try {
-      const response = await fetch(`${BACKEND_URL}api/events/${searchQuery}`);
+      const response = await fetch(`${BACKEND_URL}api/events?title=${searchQuery}`);
       if (response.ok) {
         const data = await response.json();
-        setEvents([data]);
+        setEvents(data);
       } else {
         alert('Event not found');
       }
@@ -96,7 +95,7 @@ const ManageEvents = () => {
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Search by Event ID"
+          placeholder="Search by Title"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -106,11 +105,14 @@ const ManageEvents = () => {
       <div className="events-list">
         {events.map((event) => (
           <div key={event._id} className="event-card">
-            {event.photo && <img src={`${BACKEND_URL}${event.photo}`} alt="Event" className="event-image" />}
-            <h3>{event.eventId}</h3>
+            {event.image && <img src={`${BACKEND_URL}${event.image}`} alt="Event" className="event-image" />}
+            <h3>{event.title}</h3>
+            <p><strong>Description:</strong> {event.description}</p>
             <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
-            <p><strong>Time:</strong> {event.time}</p>
+            <p><strong>Time:</strong> {event.time} - {event.endTime}</p>
             <p><strong>Location:</strong> {event.location}</p>
+            <p><strong>Category:</strong> {event.category}</p>
+            <p><strong>Organizer:</strong> {event.organizer}</p>
             <div className="event-actions">
               <button onClick={() => handleEdit(event)}>Edit</button>
               <button onClick={() => handleDelete(event._id)}>Delete</button>
@@ -125,11 +127,19 @@ const ManageEvents = () => {
             <h3>Edit Event</h3>
             <form onSubmit={handleEditSubmit}>
               <label>
-                Event ID:
+                Title:
                 <input
                   type="text"
-                  value={editEvent.eventId}
-                  onChange={(e) => setEditEvent({ ...editEvent, eventId: e.target.value })}
+                  value={editEvent.title}
+                  onChange={(e) => setEditEvent({ ...editEvent, title: e.target.value })}
+                  required
+                />
+              </label>
+              <label>
+                Description:
+                <textarea
+                  value={editEvent.description}
+                  onChange={(e) => setEditEvent({ ...editEvent, description: e.target.value })}
                   required
                 />
               </label>
@@ -152,11 +162,38 @@ const ManageEvents = () => {
                 />
               </label>
               <label>
+                End Time:
+                <input
+                  type="time"
+                  value={editEvent.endTime}
+                  onChange={(e) => setEditEvent({ ...editEvent, endTime: e.target.value })}
+                  required
+                />
+              </label>
+              <label>
                 Location:
                 <input
                   type="text"
                   value={editEvent.location}
                   onChange={(e) => setEditEvent({ ...editEvent, location: e.target.value })}
+                  required
+                />
+              </label>
+              <label>
+                Category:
+                <input
+                  type="text"
+                  value={editEvent.category}
+                  onChange={(e) => setEditEvent({ ...editEvent, category: e.target.value })}
+                  required
+                />
+              </label>
+              <label>
+                Organizer:
+                <input
+                  type="text"
+                  value={editEvent.organizer}
+                  onChange={(e) => setEditEvent({ ...editEvent, organizer: e.target.value })}
                   required
                 />
               </label>

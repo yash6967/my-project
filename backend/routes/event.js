@@ -16,16 +16,23 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Create a new event with photo upload
+// Enhanced error handling and debugging for image upload
 router.post('/', upload.single('photo'), async (req, res) => {
   try {
     console.log('Request Body:', req.body); // Debugging log
     console.log('Uploaded File:', req.file); // Debugging log
 
     const eventData = {
-      ...req.body,
-      photo: req.file ? `/images/${req.file.filename}` : undefined,
-      image: req.body.image || undefined, // Allow image to be optional
+      title: req.body.title,
+      description: req.body.description,
+      date: req.body.date,
+      time: req.body.time,
+      endTime: req.body.endTime,
+      location: req.body.location,
+      category: req.body.category,
+      photo: req.file ? `/images/${req.file.filename}` : null, // Make photo optional
+      organizer: req.body.organizer,
+      registeredUsers: req.body.registeredUsers || [], // Default to an empty array
     };
 
     const event = new Event(eventData);
@@ -33,13 +40,18 @@ router.post('/', upload.single('photo'), async (req, res) => {
     res.status(201).json({ message: 'Event created successfully', event });
   } catch (error) {
     console.error('Error creating event:', error); // Debugging log
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, message: 'Something went wrong!', error: error.message });
   }
 });
 
-// Get all events
+// Get all events or search by title
 router.get('/', async (req, res) => {
   try {
+    const { title } = req.query;
+    if (title) {
+      const events = await Event.find({ title: new RegExp(title, 'i') }); // Case-insensitive search
+      return res.status(200).json(events);
+    }
     const events = await Event.find();
     res.status(200).json(events);
   } catch (error) {
@@ -48,7 +60,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single event by ID
-router.get('/:id', async (req, res) => {
+router.get('/:title', async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
@@ -61,7 +73,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update an event by ID
-router.put('/:id', async (req, res) => {
+router.put('/title:', async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

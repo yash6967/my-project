@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
-    title: {
+    // id: {
+    //     type: Number,
+    //     required: true,
+    //     unique: true,
+    // },
+    title:{
         type: String,
         required: true,
     },
@@ -44,10 +44,10 @@ const eventSchema = new mongoose.Schema({
             ref: 'User',
         },
     ],
-    photo: {
-        type: String,
-        required: false,
-    },
+    // photo: {
+    //     type: String,
+    //     required: false,
+    // },
     organizer: {
         type: String,
         required: true,

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CreateEvent.css';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
 const CreateEvent = () => {
   const [formData, setFormData] = useState({
-    id: '',
+    // id:'',
     title: '',
     description: '',
     date: '',
@@ -17,7 +17,7 @@ const CreateEvent = () => {
     image: null,
     availableSeats: '',
     organizer: '',
-  });
+  }); // Removed `id` field
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -83,16 +83,6 @@ const CreateEvent = () => {
     <div className="create-event-container">
       <h2>Create Event</h2>
       <form onSubmit={handleSubmit} className="create-event-form">
-        <label>
-          Event ID:
-          <input
-            type="text"
-            name="id"
-            value={formData.id}
-            onChange={handleInputChange}
-            required
-          />
-        </label>
         <label>
           Title:
           <input
