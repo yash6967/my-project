@@ -46,10 +46,13 @@ const Dashboard = () => {
       if (userType === 'admin' || userType === 'super_admin') {
         const response = await fetch(`${BACKEND_URL}api/requests/all-requests`);
         const data = await response.json();
+        console.log('Fetched Requests data:', data);
         setRequests(data);
       } else {
         const response = await fetch(`${BACKEND_URL}api/requests/${user.id}`);
         const data = await response.json();
+        console.log('Fetched User Requests:', data);
+        // Filter requests for the current user
         setRequests(data);
       }
     } catch (error) {

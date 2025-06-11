@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const requestSchema = new mongoose.Schema({
+const requestsSchema = new mongoose.Schema({
   userEmail: {
     type: String,
     required: [true, 'Please provide a user email'],
@@ -19,4 +19,4 @@ const requestSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Request', requestSchema);
+module.exports = mongoose.model('Requests', requestsSchema);
