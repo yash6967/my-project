@@ -122,6 +122,7 @@ const ManageEvents = () => {
             <p><strong>Location:</strong> {event.location}</p>
             <p><strong>Category:</strong> {event.category}</p>
             <p><strong>Organizer:</strong> {event.organizer}</p>
+            <p><strong>Available Seats:</strong> {event.availableSeats}</p>
             <div className="event-actions">
               <button onClick={() => handleEdit(event)}>Edit</button>
               <button onClick={() => handleDelete(event._id)}>Delete</button>

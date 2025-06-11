@@ -32,6 +32,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       category: req.body.category,
       image: req.file ? `${req.file.filename}` : null, // Make photo optional
       organizer: req.body.organizer,
+      availableSeats: req.body.availableSeats, // Ensure availableSeats is included
       registeredUsers: req.body.registeredUsers || [], // Default to an empty array
     };
 
@@ -80,18 +81,26 @@ router.get('/:title', async (req, res) => {
 });
 
 // Update an event by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.single('image'), async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+    const updatedData = {
+      ...req.body,
+      image: req.file ? `${req.file.filename}` : req.body.image, // Update image if a new one is uploaded
+    };
+
+    const event = await Event.findByIdAndUpdate(req.params.id, updatedData, {
       new: true,
       runValidators: true,
     });
+
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
+
     res.status(200).json({ message: 'Event updated successfully', event });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error updating event:', error); // Debugging log
+    res.status(500).json({ success: false, message: 'Something went wrong!', error: error.message });
   }
 });
 
