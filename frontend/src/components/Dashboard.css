@@ -324,7 +324,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(40, 39, 105, 0.8); /* Updated to match site theme */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -332,17 +332,19 @@
 }
 
 .modal-content {
-  background-color: white;
+  background-color: #ffffff;
   padding: 20px;
   border-radius: 8px;
   width: 400px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #282769; /* Updated border color */
 }
 
 .modal-content label {
   display: block;
   margin-bottom: 10px;
   font-weight: bold;
+  color: #282769; /* Updated label color */
 }
 
 .modal-content input {
@@ -351,6 +353,7 @@
   margin-bottom: 15px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 1rem;
 }
 
 .modal-content button {
@@ -359,15 +362,17 @@
   border-radius: 5px;
   cursor: pointer;
   margin-right: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .modal-content button:first-child {
-  background-color: #007bff;
+  background-color: #282769; /* Updated button color */
   color: white;
 }
 
 .modal-content button:first-child:hover {
-  background-color: #0056b3;
+  background-color: #1a1a4a; /* Updated hover color */
 }
 
 .modal-content button:last-child {
@@ -376,6 +381,87 @@
 }
 
 .modal-content button:last-child:hover {
+  background-color: #999;
+}
+
+/* Styling for the edit event modal */
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(40, 39, 105, 0.8); /* Match site theme */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-modal-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #282769; /* Match site theme */
+}
+
+.edit-modal-content h3 {
+  color: #282769;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.edit-modal-content label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #282769; /* Match site theme */
+}
+
+.edit-modal-content input,
+.edit-modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.edit-modal-content textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.edit-modal-content button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.edit-modal-content button[type="submit"] {
+  background-color: #282769; /* Match site theme */
+  color: white;
+}
+
+.edit-modal-content button[type="submit"]:hover {
+  background-color: #1a1a4a; /* Match site theme */
+}
+
+.edit-modal-content button[type="button"] {
+  background-color: #ccc;
+  color: black;
+}
+
+.edit-modal-content button[type="button"]:hover {
   background-color: #999;
 }
 

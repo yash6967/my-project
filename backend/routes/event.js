@@ -73,7 +73,7 @@ router.get('/:title', async (req, res) => {
 });
 
 // Update an event by ID
-router.put('/title:', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
