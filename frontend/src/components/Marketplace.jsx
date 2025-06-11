@@ -6,6 +6,8 @@ import event2Image from '../images/event2.png';
 import event3Image from '../images/event3.png';
 import './Marketplace.css';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
+
 const Marketplace = () => {
   const [events, setEvents] = useState([]);
   const [registrations, setRegistrations] = useState([]);
@@ -60,7 +62,24 @@ const Marketplace = () => {
   useEffect(() => {
     // Check if user is logged in and is a normal user
     const isLoggedIn = localStorage.getItem('isLoggedIn');
+    // Fetch events from the backend
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}api/events/`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch events');
+        }
+        const data = await response.json();
+        // Combine sample events with fetched events
+        setEvents([...sampleEvents, ...data]);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setEvents(sampleEvents); // Fallback to sample events on error
+      }
+    };
 
+    fetchEvents();
+    console.log(sampleEvents);
     
     // if (!isLoggedIn) {
     //   navigate('/login');
