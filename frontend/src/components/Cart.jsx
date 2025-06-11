@@ -70,7 +70,7 @@ const Cart = () => {
       alert('🎉 Checkout successful! Your tickets have been booked.');
       clearCart();
       setIsCheckingOut(false);
-      navigate('/marketplace');
+      navigate('/events');
     }, 2000);
   };
 
@@ -90,7 +90,7 @@ const Cart = () => {
         <div className="header-content">
           <h1>My Cart</h1>
           <div className="header-actions">
-            <Link to="/marketplace" className="nav-button">
+            <Link to="/events" className="nav-button">
               🏪 Continue Shopping
             </Link>
             <Link to="/dashboard" className="nav-button">
@@ -110,7 +110,7 @@ const Cart = () => {
             <div className="empty-cart-icon">🛒</div>
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added any events to your cart yet.</p>
-            <Link to="/marketplace" className="shop-now-btn">
+            <Link to="/events" className="shop-now-btn">
               <span className="btn-icon">🏪</span>
               Browse Events
             </Link>
