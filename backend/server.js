@@ -13,6 +13,9 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
+// Serve static files from the images directory
+app.use('/images', express.static('images'));
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
@@ -39,4 +42,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-}); 
+});

@@ -66,19 +66,27 @@ const ManageEvents = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
+    const formDataToSend = new FormData();
+    Object.entries(editEvent).forEach(([key, value]) => {
+      if (value) {
+        formDataToSend.append(key, value);
+      }
+    });
+
     try {
       const response = await fetch(`${BACKEND_URL}api/events/${editEvent._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editEvent),
+        body: formDataToSend,
       });
 
       if (response.ok) {
         alert('Event updated successfully!');
         setEditEvent(null);
-        fetchEvents();
+        fetchEvents(); // Refresh the events list
       } else {
-        console.error('Error updating event:', await response.text());
+        const errorText = await response.text();
+        console.error('Error updating event:', errorText);
+        alert(`Error: ${errorText}`);
       }
     } catch (error) {
       console.error('Error updating event:', error);
@@ -105,7 +113,8 @@ const ManageEvents = () => {
       <div className="events-list">
         {events.map((event) => (
           <div key={event._id} className="event-card">
-            {event.image && <img src={`${BACKEND_URL}${event.image}`} alt="Event" className="event-image" />}
+            {event.image && <img src={`${event.image}`} alt="Event" className="event-image" />}
+            {console.log(`${event.image}`)}
             <h3>{event.title}</h3>
             <p><strong>Description:</strong> {event.description}</p>
             <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
@@ -200,9 +209,9 @@ const ManageEvents = () => {
               <label>
                 Image (Optional):
                 <input
-                  type="text"
-                  value={editEvent.image || ''}
-                  onChange={(e) => setEditEvent({ ...editEvent, image: e.target.value })}
+                  type="file"
+                  name="image"
+                  onChange={(e) => setEditEvent({ ...editEvent, photo: e.target.files[0] })}
                 />
               </label>
               <button type="submit">Save Changes</button>

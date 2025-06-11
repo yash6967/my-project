@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Enhanced error handling and debugging for image upload
-router.post('/', upload.single('photo'), async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
   try {
     console.log('Request Body:', req.body); // Debugging log
     console.log('Uploaded File:', req.file); // Debugging log
@@ -30,7 +30,7 @@ router.post('/', upload.single('photo'), async (req, res) => {
       endTime: req.body.endTime,
       location: req.body.location,
       category: req.body.category,
-      photo: req.file ? `/images/${req.file.filename}` : null, // Make photo optional
+      image: req.file ? `${req.file.filename}` : null, // Make photo optional
       organizer: req.body.organizer,
       registeredUsers: req.body.registeredUsers || [], // Default to an empty array
     };
@@ -48,12 +48,19 @@ router.post('/', upload.single('photo'), async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { title } = req.query;
-    if (title) {
-      const events = await Event.find({ title: new RegExp(title, 'i') }); // Case-insensitive search
-      return res.status(200).json(events);
-    }
-    const events = await Event.find();
-    res.status(200).json(events);
+    const events = title
+      ? await Event.find({ title: new RegExp(title, 'i') })
+      : await Event.find();
+
+    // Update image paths to include full URL
+    const updatedEvents = events.map((event) => {
+      if (event.image) {
+        event.image = `${req.protocol}://${req.get('host')}/images/${event.image.split('/').pop()}`;
+      }
+      return event;
+    });
+
+    res.status(200).json(updatedEvents);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

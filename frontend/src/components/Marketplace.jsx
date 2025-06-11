@@ -4,6 +4,7 @@ import aicteLogo from '../assets/aicte_logo.png';
 import event1Image from '../images/event1.png';
 import event2Image from '../images/event2.png';
 import event3Image from '../images/event3.png';
+// import event4image from '../../../backend/images/'
 import './Marketplace.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
@@ -72,6 +73,7 @@ const Marketplace = () => {
         const data = await response.json();
         // Combine sample events with fetched events
         setEvents([...sampleEvents, ...data]);
+        console.log(sampleEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
         setEvents(sampleEvents); // Fallback to sample events on error
@@ -79,7 +81,6 @@ const Marketplace = () => {
     };
 
     fetchEvents();
-    console.log(sampleEvents);
     
     // if (!isLoggedIn) {
     //   navigate('/login');
