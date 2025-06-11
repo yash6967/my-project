@@ -3,8 +3,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import aicteLogo from '../assets/aicte_logo.png';
 import './Dashboard.css';
+import * as XLSX from 'xlsx';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+
+const exportToExcel = (data, fileName) => {
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  XLSX.writeFile(workbook, `${fileName}.xlsx`);
+};
 
 const Dashboard = () => {
   const { user } = useUser();
@@ -18,6 +26,12 @@ const Dashboard = () => {
     email: user?.email || '',
     mobileNumber: user?.mobileNumber || '',
     address: user?.address || '',
+    gender: user?.gender || '',
+    organization: user?.organization || '',
+    role: user?.role || '',
+    locationOfWork: user?.locationOfWork || '',
+    dateOfBirth: user?.dateOfBirth || '',
+    linkedinProfile: user?.linkedinProfile || '',
   });
   const navigate = useNavigate();
 
@@ -46,13 +60,10 @@ const Dashboard = () => {
       if (userType === 'admin' || userType === 'super_admin') {
         const response = await fetch(`${BACKEND_URL}api/requests/all-requests`);
         const data = await response.json();
-        console.log('Fetched Requests data:', data);
         setRequests(data);
       } else {
         const response = await fetch(`${BACKEND_URL}api/requests/${user.id}`);
         const data = await response.json();
-        console.log('Fetched User Requests:', data);
-        // Filter requests for the current user
         setRequests(data);
       }
     } catch (error) {
@@ -192,15 +203,6 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      {/* <div className="dashboard-header">
-        <div className="header-left">
-          <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
-          <h1>Welcome, {user?.name}</h1>
-          <br />
-          <h2>Dashboard</h2>
-        </div>
-        
-      </div> */}
       <div className="dashboard-content">
         <div className="user-info-card">
           <h2>User Information</h2>
@@ -208,7 +210,6 @@ const Dashboard = () => {
             <span className="badge-label">User Type:</span>
             <span className={`badge ${userType}`}>{formatUserType(userType)}</span>
           </div>
-          {/* Updated User details fetched from backend */}
           <div className="user-details">
             <h3>Details:</h3>
             <p><strong>Name:</strong> {user?.name}</p>
@@ -223,7 +224,6 @@ const Dashboard = () => {
             <p><strong>LinkedIn Profile:</strong> <a href={user?.linkedinProfile} target="_blank" rel="noopener noreferrer">{user?.linkedinProfile}</a></p>
             <button className="edit-button" onClick={openEditModal}>Edit</button>
           </div>
-          {/* Admin-specific features */}
           {(userType === 'admin' || userType === 'super_admin') && (
             <div className="view-toggle">
               <label>
@@ -235,90 +235,91 @@ const Dashboard = () => {
               <label>
                 <input type="radio" name="view" value="requests" checked={view === 'requests'} onChange={() => setView('requests')} /> Requests
               </label>
-              {/* <button className="manage-events-button" onClick={() => navigate('/manage-events')}>Manage Events</button> */}
             </div>
           )}
-          {/* Normal user actions */}
           {userType === 'normal' && (
             <div className="dashboard-actions">
               <button onClick={navigateToDomainExpertForm} className="nav-button">Apply for Domain Expert</button>
               <button onClick={fetchRequests} className="nav-button">View Requests</button>
             </div>
           )}
-          {/* Domain Expert view placeholder */}
           {userType === 'domain_expert' && (
             <div className="dashboard-actions">
               <h3>Domain Expert View</h3>
               <p>Feature coming soon...</p>
             </div>
           )}
-          {/* Super Admin view placeholder */}
           {userType === 'super_admin' && (
             <div className="dashboard-actions">
               <h3>Super Admin View</h3>
               <p>Feature coming soon...</p>
             </div>
           )}
-          {/* Admin tables */}
-      {(userType === 'admin' || userType === 'super_admin') && (
-        <div className="dashboard-content">
-          {view === 'users' && (
-            <table className="users-table">
-              <thead>
-                <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user._id}>
-                    <td>{user.name}</td>
-                    <td>{user.mobileNumber}</td>
-                    <td>{user.email}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {(userType === 'admin' || userType === 'super_admin') && (
+            <div className="dashboard-content">
+              {view === 'users' && (
+                <div>
+                  <button className="export-button" onClick={() => exportToExcel(users, 'Users')}>Export Users</button>
+                  <table className="users-table">
+                    <thead>
+                      <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
+                    </thead>
+                    <tbody>
+                      {users.map((user) => (
+                        <tr key={user._id}>
+                          <td>{user.name}</td>
+                          <td>{user.mobileNumber}</td>
+                          <td>{user.email}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {view === 'experts' && (
+                <div>
+                  <button className="export-button" onClick={() => exportToExcel(users, 'Experts')}>Export Experts</button>
+                  <table className="experts-table">
+                    <thead>
+                      <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
+                    </thead>
+                    <tbody>
+                      {users.map((user) => (
+                        <tr key={user._id}>
+                          <td>{user.name}</td>
+                          <td>{user.mobileNumber}</td>
+                          <td>{user.email}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {view === 'requests' && (
+                <div>
+                  <button className="export-button" onClick={() => exportToExcel(requests, 'Requests')}>Export Requests</button>
+                  <table className="requests-table">
+                    <thead>
+                      <tr><th>Email</th><th>Requested User Type</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                      {requests.map((request) => (
+                        <tr key={request._id}>
+                          <td>{request.userEmail}</td>
+                          <td>{request.requested_user_type}</td>
+                          <td>
+                            <button onClick={() => handleAccept(request._id, request.userId)} className="action-btn">Accept</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           )}
-          {view === 'experts' && (
-            <table className="experts-table">
-              <thead>
-                <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user._id}>
-                    <td>{user.name}</td>
-                    <td>{user.mobileNumber}</td>
-                    <td>{user.email}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {view === 'requests' && (
-            <table className="requests-table">
-              <thead>
-                <tr><th>Email</th><th>Requested User Type</th><th>Actions</th></tr>
-              </thead>
-              <tbody>
-                {requests.map((request) => (
-                  <tr key={request._id}>
-                    <td>{request.userEmail}</td>
-                    <td>{request.requested_user_type}</td>
-                    <td>
-                      <button onClick={() => handleAccept(request._id, request.userId)} className="action-btn">Accept</button>
-                      {/* <button onClick={() => handleReject(request._id)} className="action-btn">Reject</button> */}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
         </div>
       </div>
-      
-      {/* User requests list */}
       {userType === 'normal' && (
         <div className="requests-list">
           {requests.map((request) => (
@@ -339,7 +340,7 @@ const Dashboard = () => {
               <input
                 type="text"
                 name="name"
-                value={editDetails.name}
+                value={editDetails.name || ''}
                 onChange={handleInputChange}
               />
             </label>
@@ -348,7 +349,7 @@ const Dashboard = () => {
               <input
                 type="email"
                 name="email"
-                value={editDetails.email}
+                value={editDetails.email || ''}
                 onChange={handleInputChange}
               />
             </label>
@@ -357,7 +358,7 @@ const Dashboard = () => {
               <input
                 type="text"
                 name="mobileNumber"
-                value={editDetails.mobileNumber}
+                value={editDetails.mobileNumber || ''}
                 onChange={handleInputChange}
               />
             </label>
@@ -366,7 +367,61 @@ const Dashboard = () => {
               <input
                 type="text"
                 name="address"
-                value={editDetails.address}
+                value={editDetails.address || ''}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Gender:
+              <input
+                type="text"
+                name="gender"
+                value={editDetails.gender || ''}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Organization:
+              <input
+                type="text"
+                name="organization"
+                value={editDetails.organization || ''}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Role:
+              <input
+                type="text"
+                name="role"
+                value={editDetails.role || ''}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Location of Work:
+              <input
+                type="text"
+                name="locationOfWork"
+                value={editDetails.locationOfWork || ''}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              Date of Birth:
+              <input
+                type="date"
+                name="dateOfBirth"
+                value={editDetails.dateOfBirth ? new Date(editDetails.dateOfBirth).toISOString().split('T')[0] : ''}
+                onChange={handleInputChange}
+              />
+            </label>
+            <label>
+              LinkedIn Profile:
+              <input
+                type="url"
+                name="linkedinProfile"
+                value={editDetails.linkedinProfile || ''}
                 onChange={handleInputChange}
               />
             </label>

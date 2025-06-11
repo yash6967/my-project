@@ -123,6 +123,15 @@
   background: #eeeeee;
   border-radius: 12px;
 }
+.export-button{
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
 
 .badge-label {
   color: #282769;
