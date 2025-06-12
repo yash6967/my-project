@@ -3,9 +3,9 @@
   max-width: 1200px;
   margin: 50px auto;
   padding: 20px;
-  background-color:#ffeb3b;
+  /* background-color:#ffeb3b; */
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
   font-family: Arial, sans-serif;
 }
 
@@ -19,6 +19,7 @@
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  
 }
 
 .search-bar input {
@@ -28,6 +29,7 @@
   border-radius: 4px;
   font-size: 14px;
   margin-right: 10px;
+  background-color: white;
 }
 
 .search-bar button {
@@ -122,4 +124,86 @@
 
 .event-actions button:last-child:hover {
   background-color: #c82333;
+}
+
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(40, 39, 105, 0.8); /* Match site theme */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-modal-content {
+  max-height: 800px; /* Reduced height */
+  width: 600px; /* Increased width */
+  overflow-y: auto; /* Added scroll bar */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #282769; /* Match site theme */
+}
+
+.edit-modal-content h3 {
+  color: #282769;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.edit-modal-content label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #282769; /* Match site theme */
+}
+
+.edit-modal-content input,
+.edit-modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.edit-modal-content textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.edit-modal-content button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.edit-modal-content button[type="submit"] {
+  background-color: #282769; /* Match site theme */
+  color: white;
+}
+
+.edit-modal-content button[type="submit"]:hover {
+  background-color: #1a1a4a; /* Match site theme */
+}
+
+.edit-modal-content button[type="button"] {
+  background-color: #ccc;
+  color: black;
+}
+
+.edit-modal-content button[type="button"]:hover {
+  background-color: #999;
 }

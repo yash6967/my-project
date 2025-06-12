@@ -341,56 +341,42 @@
 }
 
 .modal-content {
-  background-color: #ffffff;
+  max-height: 400px; /* Reduced height */
+  width: 600px; /* Increased width */
+  overflow-y: auto; /* Added scroll bar */
   padding: 20px;
+  background-color: #fff;
   border-radius: 8px;
-  width: 400px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  border: 2px solid #282769; /* Updated border color */
 }
 
 .modal-content label {
   display: block;
   margin-bottom: 10px;
   font-weight: bold;
-  color: #282769; /* Updated label color */
 }
 
 .modal-content input {
   width: 100%;
   padding: 8px;
   margin-bottom: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem;
 }
 
 .modal-content button {
+  margin-right: 10px;
   padding: 10px 15px;
   border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 10px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.modal-content button:first-child {
-  background-color: #282769; /* Updated button color */
+  border-radius: 4px;
+  background-color: #007bff;
   color: white;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.modal-content button:first-child:hover {
-  background-color: #1a1a4a; /* Updated hover color */
-}
-
-.modal-content button:last-child {
-  background-color: #ccc;
-  color: black;
-}
-
-.modal-content button:last-child:hover {
-  background-color: #999;
+.modal-content button:hover {
+  background-color: #0056b3;
 }
 
 /* Styling for the edit event modal */

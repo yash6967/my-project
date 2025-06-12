@@ -57,7 +57,9 @@ const Login = () => {
       localStorage.setItem('userId', data.user.id);
       localStorage.setItem('userName', data.user.name);
       localStorage.setItem('userType', data.user.userType);
+      localStorage.setItem('events', JSON.stringify(data.user.events));
       localStorage.setItem('token', data.token);
+
 
       // Update context
       setUser(data.user);

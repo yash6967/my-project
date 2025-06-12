@@ -6,7 +6,6 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/'
 
 const CreateEvent = () => {
   const [formData, setFormData] = useState({
-    // id:'',
     title: '',
     description: '',
     date: '',
@@ -17,8 +16,9 @@ const CreateEvent = () => {
     image: null,
     availableSeats: '',
     organizer: '',
-  }); // Removed `id` field
+  });
   const [users, setUsers] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     // Fetch users from the backend
@@ -42,7 +42,22 @@ const CreateEvent = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData((prev) => ({ ...prev, image: e.target.files[0] }));
+    const file = e.target.files[0];
+    setFormData((prev) => ({ ...prev, image: file }));
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setFormData((prev) => ({ ...prev, image: null }));
+    setImagePreview(null);
+  };
+
+  const handleLocationLink = () => {
+    if (formData.location) {
+      const query = encodeURIComponent(formData.location);
+      return `https://www.google.com/maps/search/?api=1&query=${query}`;
+    }
+    return null;
   };
 
   const handleSubmit = async (e) => {
@@ -142,6 +157,16 @@ const CreateEvent = () => {
             required
           />
         </label>
+        {formData.location && (
+          <a
+            href={handleLocationLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="location-link"
+          >
+            View on Google Maps
+          </a>
+        )}
         <label>
           Category:
           <select
@@ -163,9 +188,16 @@ const CreateEvent = () => {
             type="file"
             name="image"
             onChange={handleFileChange}
-            // required
           />
         </label>
+        {imagePreview && (
+          <div className="image-preview-container">
+            <img src={imagePreview} alt="Selected" className="image-preview" />
+            <button type="button" className="remove-image-button" onClick={removeImage}>
+              ✖
+            </button>
+          </div>
+        )}
         <label>
           Available Seats:
           <input

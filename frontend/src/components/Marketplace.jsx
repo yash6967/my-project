@@ -77,7 +77,6 @@ const Marketplace = () => {
         const data = await response.json();
         // Combine sample events with fetched events
         setEvents([...sampleEvents, ...data]);
-        console.log(sampleEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
         setEvents(sampleEvents); // Fallback to sample events on error
@@ -90,55 +89,84 @@ const Marketplace = () => {
     //   navigate('/login');
     // }  else 
     {
-      setEvents(sampleEvents);
+      // setEvents(sampleEvents);
       // Load registrations from localStorage
-      const savedRegistrations = localStorage.getItem('eventRegistrations');
+      const savedRegistrations = localStorage.getItem('events');
       if (savedRegistrations) {
-        setRegistrations(JSON.parse(savedRegistrations));
+        try {
+          const parsedRegistrations = JSON.parse(savedRegistrations);
+          if (Array.isArray(parsedRegistrations) && parsedRegistrations.every(item => typeof item === 'string')) {
+            setRegistrations(parsedRegistrations);
+          } else {
+            console.error('Invalid data format for saved registrations. Expected an array of strings.');
+          }
+        } catch (error) {
+          console.error('Error parsing saved registrations:', error);
+        }
       }
     }
   }, [navigate]);
 
   // Save registrations to localStorage whenever registrations change
-  useEffect(() => {
-    localStorage.setItem('eventRegistrations', JSON.stringify(registrations));
-  }, [registrations]);
+  // useEffect(() => {
+  //   localStorage.setItem('events', JSON.stringify(registrations));
+  // }, [registrations]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
 
-    localStorage.removeItem('eventRegistrations');
-    navigate('/login');
-  };
-
-  const registerForEvent = (event) => {
-    const existingRegistration = registrations.find(reg => reg.id === event.id);
-    if (existingRegistration) {
-      alert('You are already registered for this event!');
+  const registerForEvent = async (props) => {
+    console.log("event object here : ",props.event);
+    console.log("event object here : ",props.event._id);
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+      navigate('/login');
       return;
     }
-    
+
     if (event.availableSeats <= 0) {
       alert('Sorry, this event is full!');
       return;
     }
 
-    const registration = {
-      ...event,
-      registrationDate: new Date().toISOString(),
-      status: 'registered'
-    };
-    
-    setRegistrations([...registrations, registration]);
-    
-    // Update available seats
-    setEvents(events.map(e => 
-      e.id === event.id 
-        ? { ...e, availableSeats: e.availableSeats - 1 }
-        : e
-    ));
-    
-    alert(`Successfully registered for "${event.title}"!`);
+    try {
+      // First request: Register the user for the event
+      const registerEventResponse = await fetch(`${BACKEND_URL}api/events/${props.event._id}/register`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ userId: localStorage.getItem('userId') }),
+      });
+
+      if (!registerEventResponse.ok) {
+        throw new Error('Failed to register for the event');
+      }
+      // Add the event ID to the registrations state and localStorage
+      setRegistrations((prevRegistrations) => {
+        const updatedRegistrations = [...prevRegistrations, props.event._id];
+        localStorage.setItem('events', JSON.stringify(updatedRegistrations));
+        return updatedRegistrations;
+      });
+
+      // Second request: Update the user's events in the backend
+      const updateUserResponse = await fetch(`${BACKEND_URL}api/user/event`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ eventId: props.event._id}),
+      });
+
+      if (!updateUserResponse.ok) {
+        throw new Error('Failed to update user events');
+      }
+
+      alert(`Successfully registered for "${props.event.title}"!`);
+    } catch (error) {
+      console.error('Error registering for event:', error);
+      alert('An error occurred while registering for the event. Please try again.');
+    }
   };
 
   const filteredEvents = events.filter(event => {
@@ -228,7 +256,7 @@ const Marketplace = () => {
         
       <div className="events-grid">
         {filteredEvents.map(event => (
-          <div key={event.id} className="event-card">
+          <div key={event._id} className="event-card">
             <div className="event-image">
               <img src={event.image} alt={event.title} />
               <div className="event-category">{formatCategoryName(event.category)}</div>
@@ -258,11 +286,11 @@ const Marketplace = () => {
                   </span>
                 </div>
                 <button 
-                  className={`register-button ${registrations.find(reg => reg.id === event.id) ? 'registered' : ''}`}
-                  onClick={() => registerForEvent(event)}
-                  disabled={event.availableSeats === 0 || registrations.find(reg => reg.id === event.id)}
+                  className={`register-button ${registrations.find(reg => reg === event._id) ? 'registered' : ''}`}
+                  onClick={() => registerForEvent({event})}
+                  disabled={event.availableSeats === 0 || registrations.find(reg => reg === event._id)}
                 >
-                  {registrations.find(reg => reg.id === event.id) 
+                  {registrations.find(reg => reg === event._id) 
                     ? 'Registered ✓' 
                     : event.availableSeats === 0 
                     ? 'Event Full' 
@@ -276,7 +304,7 @@ const Marketplace = () => {
       </div>
 
       {/* My Registrations Sidebar - Only show if user has registrations */}
-      {registrations.length > 0 && (
+      {/* {registrations.length > 0 && (
         <div className="registrations-sidebar">
           <h3>My Registrations</h3>
           <div className="registration-items">
@@ -294,10 +322,10 @@ const Marketplace = () => {
             <strong>Total Events: {registrations.length}</strong>
           </div>
         </div>
-      )}
+      )} */}
       </div>
     </div>
   );
 };
 
-export default Marketplace; 
+export default Marketplace;

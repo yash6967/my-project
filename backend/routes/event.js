@@ -104,6 +104,64 @@ router.put('/:id', upload.single('image'), async (req, res) => {
   }
 });
 
+// Register a user for an event
+router.put('/:id/register', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    console.log('Params ID:', req.params.id);
+
+    const event = await Event.findById(req.params.id);
+    console.log("event object : ", event);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    if (event.availableSeats <= 0) {
+      return res.status(400).json({ error: 'No available seats' });
+    }
+
+    if (event.registeredUsers.includes(userId)) {
+      return res.status(400).json({ error: 'User already registered' });
+    }
+
+    // console.log("a");
+    event.availableSeats -= 1;
+    // console.log("b");
+    event.registeredUsers.push(userId);
+    // console.log("c");
+    await event.save();
+    // console.log("d");
+
+    res.status(200).json({ message: 'User registered successfully', event });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cancel a user's registration for an event
+router.put('/:id/cancel-register', async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    if (!event.registeredUsers.includes(userId)) {
+      return res.status(400).json({ error: 'User not registered for this event' });
+    }
+
+    event.availableSeats += 1;
+    event.registeredUsers = event.registeredUsers.filter((id) => id !== userId);
+    await event.save();
+
+    res.status(200).json({ message: 'User registration canceled successfully', event });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Delete an event by ID
 router.delete('/:id', async (req, res) => {
   try {

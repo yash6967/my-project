@@ -25,6 +25,8 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/events',require('./routes/event'))
 app.use('/api/requests', require('./routes/requests'));
+app.use('/api/register', require('./routes/user'));
+app.use('/api/user',require('./routes/user'));
 app.get('/api/test', (req, res) => {
   res.json({ message: 'URL working' });
 });

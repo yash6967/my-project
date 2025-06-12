@@ -34,6 +34,18 @@
   font-size: 14px;
 }
 
+/* Add styles for the description box */
+.create-event-form textarea[name="description"] {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 20px;
+}
+
 .create-event-form button {
   background-color: #007bff;
   color: white;
@@ -48,4 +60,40 @@
 
 .create-event-form button:hover {
   background-color: #0056b3;
+}
+
+/* Add styles for the image preview and remove button */
+.image-preview-container {
+  position: relative;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 150px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.remove-image-button:hover {
+  background: darkred;
 }
