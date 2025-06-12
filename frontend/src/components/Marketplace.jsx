@@ -4,6 +4,9 @@ import aicteLogo from '../assets/aicte_logo.png';
 import event1Image from '../images/event1.png';
 import event2Image from '../images/event2.png';
 import event3Image from '../images/event3.png';
+import event1 from '../images/event1.png';
+import event2 from '../images/event2.png';
+import event3 from '../images/event3.png';
 // import event4image from '../../../backend/images/'
 import './Marketplace.css';
 
@@ -15,7 +18,8 @@ const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-
+  const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const eventImages = [event1, event2, event3];
   // AICTE Events data
   const sampleEvents = [
     {
@@ -161,9 +165,20 @@ const Marketplace = () => {
     };
     return categoryMap[category] || category;
   };
+  const handleNextEvent = () => {
+    setCurrentEventIndex((prevIndex) => (prevIndex + 1) % eventImages.length);
+  };
 
+  const handlePreviousEvent = () => {
+    setCurrentEventIndex((prevIndex) => (prevIndex - 1 + eventImages.length) % eventImages.length);
+  };
   return (
     <div className="marketplace-container">
+      <div className="hero-section">
+        <button className="arrow-button" onClick={handlePreviousEvent}>❮</button>
+        <img src={eventImages[currentEventIndex]} alt="Ongoing Event" className="hero-image" />
+        <button className="arrow-button" onClick={handleNextEvent}>❯</button>
+      </div>
       <div className="filters-section">
         {/* <div className='marketplace-section'>
           <h2>Events </h2>

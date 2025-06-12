@@ -3,6 +3,7 @@
 .marketplace-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+  /* background-color:antiquewhite; */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding-bottom: 50px;
 }
@@ -43,6 +44,54 @@
   display: flex;
   align-items: center;
   gap: 15px;
+}
+
+/* Updated styles for hero section */
+
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 60%;
+  height: 50vh; /* Adjusted to fit 50% of the viewport height */
+  margin: 0 auto;
+  padding-top: 50px;
+  overflow: hidden;
+  border-radius: 20px;
+  
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  border-width: 10px;
+  border-color: white;
+  border: 15px solid white; 
+  border-top: linear-gradient(90deg, #e51b00,#282769);
+  background: linear-gradient(90deg, #e51b00, #282769);
+}
+
+.arrow-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.arrow-button:first-of-type {
+  left: 10px;
+}
+
+.arrow-button:last-of-type {
+  right: 10px;
 }
 
 .header-logo {
@@ -510,4 +559,4 @@
   .event-description {
     font-size: 0.9rem;
   }
-} 
+}
