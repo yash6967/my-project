@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Modal from 'react-modal';
 import './ManageEvents.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
@@ -8,6 +9,7 @@ const ManageEvents = () => {
   const [events, setEvents] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [editEvent, setEditEvent] = useState(null);
+  const [infoModal, setInfoModal] = useState({ isOpen: false, registrations: [] });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -97,6 +99,24 @@ const ManageEvents = () => {
     navigate('/create-event');
   };
 
+  const fetchEventRegistrations = async (eventId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}api/events/${eventId}/registrations`);
+      if (response.ok) {
+        const data = await response.json();
+        setInfoModal({ isOpen: true, registrations: data });
+      } else {
+        console.error('Error fetching registrations:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+    }
+  };
+
+  const closeInfoModal = () => {
+    setInfoModal({ isOpen: false, registrations: [] });
+  };
+
   return (
     <div className="manage-events-container">
       <h2>Manage Events</h2>
@@ -126,6 +146,7 @@ const ManageEvents = () => {
             <div className="event-actions">
               <button onClick={() => handleEdit(event)}>Edit</button>
               <button onClick={() => handleDelete(event._id)}>Delete</button>
+              <button onClick={() => fetchEventRegistrations(event._id)}>Info</button>
             </div>
           </div>
         ))}
@@ -221,6 +242,36 @@ const ManageEvents = () => {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={infoModal.isOpen}
+        onRequestClose={closeInfoModal}
+        contentLabel="Event Registrations"
+        className="info-modal"
+        overlayClassName="info-modal-overlay"
+      >
+        <h2>Event Registrations</h2>
+        <button onClick={closeInfoModal} className="close-modal-btn">Close</button>
+        <p>Total Registrations: {infoModal.registrations.length}</p>
+        <table className="registrations-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+            </tr>
+          </thead>
+          <tbody>
+            {infoModal.registrations.map((registration) => (
+              <tr key={registration.email}>
+                <td>{registration.name}</td>
+                <td>{registration.email}</td>
+                <td>{registration.phoneNumber}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Modal>
     </div>
   );
 };

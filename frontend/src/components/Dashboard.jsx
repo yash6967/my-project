@@ -4,6 +4,8 @@ import { useUser } from '../context/UserContext';
 import aicteLogo from '../assets/aicte_logo.png';
 import './Dashboard.css';
 import * as XLSX from 'xlsx';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
 
@@ -115,7 +117,7 @@ const Dashboard = () => {
         body: JSON.stringify(newRequest),
       });
       if (response.ok) {
-        alert('Request submitted successfully!');
+        toast.success('Request submitted successfully!');
         fetchRequests();
       } else {
         console.error('Error submitting request:', await response.text());
@@ -132,7 +134,7 @@ const Dashboard = () => {
         headers: { 'Content-Type': 'application/json' },
       });
       if (response.ok) {
-        alert('Request deleted successfully!');
+        toast.success('Request deleted successfully!');
         fetchRequests();
       } else {
         console.error('Error deleting request:', await response.text());
@@ -147,7 +149,7 @@ const Dashboard = () => {
       await fetch(`${BACKEND_URL}api/users/${userId}/toggle-usertype`, {
         method: 'PUT',
       });
-      alert('Request accepted and user type updated successfully!');
+      toast.success('Request accepted and user type updated successfully!');
       setRequests(requests.filter((request) => request._id !== requestId));
     } catch (error) {
       console.error('Error accepting request:', error);
@@ -162,7 +164,7 @@ const Dashboard = () => {
         body: JSON.stringify(updatedDetails),
       });
       if (response.ok) {
-        alert('User details updated successfully!');
+        toast.success('User details updated successfully!');
         // Optionally, refetch user details to update the UI
         const updatedUser = await response.json();
         console.log('Updated User:', updatedUser);

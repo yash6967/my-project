@@ -7,6 +7,8 @@ import event3Image from '../images/event3.png';
 import event1 from '../images/event1.png';
 import event2 from '../images/event2.png';
 import event3 from '../images/event3.png';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // import event4image from '../../../backend/images/'
 import './Marketplace.css';
 
@@ -79,6 +81,7 @@ const Marketplace = () => {
         setEvents([...sampleEvents, ...data]);
       } catch (error) {
         console.error('Error fetching events:', error);
+        toast.error('Error fetching events:', error);
         setEvents(sampleEvents); // Fallback to sample events on error
       }
     };
@@ -99,9 +102,11 @@ const Marketplace = () => {
             setRegistrations(parsedRegistrations);
           } else {
             console.error('Invalid data format for saved registrations. Expected an array of strings.');
+            toast.error('Invalid data format for saved registrations. Expected an array of strings.');
           }
         } catch (error) {
           console.error('Error parsing saved registrations:', error);
+          toast.error('Error parsing saved registrations:', error);
         }
       }
     }
@@ -118,12 +123,14 @@ const Marketplace = () => {
     console.log("event object here : ",props.event._id);
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     if (!isLoggedIn) {
+      toast.error("please log in first");
       navigate('/login');
       return;
     }
 
-    if (event.availableSeats <= 0) {
-      alert('Sorry, this event is full!');
+    if (props.event.availableSeats <= 0) {
+      // alert('Sorry, this event is full!');
+      toast.error('Sorry, this event is full!');
       return;
     }
 
@@ -162,10 +169,37 @@ const Marketplace = () => {
         throw new Error('Failed to update user events');
       }
 
-      alert(`Successfully registered for "${props.event.title}"!`);
+      // alert(`Successfully registered for "${props.event.title}"!`);
+      toast.success(`Successfully registered for "${props.event.title}"!`);
     } catch (error) {
       console.error('Error registering for event:', error);
-      alert('An error occurred while registering for the event. Please try again.');
+      // alert('An error occurred while registering for the event. Please try again.');
+      toast.error('An error occurred while registering for the event. Please try again.');
+    }
+  };
+
+  const cancelRegistration = async (eventId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}api/events/${eventId}/cancel-register`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: localStorage.getItem('userId') }),
+      });
+
+      if (response.ok) {
+        toast.success('Registration canceled successfully!');
+        // Optionally, refresh the events or registrations list
+        setRegistrations(registrations.filter((reg) => reg !== eventId));
+      } else {
+        const errorText = await response.text();
+        console.error('Error canceling registration:', errorText);
+        toast.error('Failed to cancel registration.');
+      }
+    } catch (error) {
+      console.error('Error canceling registration:', error);
+      toast.error('An error occurred while canceling registration.');
     }
   };
 
@@ -253,10 +287,10 @@ const Marketplace = () => {
       
 
       {/* Events Grid */}
-        
-      <div className="events-grid">
-        {filteredEvents.map(event => (
-          <div key={event._id} className="event-card">
+          
+          <div className="events-grid">
+          {filteredEvents.map(event => (
+            <div key={event._id} className="event-card">
             <div className="event-image">
               <img src={event.image} alt={event.title} />
               <div className="event-category">{formatCategoryName(event.category)}</div>
@@ -265,45 +299,71 @@ const Marketplace = () => {
               <h3 className="event-title">{event.title}</h3>
               <p className="event-description">{event.description}</p>
               <div className="event-details">
-                <div className="event-date">
-                  <span className="icon">📅</span>
-                  {new Date(event.date).toLocaleDateString()} 
-                  {event.endTime ? ` | ${event.time} - ${event.endTime}` : ` at ${event.time}`}
-                </div>
-                <div className="event-location">
-                  <span className="icon">📍</span>
-                  {event.location}
-                </div>
-                <div className="event-organizer">
-                  <span className="icon">👥</span>
-                  {event.organizer}
-                </div>
+              <div className="event-date">
+                <span className="icon">📅</span>
+                {new Date(event.date).toLocaleDateString()} 
+                {event.endTime ? ` | ${event.time} - ${event.endTime}` : ` at ${event.time}`}
+              </div>
+              <div className="event-location">
+                <span className="icon">📍</span>
+                {event.location}
+              </div>
+              <div className="event-organizer">
+                <span className="icon">👥</span>
+                {event.organizer}
+              </div>
               </div>
               <div className="event-footer">
-                <div className="seats-section">
-                  <span className="available">
-                    {event.availableSeats} seats available
-                  </span>
-                </div>
+              <div className="seats-section">
+                <span className="available">
+                {event.availableSeats} seats available
+                </span>
+              </div>
+              <button 
+                className={`register-button ${registrations.find(reg => reg === event._id) ? 'registered' : ''}`}
+                onClick={() => {
+                registerForEvent({ event });
+                setEvents((prevEvents) =>
+                  prevEvents.map((e) =>
+                  e._id === event._id
+                    ? { ...e, availableSeats: e.availableSeats - 1 }
+                    : e
+                  )
+                );
+                }}
+                disabled={event.availableSeats === 0 || registrations.find(reg => reg === event._id)}
+              >
+                {registrations.find(reg => reg === event._id) 
+                ? 'Registered ✓' 
+                : event.availableSeats === 0 
+                ? 'Event Full' 
+                : 'Register'
+                }
+              </button>
+              {registrations.some((reg) => reg === event._id) && (
                 <button 
-                  className={`register-button ${registrations.find(reg => reg === event._id) ? 'registered' : ''}`}
-                  onClick={() => registerForEvent({event})}
-                  disabled={event.availableSeats === 0 || registrations.find(reg => reg === event._id)}
+                onClick={() => {
+                  cancelRegistration(event._id);
+                  setEvents((prevEvents) =>
+                  prevEvents.map((e) =>
+                    e._id === event._id
+                    ? { ...e, availableSeats: e.availableSeats + 1 }
+                    : e
+                  )
+                  );
+                }} 
+                className="cancel-registration-btn"
                 >
-                  {registrations.find(reg => reg === event._id) 
-                    ? 'Registered ✓' 
-                    : event.availableSeats === 0 
-                    ? 'Event Full' 
-                    : 'Register'
-                  }
+                Cancel Registration
                 </button>
+              )}
               </div>
             </div>
+            </div>
+          ))}
           </div>
-        ))}
-      </div>
 
-      {/* My Registrations Sidebar - Only show if user has registrations */}
+          {/* My Registrations Sidebar - Only show if user has registrations */}
       {/* {registrations.length > 0 && (
         <div className="registrations-sidebar">
           <h3>My Registrations</h3>

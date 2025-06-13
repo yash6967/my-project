@@ -1,8 +1,10 @@
 const express = require('express');
 const Event = require('../models/Event');
+const User = require('../models/User');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const mongoose = require('mongoose');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -142,20 +144,32 @@ router.put('/:id/register', async (req, res) => {
 router.put('/:id/cancel-register', async (req, res) => {
   try {
     const { userId } = req.body;
-
+    console.log(userId);
     const event = await Event.findById(req.params.id);
+    console.log(req.params.id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
-
+    console.log("1");
     if (!event.registeredUsers.includes(userId)) {
       return res.status(400).json({ error: 'User not registered for this event' });
     }
-
+    console.log("2");
+    console.log("a");
     event.availableSeats += 1;
-    event.registeredUsers = event.registeredUsers.filter((id) => id !== userId);
+    console.log("b");
+    event.registeredUsers = event.registeredUsers.filter(
+      (id) => String(id) !== String(userId)
+    );
+    
+    console.log("c");
     await event.save();
-
+    console.log("d");
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { events: new mongoose.Types.ObjectId(req.params.id) } }
+    );
+    console.log("f");
     res.status(200).json({ message: 'User registration canceled successfully', event });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -170,6 +184,26 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
     res.status(200).json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get registrations for an event by ID
+router.get('/:id/registrations', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id).populate('registeredUsers', 'name email phone');
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    const registrations = event.registeredUsers.map(user => ({
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    }));
+
+    res.status(200).json(registrations);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

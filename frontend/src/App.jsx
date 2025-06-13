@@ -12,6 +12,8 @@ import ManageEvents from './components/ManageEvents';
 import ApplyForDomainExpert from './components/ApplyForDomainExpert';
 import CreateEvent from './components/CreateEvent';
 import './App.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -31,6 +33,18 @@ function App() {
           <Route path="/manage-events" element={<ManageEvents />} />
           <Route path="/create-event" element={<CreateEvent />} />
         </Routes>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </div>
     </Router>
   );
