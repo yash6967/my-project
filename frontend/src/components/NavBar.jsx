@@ -26,12 +26,23 @@ const NavBar = () => {
     localStorage.clear();
     navigate('/login');
   };
+  const openEditModal = () => {
     setIsEditModalOpen(true);
   };
+
+  const toggleProfilePopup = () => {
+    setIsProfilePopupVisible(!isProfilePopupVisible);
+  };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
     setEditDetails((prev) => ({ ...prev, [name]: value }));
   };
   
+  const saveChanges = () => {
+    // Here you can make an API call to update user details
     console.log("Saved details:", editDetails);
+    setIsEditModalOpen(false);
+  };
   
   const closeEditModal = () => {
     setIsEditModalOpen(false);
