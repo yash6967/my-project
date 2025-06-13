@@ -513,6 +513,70 @@
   background-color: #c82333;
 }
 
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 0;
+  background: #f9f9f9;
+  padding: 4px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.view-toggle input[type="radio"] {
+  display: none;
+}
+
+.view-toggle label {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #282769;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-align: center;
+  min-width: 100px;
+}
+
+.view-toggle label:hover {
+  background: rgba(40, 39, 105, 0.05);
+}
+
+.view-toggle input[type="radio"]:checked + label,
+.view-toggle label.selected {
+  background: linear-gradient(135deg, #e9e9ec, #e9e9ec);
+  color: #282769;
+  box-shadow: 0 2px 5px rgba(40, 39, 105, 0.3);
+}
+
+/* Search Bar Styling */
+.dashboard-search-bar {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #282769;
+  background: #f9f9f9;
+  font-weight: 600;
+  min-width: 100px;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+  transition: all 0.2s ease, border-color 0.2s;
+}
+
+.dashboard-search-bar:focus {
+  background: #f9f9f9 ;
+  color: #282769;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(40, 39, 105, 0.3);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-header {

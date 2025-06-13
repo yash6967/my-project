@@ -35,6 +35,7 @@ const Dashboard = () => {
     dateOfBirth: user?.dateOfBirth || '',
     linkedinProfile: user?.linkedinProfile || '',
   });
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -203,6 +204,19 @@ const Dashboard = () => {
     navigate('/apply-for-domain-expert');
   };
 
+  // Filtered data based on search term
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.mobileNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredRequests = requests.filter(
+    (request) =>
+      request.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      request.requested_user_type?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-content">
@@ -226,17 +240,30 @@ const Dashboard = () => {
             <p><strong>LinkedIn Profile:</strong> <a href={user?.linkedinProfile} target="_blank" rel="noopener noreferrer">{user?.linkedinProfile}</a></p>
             <button className="edit-button" onClick={openEditModal}>Edit</button>
           </div>
+
           {(userType === 'admin' || userType === 'super_admin') && (
             <div className="view-toggle">
-              <label>
+              <label className={view === 'users' ? 'selected' : ''}>
                 <input type="radio" name="view" value="users" checked={view === 'users'} onChange={() => setView('users')} /> Users
               </label>
-              <label>
+              <label className={view === 'experts' ? 'selected' : ''}>
                 <input type="radio" name="view" value="experts" checked={view === 'experts'} onChange={() => setView('experts')} /> Experts
               </label>
-              <label>
+              <label className={view === 'requests' ? 'selected' : ''}>
                 <input type="radio" name="view" value="requests" checked={view === 'requests'} onChange={() => setView('requests')} /> Requests
               </label>
+            </div>
+          )}
+          {/* Search bar for tables */}
+          {(userType === 'admin' || userType === 'super_admin') && (
+            <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'center' }}>
+              <input
+                type="text"
+                placeholder={`Search ${view}`}
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="dashboard-search-bar"
+              />
             </div>
           )}
           {userType === 'normal' && (
@@ -261,13 +288,13 @@ const Dashboard = () => {
             <div className="dashboard-content">
               {view === 'users' && (
                 <div>
-                  <button className="export-button" onClick={() => exportToExcel(users, 'Users')}>Export Users</button>
+                  <button className="export-button" onClick={() => exportToExcel(filteredUsers, 'Users')}>Export Users</button>
                   <table className="users-table">
                     <thead>
                       <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
                     </thead>
                     <tbody>
-                      {users.map((user) => (
+                      {filteredUsers.map((user) => (
                         <tr key={user._id}>
                           <td>{user.name}</td>
                           <td>{user.mobileNumber}</td>
@@ -280,13 +307,13 @@ const Dashboard = () => {
               )}
               {view === 'experts' && (
                 <div>
-                  <button className="export-button" onClick={() => exportToExcel(users, 'Experts')}>Export Experts</button>
+                  <button className="export-button" onClick={() => exportToExcel(filteredUsers, 'Experts')}>Export Experts</button>
                   <table className="experts-table">
                     <thead>
                       <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
                     </thead>
                     <tbody>
-                      {users.map((user) => (
+                      {filteredUsers.map((user) => (
                         <tr key={user._id}>
                           <td>{user.name}</td>
                           <td>{user.mobileNumber}</td>
@@ -299,13 +326,13 @@ const Dashboard = () => {
               )}
               {view === 'requests' && (
                 <div>
-                  <button className="export-button" onClick={() => exportToExcel(requests, 'Requests')}>Export Requests</button>
+                  <button className="export-button" onClick={() => exportToExcel(filteredRequests, 'Requests')}>Export Requests</button>
                   <table className="requests-table">
                     <thead>
                       <tr><th>Email</th><th>Requested User Type</th><th>Actions</th></tr>
                     </thead>
                     <tbody>
-                      {requests.map((request) => (
+                      {filteredRequests.map((request) => (
                         <tr key={request._id}>
                           <td>{request.userEmail}</td>
                           <td>{request.requested_user_type}</td>
