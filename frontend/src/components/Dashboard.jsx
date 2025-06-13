@@ -221,11 +221,13 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-content">
         <div className="user-info-card">
-          <h2>User Information</h2>
-          <div className="user-type-badge">
-            <span className="badge-label">User Type:</span>
-            <span className={`badge ${userType}`}>{formatUserType(userType)}</span>
+        <h2>Dashboard</h2>
+        <div className="user-type-badge">
+            {/* <span className="badge-label">User Type:</span> */}
+            <span className={`badge ${userType}`}>{formatUserType(userType) + ' Controls' }</span>
           </div>
+          {/* 
+          
           <div className="user-details">
             <h3>Details:</h3>
             <p><strong>Name:</strong> {user?.name}</p>
@@ -239,7 +241,7 @@ const Dashboard = () => {
             <p><strong>Date of Birth:</strong> {user?.dateOfBirth}</p>
             <p><strong>LinkedIn Profile:</strong> <a href={user?.linkedinProfile} target="_blank" rel="noopener noreferrer">{user?.linkedinProfile}</a></p>
             <button className="edit-button" onClick={openEditModal}>Edit</button>
-          </div>
+           </div> */}
 
           {(userType === 'admin' || userType === 'super_admin') && (
             <div className="view-toggle">
