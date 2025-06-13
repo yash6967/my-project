@@ -1,3 +1,18 @@
+.delete-btn {
+  background-color: #e53935;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+}
+
+.delete-btn:hover {
+  background-color: #c62828;
+}
+
 /* Styling for the Manage Events page */
 .manage-events-container {
   max-width: 1200px;

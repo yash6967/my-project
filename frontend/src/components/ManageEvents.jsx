@@ -145,13 +145,16 @@ const ManageEvents = () => {
             <p><strong>Available Seats:</strong> {event.availableSeats}</p>
             <div className="event-actions">
               <button onClick={() => handleEdit(event)}>Edit</button>
-              <button onClick={() => handleDelete(event._id)}>Delete</button>
               <button onClick={() => fetchEventRegistrations(event._id)}>Info</button>
+              <button onClick={() => {
+                if (window.confirm('Are you sure you want to delete this event?')) {
+                  handleDelete(event._id);
+                }
+              }}>Delete</button>
             </div>
           </div>
         ))}
       </div>
-
       {editEvent && (
         <div className="edit-modal">
           <div className="edit-modal-content">
