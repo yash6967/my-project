@@ -19,6 +19,8 @@ const Marketplace = () => {
   const [registrations, setRegistrations] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const navigate = useNavigate();
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
   const eventImages = [event1, event2, event3];
@@ -117,6 +119,15 @@ const Marketplace = () => {
   //   localStorage.setItem('events', JSON.stringify(registrations));
   // }, [registrations]);
 
+  const toggleFilterVisibility = () => {
+    setIsFilterVisible(!isFilterVisible);
+  };
+
+  const handleScreenClick = (e) => {
+    if (isFilterVisible) {
+      setIsFilterVisible(false);
+    }
+  };
 
   const registerForEvent = async (props) => {
     console.log("event object here : ",props.event);
@@ -207,7 +218,12 @@ const Marketplace = () => {
     const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          event.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    if (filter === 'registered') {
+      return registrations.includes(event._id) && matchesCategory && matchesSearch;
+    } else if (filter === 'not_registered') {
+      return !registrations.includes(event._id) && matchesCategory && matchesSearch;
+    }
+    return matchesCategory && matchesSearch; // 'all' filter
   });
 
   const categories = [
@@ -235,16 +251,38 @@ const Marketplace = () => {
     setCurrentEventIndex((prevIndex) => (prevIndex - 1 + eventImages.length) % eventImages.length);
   };
   return (
-    <div className="marketplace-container">
+    <div className="marketplace-container" onClick={handleScreenClick}>
       <div className="hero-section">
         <button className="arrow-button" onClick={handlePreviousEvent}>❮</button>
         <img src={eventImages[currentEventIndex]} alt="Ongoing Event" className="hero-image" />
         <button className="arrow-button" onClick={handleNextEvent}>❯</button>
       </div>
+      <div className="filter-icon" onClick={(e) => { e.stopPropagation(); toggleFilterVisibility(); }}>
+        <span>☰</span>
+      </div>
+      {isFilterVisible && (
+        <div className="filter-buttons" onClick={(e) => e.stopPropagation()}>
+          <button
+            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            All
+          </button>
+          <button
+            className={`filter-btn ${filter === 'registered' ? 'active' : ''}`}
+            onClick={() => setFilter('registered')}
+          >
+            Registered
+          </button>
+          <button
+            className={`filter-btn ${filter === 'not_registered' ? 'active' : ''}`}
+            onClick={() => setFilter('not_registered')}
+          >
+            Not Registered
+          </button>
+        </div>
+      )}
       <div className="filters-section">
-        {/* <div className='marketplace-section'>
-          <h2>Events </h2>
-        </div> */}
         <div className="search-bar">
           <input
             type="text"
@@ -267,122 +305,80 @@ const Marketplace = () => {
         </div>
       </div>
       <div className="market-content">
-      {/* Header */}
-      {/* <div className="marketplace-header">
-        <div className="header-content">
-          <div className="header-left">
-            <img src={aicteLogo} alt="AICTE Logo" className="header-logo" />
-            <h1>AICTE Events</h1>
-            <br />
-            <h2>Welcome, {localStorage.getItem('userName')}</h2>
-          </div>
-          <div className="header-actions">
-            
-            
-          </div>
-        </div>
-      </div> */}
-
-      {/* Filters */}
-      
-
-      {/* Events Grid */}
-          
-          <div className="events-grid">
+        <div className="events-grid">
           {filteredEvents.map(event => (
             <div key={event._id} className="event-card">
-            <div className="event-image">
-              <img src={event.image} alt={event.title} />
-              <div className="event-category">{formatCategoryName(event.category)}</div>
-            </div>
-            <div className="event-content">
-              <h3 className="event-title">{event.title}</h3>
-              <p className="event-description">{event.description}</p>
-              <div className="event-details">
-              <div className="event-date">
-                <span className="icon">📅</span>
-                {new Date(event.date).toLocaleDateString()} 
-                {event.endTime ? ` | ${event.time} - ${event.endTime}` : ` at ${event.time}`}
+              <div className="event-image">
+                <img src={event.image} alt={event.title} />
+                <div className="event-category">{formatCategoryName(event.category)}</div>
               </div>
-              <div className="event-location">
-                <span className="icon">📍</span>
-                {event.location}
-              </div>
-              <div className="event-organizer">
-                <span className="icon">👥</span>
-                {event.organizer}
-              </div>
-              </div>
-              <div className="event-footer">
-              <div className="seats-section">
-                <span className="available">
-                {event.availableSeats} seats available
-                </span>
-              </div>
-              <button 
-                className={`register-button ${registrations.find(reg => reg === event._id) ? 'registered' : ''}`}
-                onClick={() => {
-                registerForEvent({ event });
-                setEvents((prevEvents) =>
-                  prevEvents.map((e) =>
-                  e._id === event._id
-                    ? { ...e, availableSeats: e.availableSeats - 1 }
-                    : e
-                  )
-                );
-                }}
-                disabled={event.availableSeats === 0 || registrations.find(reg => reg === event._id)}
-              >
-                {registrations.find(reg => reg === event._id) 
-                ? 'Registered ✓' 
-                : event.availableSeats === 0 
-                ? 'Event Full' 
-                : 'Register'
-                }
-              </button>
-              {registrations.some((reg) => reg === event._id) && (
-                <button 
-                onClick={() => {
-                  cancelRegistration(event._id);
-                  setEvents((prevEvents) =>
-                  prevEvents.map((e) =>
-                    e._id === event._id
-                    ? { ...e, availableSeats: e.availableSeats + 1 }
-                    : e
-                  )
-                  );
-                }} 
-                className="cancel-registration-btn"
-                >
-                Cancel Registration
-                </button>
-              )}
-              </div>
-            </div>
-            </div>
-          ))}
-          </div>
-
-          {/* My Registrations Sidebar - Only show if user has registrations */}
-      {/* {registrations.length > 0 && (
-        <div className="registrations-sidebar">
-          <h3>My Registrations</h3>
-          <div className="registration-items">
-            {registrations.map(registration => (
-              <div key={registration.id} className="registration-item">
-                <div className="registration-info">
-                  <h4>{registration.title}</h4>
-                  <p>{new Date(registration.date).toLocaleDateString()}</p>
-                  <span className="status">✓ Registered</span>
+              <div className="event-content">
+                <h3 className="event-title">{event.title}</h3>
+                <p className="event-description">{event.description}</p>
+                <div className="event-details">
+                  <div className="event-date">
+                    <span className="icon">📅</span>
+                    {new Date(event.date).toLocaleDateString()} 
+                    {event.endTime ? ` | ${event.time} - ${event.endTime}` : ` at ${event.time}`}
+                  </div>
+                  <div className="event-location">
+                    <span className="icon">📍</span>
+                    {event.location}
+                  </div>
+                  <div className="event-organizer">
+                    <span className="icon">👥</span>
+                    {event.organizer}
+                  </div>
+                </div>
+                <div className="event-footer">
+                  <div className="seats-section">
+                    <span className="available">
+                      {event.availableSeats} seats available
+                    </span>
+                  </div>
+                  <button 
+                    className={`register-button ${registrations.find(reg => reg === event._id) ? 'registered' : ''}`}
+                    onClick={() => {
+                      registerForEvent({ event });
+                      setEvents((prevEvents) =>
+                        prevEvents.map((e) =>
+                          e._id === event._id
+                            ? { ...e, availableSeats: e.availableSeats - 1 }
+                            : e
+                        )
+                      );
+                    }}
+                    disabled={event.availableSeats === 0 || registrations.find(reg => reg === event._id)}
+                  >
+                    {registrations.find(reg => reg === event._id) 
+                      ? 'Registered ✓' 
+                      : event.availableSeats === 0 
+                      ? 'Event Full' 
+                      : 'Register'
+                    }
+                  </button>
+                  {registrations.some((reg) => reg === event._id) && (
+                    <button 
+                      onClick={() => {
+                        cancelRegistration(event._id);
+                        setEvents((prevEvents) =>
+                          prevEvents.map((e) =>
+                            e._id === event._id
+                              ? { ...e, availableSeats: e.availableSeats + 1 }
+                              : e
+                          )
+                        );
+                      }} 
+                      className="cancel-registration-btn"
+                    >
+                      Cancel Registration
+                    </button>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="total-registrations">
-            <strong>Total Events: {registrations.length}</strong>
-          </div>
+            </div>
+          ))}
         </div>
-      )} */}
       </div>
     </div>
   );
