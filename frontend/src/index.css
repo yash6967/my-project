@@ -6,7 +6,7 @@
   --primary-light: #eeeeee;
   --accent-red: #e51b00;
   --white: #ffffff;
-  --yellow-bg: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+  /* --yellow-bg: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%); */
   
   /* Font settings */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

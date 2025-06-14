@@ -2,10 +2,27 @@
 
 .marketplace-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
-  /* background-color:antiquewhite; */
+  position: relative;
+  z-index: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding-bottom: 50px;
+}
+
+/* background image added through this */
+.marketplace-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../assets/bg_logo.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.2;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Header */
@@ -54,7 +71,7 @@
   justify-content: center;
   position: relative;
   width: 60%;
-  height: 50vh; /* Adjusted to fit 50% of the viewport height */
+  height: 70vh; /* Adjusted to fit 50% of the viewport height */
   margin: 0 auto;
   padding-top: 50px;
   overflow: hidden;
@@ -226,15 +243,24 @@
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(40, 39, 105, 0.3);
 }
-
+.cancel-registration-btn{
+  background: #e51b00;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 /* Filter Icon and Buttons */
 .filter-icon {
-  position: absolute;
-  top: 570px; /* Moved slightly below */
-  right:40%;
-  background-color: #282769;
-  color: white;
-  padding: 10px;
+  background-color: #ffffff;
+  color: rgb(207, 207, 207);
+  padding-left: 5px;
+  padding-right: 5px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 1.5rem;

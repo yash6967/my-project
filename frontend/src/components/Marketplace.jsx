@@ -26,45 +26,45 @@ const Marketplace = () => {
   const eventImages = [event1, event2, event3];
   // AICTE Events data
   const sampleEvents = [
-    {
-      id: 1,
-      title: "AICTE Idea Lab Tech Fest 2025",
-      description: "A cutting-edge event showcasing indovations and creative technological solutions from students, featuring workshops, seminars, and competitions led by industry experts and academic leaders.",
-      date: "2025-03-15",
-      time: "10:00 AM",
-      endTime: "5:00 PM",
-      location: "AICTE Indovation Hub, New Delhi",
-      category: "ip_consultancy",
-      image: event1Image,
-      availableSeats: 200,
-      organizer: "AICTE Indovation Cell"
-    },
-    {
-      id: 2,
-      title: "Smart India Hackathon (SIH) 2025",
-      description: "A national-level coding competition where students collaborate to solve real-world problems posed by government and industry, with mentoring from top tech experts.",
-      date: "2025-04-10",
-      time: "09:00 AM",
-      endTime: "6:00 PM",
-      location: "AICTE National Center, Mumbai",
-      category: "expert_guidance",
-      image: event2Image,
-      availableSeats: 500,
-      organizer: "AICTE & Ministry of Education"
-    },
-    {
-      id: 3,
-      title: "JIC Indovation Summit 2025",
-      description: "A gathering of innovators, entrepreneurs, and educators to share disruptive ideas and the latest trends in technology, featuring talks, panel discussions, and startup showcases.",
-      date: "2025-01-25",
-      time: "10:00 AM",
-      endTime: "4:00 PM",
-      location: "JIC Convention Center, Bangalore",
-      category: "mentoring",
-      image: event3Image,
-      availableSeats: 300,
-      organizer: "JIC Indovation Hub"
-    },
+    // {
+    //   id: 1,
+    //   title: "AICTE Idea Lab Tech Fest 2025",
+    //   description: "A cutting-edge event showcasing indovations and creative technological solutions from students, featuring workshops, seminars, and competitions led by industry experts and academic leaders.",
+    //   date: "2025-03-15",
+    //   time: "10:00 AM",
+    //   endTime: "5:00 PM",
+    //   location: "AICTE Indovation Hub, New Delhi",
+    //   category: "ip_consultancy",
+    //   image: event1Image,
+    //   availableSeats: 200,
+    //   organizer: "AICTE Indovation Cell"
+    // },
+    // {
+    //   id: 2,
+    //   title: "Smart India Hackathon (SIH) 2025",
+    //   description: "A national-level coding competition where students collaborate to solve real-world problems posed by government and industry, with mentoring from top tech experts.",
+    //   date: "2025-04-10",
+    //   time: "09:00 AM",
+    //   endTime: "6:00 PM",
+    //   location: "AICTE National Center, Mumbai",
+    //   category: "expert_guidance",
+    //   image: event2Image,
+    //   availableSeats: 500,
+    //   organizer: "AICTE & Ministry of Education"
+    // },
+    // {
+    //   id: 3,
+    //   title: "JIC Indovation Summit 2025",
+    //   description: "A gathering of innovators, entrepreneurs, and educators to share disruptive ideas and the latest trends in technology, featuring talks, panel discussions, and startup showcases.",
+    //   date: "2025-01-25",
+    //   time: "10:00 AM",
+    //   endTime: "4:00 PM",
+    //   location: "JIC Convention Center, Bangalore",
+    //   category: "mentoring",
+    //   image: event3Image,
+    //   availableSeats: 300,
+    //   organizer: "JIC Indovation Hub"
+    // },
     
   ];
 
@@ -79,8 +79,10 @@ const Marketplace = () => {
           throw new Error('Failed to fetch events');
         }
         const data = await response.json();
+        const reversedData = data.reverse();
         // Combine sample events with fetched events
-        setEvents([...sampleEvents, ...data]);
+        setEvents([...reversedData,...sampleEvents]);
+        console.log('events',events);
       } catch (error) {
         console.error('Error fetching events:', error);
         toast.error('Error fetching events:', error);
@@ -257,9 +259,7 @@ const Marketplace = () => {
         <img src={eventImages[currentEventIndex]} alt="Ongoing Event" className="hero-image" />
         <button className="arrow-button" onClick={handleNextEvent}>❯</button>
       </div>
-      <div className="filter-icon" onClick={(e) => { e.stopPropagation(); toggleFilterVisibility(); }}>
-        <span>☰</span>
-      </div>
+      
       {isFilterVisible && (
         <div className="filter-buttons" onClick={(e) => e.stopPropagation()}>
           <button
@@ -291,6 +291,9 @@ const Marketplace = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
+          <div className="filter-icon" onClick={(e) => { e.stopPropagation(); toggleFilterVisibility(); }}>
+            <span>☰</span>
+          </div>
         </div>
         <div className="category-filters">
           {categories.map(category => (
@@ -327,7 +330,7 @@ const Marketplace = () => {
                   </div>
                   <div className="event-organizer">
                     <span className="icon">👥</span>
-                    {event.organizer}
+                    {event.organizer}{event._id}
                   </div>
                 </div>
                 <div className="event-footer">

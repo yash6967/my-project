@@ -18,10 +18,28 @@
   max-width: 1200px;
   margin: 50px auto;
   padding: 20px;
-  /* background-color:#ffeb3b; */
   border-radius: 8px;
-  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
   font-family: Arial, sans-serif;
+  position: relative;
+  z-index: 0;
+  background: transparent;
+}
+
+/* for the background image */
+.manage-events-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../assets/bg_logo.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.2;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .manage-events-container h2 {

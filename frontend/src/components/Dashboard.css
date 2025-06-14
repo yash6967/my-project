@@ -2,8 +2,27 @@
 
 .dashboard-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+  /* background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%); */
+  background: #f9f9f9;
+  position: relative;
+  z-index: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* for the background image */
+.dashboard-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../assets/bg_logo.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.2;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .dashboard-header {

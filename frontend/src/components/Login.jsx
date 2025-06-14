@@ -66,7 +66,7 @@ const Login = () => {
 
       // Redirect based on userType
       
-      navigate('/dashboard');
+      navigate('/events');
       
 
     } catch (err) {
