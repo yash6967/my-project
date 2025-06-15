@@ -292,18 +292,40 @@
 .edit-button:hover {
   background-color: #0056b3;
 }
+.profile-icon{
+  cursor:pointer;
+}
 
+.proflie-popup{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #282769; /* Match site theme */
+}
 .edit-modal {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(40, 39, 105, 0.8); /* Match site theme */
+  width: 50%;
+  height: 50%;
+  /* background-color: rgba(40, 39, 105, 0.8); Match site theme */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  /* z-index: 1000; */
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #282769; /* Match site theme */
 }
 
 .edit-modal-content {
@@ -373,9 +395,9 @@
   background-color: #999;
 }
 
-.profile-popup{
+/* .profile-popup{
 
-}
+} */
 
 /* Responsive Design */
 @media (max-width: 768px) {

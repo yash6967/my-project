@@ -7,7 +7,11 @@
   --accent-red: #e51b00;
   --white: #ffffff;
   /* --yellow-bg: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%); */
-  
+  /* background-image: url('../assets/bg_logo.jpg');
+  background-repeat: repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity:0.2; */
   /* Font settings */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;

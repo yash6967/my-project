@@ -1,31 +1,14 @@
-.delete-btn {
-  background-color: #e53935;
-  color: white;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-weight: 500;
-}
-
-.delete-btn:hover {
-  background-color: #c62828;
-}
-
 /* Styling for the Manage Events page */
+
 .manage-events-container {
   max-width: 1200px;
   margin: 50px auto;
   padding: 20px;
+  /* background-color:#ffeb3b; */
   border-radius: 8px;
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
   font-family: Arial, sans-serif;
-  position: relative;
-  z-index: 0;
-  background: transparent;
 }
-
-/* for the background image */
 .manage-events-container::before {
   content: '';
   position: fixed;
