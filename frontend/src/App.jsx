@@ -11,6 +11,8 @@ import ServiceBooking from './components/ServiceBooking';
 import ManageEvents from './components/ManageEvents';
 import ApplyForDomainExpert from './components/ApplyForDomainExpert';
 import CreateEvent from './components/CreateEvent';
+import Profile from './components/Profile';
+import AvailabilityManager from './components/AvailabilityManager';
 import './App.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -32,6 +34,8 @@ function App() {
           <Route path="/apply-for-domain-expert" element={<ApplyForDomainExpert />} />
           <Route path="/manage-events" element={<ManageEvents />} />
           <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/create-session" element={<AvailabilityManager />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
         <ToastContainer
           position="bottom-right"

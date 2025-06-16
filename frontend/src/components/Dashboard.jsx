@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import aicteLogo from '../assets/aicte_logo.png';
 import './Dashboard.css';
@@ -37,6 +37,7 @@ const Dashboard = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!user) {
@@ -45,6 +46,15 @@ const Dashboard = () => {
     }
     setUserType(user.userType);
   }, [user, navigate]);
+
+  // Check URL parameters for view
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const viewParam = urlParams.get('view');
+    if (viewParam && ['users', 'experts', 'requests'].includes(viewParam)) {
+      setView(viewParam);
+    }
+  }, [location.search]);
 
   // Fetch users for admin
   const fetchUsers = async (userType) => {
@@ -65,7 +75,8 @@ const Dashboard = () => {
         const data = await response.json();
         setRequests(data);
       } else {
-        const response = await fetch(`${BACKEND_URL}api/requests/${user.id}`);
+        const id = localStorage.getItem('userId');
+        const response = await fetch(`${BACKEND_URL}api/requests/${id}`);
         const data = await response.json();
         setRequests(data);
       }
@@ -90,7 +101,8 @@ const Dashboard = () => {
     // Fetch user details for all user types
     const fetchUserDetails = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}api/auth/user-details/${user.id}`);
+        const id = localStorage.getItem('userId');
+        const response = await fetch(`${BACKEND_URL}api/auth/user-details/${id}`);
         const data = await response.json();
         console.log('User Details:', data);
       } catch (error) {
@@ -147,13 +159,45 @@ const Dashboard = () => {
 
   const handleAccept = async (requestId, userId) => {
     try {
-      await fetch(`${BACKEND_URL}api/users/${userId}/toggle-usertype`, {
+      const response = await fetch(`${BACKEND_URL}api/requests/${requestId}/status`, {
         method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'approved' })
       });
-      toast.success('Request accepted and user type updated successfully!');
-      setRequests(requests.filter((request) => request._id !== requestId));
+      
+      if (response.ok) {
+        toast.success('Request approved and user type updated successfully!');
+        fetchRequests();
+      } else {
+        toast.error('Failed to approve request');
+      }
     } catch (error) {
-      console.error('Error accepting request:', error);
+      console.error('Error approving request:', error);
+      toast.error('Error approving request');
+    }
+  };
+
+  const handleReject = async (requestId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}api/requests/${requestId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'rejected' })
+      });
+      
+      if (response.ok) {
+        toast.success('Request rejected successfully!');
+        fetchRequests();
+      } else {
+        toast.error('Failed to reject request');
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      toast.error('Error rejecting request');
     }
   };
 
@@ -270,14 +314,100 @@ const Dashboard = () => {
           )}
           {userType === 'normal' && (
             <div className="dashboard-actions">
-              <button onClick={navigateToDomainExpertForm} className="nav-button">Apply for Domain Expert</button>
               <button onClick={fetchRequests} className="nav-button">View Requests</button>
             </div>
           )}
           {userType === 'domain_expert' && (
-            <div className="dashboard-actions">
-              <h3>Domain Expert View</h3>
-              <p>Feature coming soon...</p>
+            <div className="sessions-management-section">
+              <div className="sessions-header">
+                <h3>My Sessions</h3>
+                <button className="create-session-btn" onClick={() => navigate('/create-session')}>
+                  <span className="btn-icon">+</span>
+                  Create New Session
+                </button>
+              </div>
+              
+              <div className="sessions-tabs">
+                <button className="tab-btn active">All Sessions</button>
+                <button className="tab-btn">Upcoming</button>
+                <button className="tab-btn">Completed</button>
+                <button className="tab-btn">Drafts</button>
+              </div>
+
+              <div className="sessions-content">
+                <div className="sessions-stats">
+                  <div className="stat-card">
+                    <div className="stat-number">12</div>
+                    <div className="stat-label">Total Sessions</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">5</div>
+                    <div className="stat-label">Upcoming</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">7</div>
+                    <div className="stat-label">Completed</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">2</div>
+                    <div className="stat-label">Drafts</div>
+                  </div>
+                </div>
+
+                <div className="sessions-list">
+                  <div className="session-item">
+                    <div className="session-header">
+                      <h4>Introduction to Machine Learning</h4>
+                      <span className="session-status upcoming">Upcoming</span>
+                    </div>
+                    <div className="session-details">
+                      <p><strong>Date:</strong> June 25, 2025</p>
+                      <p><strong>Time:</strong> 2:00 PM - 4:00 PM</p>
+                      <p><strong>Location:</strong> AICTE Jaipur Innovation Center</p>
+                      <p><strong>Audience:</strong> 50 students</p>
+                    </div>
+                    <div className="session-actions">
+                      <button className="action-btn edit-btn">Edit</button>
+                      <button className="action-btn view-btn">View Details</button>
+                      <button className="action-btn delete-btn">Delete</button>
+                    </div>
+                  </div>
+
+                  <div className="session-item">
+                    <div className="session-header">
+                      <h4>Advanced Data Analytics Workshop</h4>
+                      <span className="session-status completed">Completed</span>
+                    </div>
+                    <div className="session-details">
+                      <p><strong>Date:</strong> June 15, 2025</p>
+                      <p><strong>Time:</strong> 10:00 AM - 12:00 PM</p>
+                      <p><strong>Location:</strong> Online (Zoom)</p>
+                      <p><strong>Audience:</strong> 35 professionals</p>
+                    </div>
+                    <div className="session-actions">
+                      <button className="action-btn view-btn">View Details</button>
+                      <button className="action-btn feedback-btn">View Feedback</button>
+                    </div>
+                  </div>
+
+                  <div className="session-item">
+                    <div className="session-header">
+                      <h4>AI in Healthcare - Draft</h4>
+                      <span className="session-status draft">Draft</span>
+                    </div>
+                    <div className="session-details">
+                      <p><strong>Date:</strong> Not scheduled</p>
+                      <p><strong>Duration:</strong> 90 minutes</p>
+                      <p><strong>Target Audience:</strong> Healthcare professionals</p>
+                    </div>
+                    <div className="session-actions">
+                      <button className="action-btn edit-btn">Continue Editing</button>
+                      <button className="action-btn schedule-btn">Schedule Session</button>
+                      <button className="action-btn delete-btn">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           {userType === 'super_admin' && (
@@ -331,15 +461,48 @@ const Dashboard = () => {
                   <button className="export-button" onClick={() => exportToExcel(filteredRequests, 'Requests')}>Export Requests</button>
                   <table className="requests-table">
                     <thead>
-                      <tr><th>Email</th><th>Requested User Type</th><th>Actions</th></tr>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Organization</th>
+                        <th>Role</th>
+                        <th>Requested Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
                     </thead>
                     <tbody>
                       {filteredRequests.map((request) => (
                         <tr key={request._id}>
+                          <td>{request.name}</td>
                           <td>{request.userEmail}</td>
+                          <td>{request.mobileNumber}</td>
+                          <td>{request.organization}</td>
+                          <td>{request.role}</td>
                           <td>{request.requested_user_type}</td>
                           <td>
-                            <button onClick={() => handleAccept(request._id, request.userId)} className="action-btn">Accept</button>
+                            <span className={`status-badge ${request.status}`}>
+                              {request.status}
+                            </span>
+                          </td>
+                          <td>
+                            {request.status === 'pending' && (
+                              <div className="action-buttons">
+                                <button 
+                                  onClick={() => handleAccept(request._id, request.userId)} 
+                                  className="action-btn approve-btn"
+                                >
+                                  Approve
+                                </button>
+                                <button 
+                                  onClick={() => handleReject(request._id)} 
+                                  className="action-btn reject-btn"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -352,14 +515,53 @@ const Dashboard = () => {
         </div>
       </div>
       {userType === 'normal' && (
-        <div className="requests-list">
-          {requests.map((request) => (
-            <div key={request._id} className="request-item">
-              <p>Type: {request.type || request.requested_user_type}</p>
-              <p>Status: {request.status}</p>
-              <button onClick={() => deleteRequest(request._id)} className="delete-button">Delete</button>
+        <div className="requests-section">
+          <h3>My Requests</h3>
+          {requests.length === 0 ? (
+            <p className="no-requests">No requests found.</p>
+          ) : (
+            <div className="requests-table-container">
+              <table className="requests-table">
+                <thead>
+                  <tr>
+                    <th>Request Type</th>
+                    <th>Status</th>
+                    <th>Applied Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((request) => (
+                    <tr key={request._id}>
+                      <td>
+                        <span className="request-type">
+                          {request.requested_user_type === 'domain_expert' ? 'Domain Expert' : 
+                           request.requested_user_type === 'service_provider' ? 'Service Provider' : 
+                           request.requested_user_type}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`status-badge ${request.status}`}>
+                          {request.status}
+                        </span>
+                      </td>
+                      <td>
+                        {new Date(request.createdAt).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <button 
+                          onClick={() => deleteRequest(request._id)} 
+                          className="delete-btn"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
+          )}
         </div>
       )}
       {isEditModalOpen && (

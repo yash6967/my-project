@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
     match: [/^\d{10}$/, 'Please provide a valid mobile number'],
     required: false
   },
+  address: {
+    type: String,
+    required: false
+  },
   gender: {
     type: String,
     enum: ['male', 'female', 'other'],

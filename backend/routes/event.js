@@ -70,12 +70,18 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single event by ID
-router.get('/:title', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
+    
+    // Update image path to include full URL if image exists
+    if (event.image) {
+      event.image = `${req.protocol}://${req.get('host')}/images/${event.image.split('/').pop()}`;
+    }
+    
     res.status(200).json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });

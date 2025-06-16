@@ -3,14 +3,16 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import aicteLogo from '../assets/aicte_logo.png';
 import './NavBar.css';
 import { useUser } from '../context/UserContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // const { user } = useUser();
-  const { user, setUser } = useUser(); // ✅ Add setUser
+  const { user, setUser } = useUser();
 
-  const [isProfilePopupVisible, setIsProfilePopupVisible] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editDetails, setEditDetails] = useState({
     name: user?.name || '',
@@ -24,13 +26,12 @@ const NavBar = () => {
     dateOfBirth: user?.dateOfBirth || '',
     linkedinProfile: user?.linkedinProfile || '',
   });
+
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
   };
-  // const openEditModal = () => {
-  //   setIsEditModalOpen(true);
-  // };
+
   const openEditModal = () => {
     setEditDetails({
       name: user?.name || '',
@@ -47,32 +48,59 @@ const NavBar = () => {
     setIsEditModalOpen(true);
   };
   
-  const toggleProfilePopup = () => {
-    setIsProfilePopupVisible(!isProfilePopupVisible);
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditDetails((prev) => ({ ...prev, [name]: value }));
   };
   
-  // const saveChanges = () => {
-  //   // Here you can make an API call to update user details
-  //   console.log("Saved details:", editDetails);
-  //   setIsEditModalOpen(false);
-  // };
-  const saveChanges = () => {
-    setUser(editDetails); // Update global context
-    setIsEditModalOpen(false); // Close modal
-  
-    // Optional: persist in localStorage so it survives refresh
-    localStorage.setItem('user', JSON.stringify(editDetails));
+  const saveChanges = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        toast.error('Authentication required. Please login again.');
+        return;
+      }
+
+      // Update backend with new user details
+      const response = await fetch(`${BACKEND_URL}api/auth/user-details/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editDetails)
+      });
+
+      if (response.ok) {
+        // Update global context
+        setUser(editDetails);
+        
+        // Update localStorage
+        localStorage.setItem('user', JSON.stringify(editDetails));
+        
+        // Close modal
+        setIsEditModalOpen(false);
+        
+        toast.success('Profile updated successfully!');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('An error occurred while updating your profile');
+    }
   };
-  
   
   const closeEditModal = () => {
     setIsEditModalOpen(false);
   };
-  
 
   const isLoggedIn = !!localStorage.getItem('isLoggedIn');
 
@@ -88,6 +116,9 @@ const NavBar = () => {
         {isLoggedIn && (
           <Link to="/dashboard" className={`navbar-link${location.pathname === '/dashboard' ? ' active' : ''}`}>Dashboard</Link>
         )}
+        {/* {isLoggedIn && (
+          <Link to="/profile" className={`navbar-link${location.pathname === '/profile' ? ' active' : ''}`}>Profile</Link>
+        )} */}
         {(isLoggedIn && (user?.userType === 'admin' || user?.userType === 'super_admin')) && (
           <Link to="/manage-events" className="navbar-link">Manage Events</Link>
         )}
@@ -100,42 +131,12 @@ const NavBar = () => {
           <Link to="/signup" className={`navbar-link${location.pathname === '/signup' ? ' active' : ''}`}>Signup</Link>
         )}
         {isLoggedIn && (
-          <div className="profile-icon" onClick={toggleProfilePopup}>👤</div>
+          <div className="profile-icon" onClick={handleProfileClick}>👤</div>
         )}
       </div>
-      {/* {isProfilePopupVisible && (
-        <div className="profile-popup">
-          <h3>Profile Details</h3>
-          <p><strong>Name:</strong> {user?.name}</p>
-          <p><strong>Email:</strong> {user?.email}</p>
-          <p><strong>Mobile Number:</strong> {user?.mobileNumber}</p>
-          <p><strong>Address:</strong> {user?.address}</p>
-          <p><strong>Gender:</strong> {user?.gender}</p>
-          <p><strong>Organization:</strong> {user?.organization}</p>
-          <p><strong>Role:</strong> {user?.role}</p>
-          <p><strong>Location of Work:</strong> {user?.locationOfWork}</p>
-          <p><strong>Date of Birth:</strong> {user?.dateOfBirth}</p>
-          <p><strong>LinkedIn Profile:</strong> <a href={user?.linkedinProfile} target="_blank" rel="noopener noreferrer">{user?.linkedinProfile}</a></p>
-          <button className="edit-button" onClick={openEditModal}>Edit</button>
-        </div>
-      )} */}
-{isProfilePopupVisible && (
-        <div className="profile-popup">
-          <h3>Profile Details</h3>
-          <p><strong>Name:</strong> {user?.name}</p>
-          <p><strong>Email:</strong> {user?.email}</p>
-          <p><strong>Mobile Number:</strong> {user?.mobileNumber}</p>
-          <p><strong>Address:</strong> {user?.address}</p>
-          <p><strong>Gender:</strong> {user?.gender}</p>
-          <p><strong>Organization:</strong> {user?.organization}</p>
-          <p><strong>Role:</strong> {user?.role}</p>
-          <p><strong>Location of Work:</strong> {user?.locationOfWork}</p>
-          <p><strong>Date of Birth:</strong> {user?.dateOfBirth}</p>
-          <p><strong>LinkedIn Profile:</strong> <a href={user?.linkedinProfile} target="_blank" rel="noopener noreferrer">{user?.linkedinProfile}</a></p>
-          <button className="edit-button" onClick={openEditModal}>Edit</button>
-          </div>
-          )}
-{isEditModalOpen && (
+
+      {/* Edit Modal - keeping this for now in case it's needed elsewhere */}
+      {isEditModalOpen && (
         <div className="modal">
           <div className="modal-content">
             <h3>Edit User Details</h3>
@@ -235,11 +236,7 @@ const NavBar = () => {
         </div>
       )}
     </nav>
-  //   );
-  // };
-    // </div>
   );
 };
-
 
 export default NavBar;

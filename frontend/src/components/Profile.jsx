@@ -1,0 +1,560 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './Profile.css';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
+
+const Profile = () => {
+  const navigate = useNavigate();
+  const { user, setUser } = useUser();
+  const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
+  const [hasAppliedForDomainExpert, setHasAppliedForDomainExpert] = useState(false);
+  const [isCheckingApplication, setIsCheckingApplication] = useState(true);
+  const [editDetails, setEditDetails] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    mobileNumber: user?.mobileNumber || '',
+    address: user?.address || '',
+    gender: user?.gender || '',
+    organization: user?.organization || '',
+    role: user?.role || '',
+    locationOfWork: user?.locationOfWork || '',
+    dateOfBirth: user?.dateOfBirth || '',
+    linkedinProfile: user?.linkedinProfile || '',
+  });
+
+  useEffect(() => {
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
+    // Fetch user details from backend
+    fetchUserDetails();
+    
+    // Fetch user's registered events
+    fetchRegisteredEvents();
+    
+    // Check if user has already applied for domain expert
+    checkDomainExpertApplication();
+  }, [navigate]);
+
+  const checkDomainExpertApplication = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) return;
+
+      const response = await fetch(`${BACKEND_URL}api/requests/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const requests = await response.json();
+        // Only consider pending applications, not approved or rejected ones
+        const hasApplied = requests.some(request => 
+          request.requested_user_type === 'domain_expert' && 
+          request.status === 'pending'
+        );
+        setHasAppliedForDomainExpert(hasApplied);
+      }
+    } catch (error) {
+      console.error('Error checking domain expert application:', error);
+    } finally {
+      setIsCheckingApplication(false);
+    }
+  };
+
+  const fetchRegisteredEvents = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Use the new API endpoint to get user events with full details
+      const response = await fetch(`${BACKEND_URL}api/user/events`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setRegisteredEvents(data.events || []);
+      } else {
+        console.error('Failed to fetch user events');
+        setRegisteredEvents([]);
+      }
+    } catch (error) {
+      console.error('Error fetching registered events:', error);
+      setRegisteredEvents([]);
+    }
+  };
+
+  const validateUserDetails = () => {
+    const requiredFields = [
+      'name', 'email', 'mobileNumber', 'address', 'gender', 
+      'organization', 'role', 'locationOfWork', 'dateOfBirth', 'linkedinProfile'
+    ];
+    
+    const missingFields = requiredFields.filter(field => !user[field] || user[field].trim() === '');
+    
+    if (missingFields.length > 0) {
+      const fieldNames = missingFields.map(field => 
+        field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
+      );
+      toast.error(`Please fill in all required fields: ${fieldNames.join(', ')}`);
+      return false;
+    }
+    
+    return true;
+  };
+
+  const applyForDomainExpert = async () => {
+    if (!validateUserDetails()) {
+      return; // Don't proceed if validation fails
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        toast.error('Authentication required. Please login again.');
+        return;
+      }
+
+      const requestData = {
+        userEmail: user.email,
+        requested_user_type: 'domain_expert',
+        name: user.name,
+        mobileNumber: user.mobileNumber,
+        address: user.address,
+        gender: user.gender,
+        organization: user.organization,
+        role: user.role,
+        locationOfWork: user.locationOfWork,
+        dateOfBirth: user.dateOfBirth,
+        linkedinProfile: user.linkedinProfile
+      };
+
+      const response = await fetch(`${BACKEND_URL}api/requests/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (response.ok) {
+        toast.success('Domain Expert application submitted successfully!');
+        // Only refresh application status after successful submission
+        await checkDomainExpertApplication();
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Failed to submit application');
+      }
+    } catch (error) {
+      console.error('Error applying for domain expert:', error);
+      toast.error('An error occurred while submitting your application');
+    }
+  };
+
+  const openEditModal = async () => {
+    try {
+      setIsLoadingUserData(true);
+      
+      // Fetch latest user data from backend
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        toast.error('Authentication required. Please login again.');
+        return;
+      }
+
+      const response = await fetch(`${BACKEND_URL}api/auth/user-details/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setEditDetails({
+          name: userData.name || '',
+          email: userData.email || '',
+          mobileNumber: userData.mobileNumber || '',
+          address: userData.address || '',
+          gender: userData.gender || '',
+          organization: userData.organization || '',
+          role: userData.role || '',
+          locationOfWork: userData.locationOfWork || '',
+          dateOfBirth: userData.dateOfBirth || '',
+          linkedinProfile: userData.linkedinProfile || '',
+        });
+        setIsEditModalOpen(true);
+      } else {
+        toast.error('Failed to load user data');
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      toast.error('Error loading user data');
+    } finally {
+      setIsLoadingUserData(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const fetchUserDetails = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      console.log('Fetching user details for userId:', userId);
+      
+      if (!token || !userId) return;
+
+      const response = await fetch(`${BACKEND_URL}api/auth/user-details/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log('Fetch user details response status:', response.status);
+
+      if (response.ok) {
+        const userData = await response.json();
+        console.log('Fetched user data from backend:', userData);
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      } else {
+        console.error('Failed to fetch user details:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
+  };
+
+  const saveChanges = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      console.log('Saving changes with userId:', userId);
+      console.log('Edit details to save:', editDetails);
+      
+      if (!token || !userId) {
+        toast.error('Authentication required. Please login again.');
+        return;
+      }
+
+      // Update backend with new user details
+      const response = await fetch(`${BACKEND_URL}api/auth/user-details/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editDetails)
+      });
+
+      console.log('Backend response status:', response.status);
+      
+      if (response.ok) {
+        const updatedUser = await response.json();
+        console.log('Backend returned updated user:', updatedUser);
+        
+        // Close modal first
+        setIsEditModalOpen(false);
+        
+        // Refresh user data from backend
+        await fetchUserDetails();
+        
+        toast.success('Profile updated successfully!');
+      } else {
+        const errorData = await response.json();
+        console.error('Backend error:', errorData);
+        toast.error(errorData.error || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('An error occurred while updating your profile');
+    }
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return 'N/A';
+    return timeString;
+  };
+
+  if (!user) {
+    return <div className="profile-loading">Loading...</div>;
+  }
+
+  return (
+    <div className="profile-container">
+      <div className="profile-header">
+        <h1>Profile</h1>
+        <div className="profile-actions">
+          <button className="edit-profile-btn" onClick={openEditModal}>
+            Edit Profile
+          </button>
+          {user.userType === 'normal' && 
+        //   !isCheckingApplication && 
+          (
+            hasAppliedForDomainExpert ? (
+              <button className="view-requests-btn" onClick={() => navigate('/dashboard?view=requests')}>
+                View Requests
+              </button>
+            ) : (
+              <button className="apply-domain-expert-btn" onClick={applyForDomainExpert}>
+                Apply for Domain Expert
+              </button>
+            )
+          )}
+        </div>
+      </div>
+
+      <div className="profile-content">
+        <div className="profile-details">
+          <h2>Personal Information</h2>
+          <div className="profile-grid">
+            <div className="profile-field">
+              <label>Name:</label>
+              <span>{user.name || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Email:</label>
+              <span>{user.email || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Mobile Number:</label>
+              <span>{user.mobileNumber || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Gender:</label>
+              <span>{user.gender || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Date of Birth:</label>
+              <span>{formatDate(user.dateOfBirth)}</span>
+            </div>
+            <div className="profile-field">
+              <label>Address:</label>
+              <span>{user.address || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Organization:</label>
+              <span>{user.organization || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Role:</label>
+              <span>{user.role || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Location of Work:</label>
+              <span>{user.locationOfWork || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>LinkedIn Profile:</label>
+              <span>
+                {user.linkedinProfile ? (
+                  <a href={user.linkedinProfile} target="_blank" rel="noopener noreferrer">
+                    View Profile
+                  </a>
+                ) : (
+                  'N/A'
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="registered-events">
+          <h2>Registered Events</h2>
+          {registeredEvents.length === 0 ? (
+            <p className="no-events">No events registered yet.</p>
+          ) : (
+            <div className="events-table-container">
+              <table className="events-table">
+                <thead>
+                  <tr>
+                    <th>Event Title</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Organizer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {registeredEvents.map((event) => (
+                    <tr key={event._id}>
+                      <td>{event.title}</td>
+                      <td>{formatDate(event.date)}</td>
+                      <td>{formatTime(event.time)} - {formatTime(event.endTime)}</td>
+                      <td>{event.location}</td>
+                      <td>{event.category}</td>
+                      <td>{event.organizer}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Edit Profile</h3>
+            {isLoadingUserData ? (
+              <div className="loading-indicator">
+                <p>Loading user data...</p>
+              </div>
+            ) : (
+              <>
+                <div className="modal-form">
+                  <label>
+                    Name:
+                    <input
+                      type="text"
+                      name="name"
+                      value={editDetails.name || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    Email:
+                    <input
+                      type="email"
+                      name="email"
+                      value={editDetails.email || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    Mobile Number:
+                    <input
+                      type="text"
+                      name="mobileNumber"
+                      value={editDetails.mobileNumber || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    Address:
+                    <input
+                      type="text"
+                      name="address"
+                      value={editDetails.address || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    Gender:
+                    <select
+                      name="gender"
+                      value={editDetails.gender || ''}
+                      onChange={handleInputChange}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </label>
+                  <label>
+                    Organization:
+                    <input
+                      type="text"
+                      name="organization"
+                      value={editDetails.organization || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    Role:
+                    <input
+                      type="text"
+                      name="role"
+                      value={editDetails.role || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    Location of Work:
+                    <input
+                      type="text"
+                      name="locationOfWork"
+                      value={editDetails.locationOfWork || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    Date of Birth:
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={editDetails.dateOfBirth ? new Date(editDetails.dateOfBirth).toISOString().split('T')[0] : ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                  <label>
+                    LinkedIn Profile:
+                    <input
+                      type="url"
+                      name="linkedinProfile"
+                      value={editDetails.linkedinProfile || ''}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                </div>
+                <div className="modal-actions">
+                  <button onClick={saveChanges} className="save-btn">Save</button>
+                  <button onClick={closeEditModal} className="cancel-btn">Cancel</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Profile; 

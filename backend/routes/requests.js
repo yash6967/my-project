@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Request = require('../models/Request');
+const User = require('../models/User');
 
 // Create a new request
 router.post('/:userId', async (req, res) => {
@@ -18,7 +19,7 @@ router.post('/:userId', async (req, res) => {
 router.get('/all-requests', async (req, res) => {
   try {
     console.log('Fetching all requests from MongoDB');
-    const requests = await Request.find({});
+    const requests = await Request.find({}).populate('userId', 'name email userType');
     console.log('Fetched requests:', requests);
     res.status(200).json(requests);
   } catch (error) {
@@ -33,6 +34,33 @@ router.get('/:userId', async (req, res) => {
     const userId = req.params.userId;
     const requests = await Request.find({ userId });
     res.status(200).json(requests);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update request status (approve/reject)
+router.put('/:requestId/status', async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { status } = req.body;
+    
+    const request = await Request.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    request.status = status;
+    
+    // If approved, update user type
+    if (status === 'approved') {
+      await User.findByIdAndUpdate(request.userId, { 
+        userType: request.requested_user_type 
+      });
+    }
+    
+    await request.save();
+    res.status(200).json(request);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

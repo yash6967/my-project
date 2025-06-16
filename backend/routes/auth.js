@@ -51,7 +51,7 @@ router.get('/users', async (req, res) => {
     const users = await User.find({ userType }).select('name mobileNumber email');
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -69,12 +69,18 @@ router.get('/allusers', async (req, res) => {
 router.get('/user-details/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
-    const user = await User.findById(userId).select('name email mobileNumber gender organization role locationOfWork dateOfBirth linkedinProfile');
+    console.log('GET /user-details/:userId - Fetching user:', userId);
+    
+    const user = await User.findById(userId).select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType');
     if (!user) {
+      console.log('User not found for ID:', userId);
       return res.status(404).json({ error: 'User not found' });
     }
+    
+    console.log('User details fetched successfully:', user);
     res.status(200).json(user);
   } catch (error) {
+    console.error('Error fetching user details:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -84,18 +90,24 @@ router.put('/user-details/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
     const updates = req.body;
+    
+    console.log('PUT /user-details/:userId - Updating user:', userId);
+    console.log('Update data received:', updates);
 
     const user = await User.findByIdAndUpdate(userId, updates, {
       new: true,
       runValidators: true,
-    }).select('name email mobileNumber gender organization role locationOfWork dateOfBirth linkedinProfile');
+    }).select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType');
 
     if (!user) {
+      console.log('User not found for ID:', userId);
       return res.status(404).json({ error: 'User not found' });
     }
 
+    console.log('User updated successfully:', user);
     res.status(200).json(user);
   } catch (error) {
+    console.error('Error updating user:', error);
     res.status(500).json({ error: error.message });
   }
 });
