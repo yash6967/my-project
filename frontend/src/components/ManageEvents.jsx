@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Media } from 'docx';
+import { saveAs } from 'file-saver';
 import './ManageEvents.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
@@ -186,6 +190,120 @@ const ManageEvents = () => {
     setInfoModal({ isOpen: false, registrations: [] });
   };
 
+
+   // Helper to fetch registrations for a given event
+  const fetchRegistrationsForReport = async (eventId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}api/events/${eventId}/registrations`);
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+    }
+    return [];
+  };
+
+  // Helper to fetch image as base64
+  const fetchImageAsBase64 = async (imageUrl) => {
+    if (!imageUrl) return null;
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const handleDownloadReport = async (event, type = 'pdf') => {
+    const registrations = await fetchRegistrationsForReport(event._id);
+    const imageBase64 = await fetchImageAsBase64(event.image);
+
+    if (type === 'pdf') {
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text(event.title, 14, 20);
+      doc.setFontSize(12);
+      let y = 30;
+      if (imageBase64) {
+        doc.addImage(imageBase64, 'JPEG', 14, y, 60, 40);
+        y += 50;
+      }
+      doc.text(`Description: ${event.description}`, 14, y);
+      y += 10;
+      doc.text(`Date: ${new Date(event.date).toLocaleDateString()}`, 14, y);
+      y += 10;
+      doc.text(`Time: ${event.time} - ${event.endTime}`, 14, y);
+      y += 10;
+      doc.text(`Location: ${event.location}`, 14, y);
+      y += 10;
+      doc.text(`Category: ${event.category}`, 14, y);
+      y += 10;
+      doc.text(`Organizer: ${event.organizer}`, 14, y);
+      y += 10;
+      doc.text(`Available Seats: ${event.availableSeats}`, 14, y);
+      y += 14;
+      doc.setFontSize(14);
+      doc.text('Registrations:', 14, y);
+      y += 6;
+      autoTable(doc, {
+        startY: y,
+        head: [['Name', 'Email', 'Phone Number']],
+        body: registrations.map(r => [r.name, r.email, r.phoneNumber]),
+      });
+      doc.save(`${event.title}_report.pdf`);
+    } else if (type === 'word') {
+      const doc = new Document();
+      const children = [
+        new Paragraph({
+          children: [new TextRun({ text: event.title, bold: true, size: 32 })],
+        }),
+        new Paragraph(''),
+        new Paragraph(`Description: ${event.description}`),
+        new Paragraph(`Date: ${new Date(event.date).toLocaleDateString()}`),
+        new Paragraph(`Time: ${event.time} - ${event.endTime}`),
+        new Paragraph(`Location: ${event.location}`),
+        new Paragraph(`Category: ${event.category}`),
+        new Paragraph(`Organizer: ${event.organizer}`),
+        new Paragraph(`Available Seats: ${event.availableSeats}`),
+        new Paragraph(''),
+        new Paragraph({ text: 'Registrations:', bold: true }),
+        new Table({
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph('Name')] }),
+                new TableCell({ children: [new Paragraph('Email')] }),
+                new TableCell({ children: [new Paragraph('Phone Number')] }),
+              ],
+            }),
+            ...registrations.map(r => new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph(r.name)] }),
+                new TableCell({ children: [new Paragraph(r.email)] }),
+                new TableCell({ children: [new Paragraph(r.phoneNumber)] }),
+              ],
+            })),
+          ],
+        }),
+      ];
+      if (imageBase64) {
+        const imageData = imageBase64.split(',')[1];
+        const image = Media.addImage(doc, Buffer.from(imageData, 'base64'), 300, 200);
+        children.splice(1, 0, image);
+      }
+      doc.addSection({ children });
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, `${event.title}_report.docx`);
+    }
+  };
+
   return (
     <div className="manage-events-container">
       <h2>Manage Events</h2>
@@ -214,8 +332,13 @@ const ManageEvents = () => {
             <p><strong>Available Seats:</strong> {event.availableSeats}</p>
             <div className="event-actions">
               <button onClick={() => handleEdit(event)}>Edit</button>
-              <button onClick={() => handleDelete(event._id)}>Delete</button>
               <button onClick={() => fetchEventRegistrations(event._id)}>Info</button>
+              <button onClick={() => handleDownloadReport(event, 'pdf')}>Download PDF Report</button>
+               <button onClick={() => {
+                if (window.confirm('Are you sure you want to delete this event?')) {
+                  handleDelete(event._id);
+                }
+              }}>Delete</button>
             </div>
           </div>
         ))}

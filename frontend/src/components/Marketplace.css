@@ -69,7 +69,7 @@
   justify-content: center;
   position: relative;
   width: 60%;
-  height: 50vh; /* Adjusted to fit 50% of the viewport height */
+  height: 65vh; /* Adjusted to fit 50% of the viewport height */
   margin: 0 auto;
   padding-top: 50px;
   overflow: hidden;
@@ -244,13 +244,13 @@
 
 /* Filter Icon and Buttons */
 .filter-icon {
-  position: absolute;
-  top: 570px; /* Moved slightly below */
-  right:40%;
-  background-color: #282769;
-  color: white;
-  padding: 10px;
-  border-radius: 50%;
+
+
+
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  /* padding: 10px; */
+  /* border-radius: 50%; */
   cursor: pointer;
   font-size: 1.5rem;
   display: flex;
