@@ -242,6 +242,19 @@
   box-shadow: 0 5px 15px rgba(40, 39, 105, 0.3);
 }
 
+
+.cancel-registration-btn {
+  background: #e51b00;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 /* Filter Icon and Buttons */
 .filter-icon {
 
