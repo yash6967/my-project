@@ -55,5 +55,19 @@ router.put('/event', protect, async (req, res) => {
   }
 });
 
+// Route to fetch domain experts
+router.get('/domain-experts', async (req, res) => {
+  try {
+    const domainExperts = await User.find({ userType: 'domain_expert' })
+      .select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType');
+    
+    res.status(200).json(domainExperts);
+  } catch (error) {
+    console.error('Error fetching domain experts:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 module.exports = router;
 

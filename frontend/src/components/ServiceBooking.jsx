@@ -6,6 +6,8 @@ import narendraModi from '../people/narandra modi.png';
 import ganvatsalImage from '../people/ganvatsal.png';
 import './ServiceBooking.css';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
+
 const ServiceBooking = () => {
   const [serviceProviders, setServiceProviders] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -20,45 +22,62 @@ const ServiceBooking = () => {
   const [myBookings, setMyBookings] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [loading, setLoading] = useState(false);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedTimezone, setSelectedTimezone] = useState('Asia/Kolkata');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [expertsWithSlots, setExpertsWithSlots] = useState([]);
   const navigate = useNavigate();
 
-  // Sample service providers data
+  // Sample service providers data as fallback
   const sampleProviders = [
     {
-      id: 1,
+      _id: 1,
       name: 'Elon Musk',
-      specialization: 'Technology Indovation & Entrepreneurship',
+      role: 'Technology Innovation & Entrepreneurship',
       rating: 5.0,
       experience: '25+ years',
       location: 'Austin, Texas, USA',
       image: elonMuskImage,
       services: ['Consultation', 'Technical Support', 'Training Session'],
       hourlyRate: 50000,
-      description: 'CEO of Tesla and SpaceX, pioneering electric vehicles, space exploration, and sustainable energy solutions. Expert in disruptive indovation and scaling technology companies.'
+      description: 'CEO of Tesla and SpaceX, pioneering electric vehicles, space exploration, and sustainable energy solutions. Expert in disruptive innovation and scaling technology companies.',
+      organization: 'Tesla & SpaceX',
+      mobileNumber: '+1-555-0123',
+      linkedinProfile: 'https://linkedin.com/in/elonmusk'
     },
     {
-      id: 2,
+      _id: 2,
       name: 'Narendra Modi',
-      specialization: 'Leadership & Governance',
+      role: 'Leadership & Governance',
       rating: 4.9,
       experience: '20+ years',
       location: 'New Delhi, India',
       image: narendraModi,
       services: ['Project Review', 'Consultation', 'Custom Service'],
       hourlyRate: 25000,
-      description: 'Prime Minister of India, leading digital transformation initiatives like Digital India, Make in India, and Startup India. Expert in policy making and national development strategies.'
+      description: 'Prime Minister of India, leading digital transformation initiatives like Digital India, Make in India, and Startup India. Expert in policy making and national development strategies.',
+      organization: 'Government of India',
+      mobileNumber: '+91-11-23012345',
+      linkedinProfile: 'https://linkedin.com/in/narendramodi'
     },
     {
-      id: 3,
+      _id: 3,
       name: 'Dr. Ganvatsal Swami',
-      specialization: 'Research & Academic Excellence',
+      role: 'Research & Academic Excellence',
       rating: 4.8,
       experience: '15+ years',
       location: 'Mumbai, Maharashtra, India',
       image: ganvatsalImage,
       services: ['Consultation', 'Training Session', 'Project Review'],
       hourlyRate: 15000,
-      description: 'Distinguished researcher and academic leader specializing in indovation, technology transfer, and educational excellence. Expert in bridging academia and industry collaboration.'
+      description: 'Distinguished researcher and academic leader specializing in innovation, technology transfer, and educational excellence. Expert in bridging academia and industry collaboration.',
+      organization: 'Academic Institution',
+      mobileNumber: '+91-22-12345678',
+      linkedinProfile: 'https://linkedin.com/in/ganvatsalswami'
     }
   ];
 
@@ -66,12 +85,58 @@ const ServiceBooking = () => {
     // Check if user is logged in and is a normal user
     const isLoggedIn = localStorage.getItem('isLoggedIn');
 
-    
+    // Fetch all domain experts from the backend
+    const fetchDomainExperts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${BACKEND_URL}api/user/domain-experts`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          const domainExperts = await response.json();
+          // Transform the API response to match our component structure
+          const transformedExperts = domainExperts.map(expert => ({
+            _id: expert._id,
+            name: expert.name,
+            role: expert.role || 'Domain Expert',
+            rating: 4.5, // Default rating since API doesn't provide it
+            experience: '5+ years', // Default experience
+            location: expert.locationOfWork || 'India',
+            image: elonMuskImage, // Default image - you might want to add profile images to your user model
+            services: ['Consultation', 'Technical Support', 'Training Session'], // Default services
+            hourlyRate: 10000, // Default hourly rate
+            description: `Expert in ${expert.role || 'domain expertise'} with extensive experience in ${expert.organization || 'various organizations'}.`,
+            organization: expert.organization || 'Professional Organization',
+            mobileNumber: expert.mobileNumber || 'N/A',
+            linkedinProfile: expert.linkedinProfile || '#',
+            email: expert.email,
+            userType: expert.userType
+          }));
+          setServiceProviders(transformedExperts);
+        } else {
+          console.error('Failed to fetch domain experts');
+          // Fallback to sample data if API fails
+          setServiceProviders(sampleProviders);
+        }
+      } catch (error) {
+        console.error('Error fetching domain experts:', error);
+        // Fallback to sample data if API fails
+        setServiceProviders(sampleProviders);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     // if (!isLoggedIn) {
     //   navigate('/login');
     // } else 
     {
-      setServiceProviders(sampleProviders);
+      fetchDomainExperts();
       
       // Load user's bookings
       const savedBookings = localStorage.getItem('userBookings');
@@ -81,64 +146,160 @@ const ServiceBooking = () => {
     }
   }, [navigate]);
 
+  // Get unique locations from serviceProviders
+  const uniqueLocations = Array.from(new Set(serviceProviders.map(e => e.location))).filter(Boolean);
+
+  useEffect(() => {
+    if (!filterDate && !filterLocation) {
+      setExpertsWithSlots(serviceProviders);
+      return;
+    }
+    const fetchExpertsWithSlots = async () => {
+      const availableExperts = [];
+      for (const expert of serviceProviders) {
+        // Location filter
+        if (filterLocation && expert.location !== filterLocation) continue;
+        if (!filterDate) {
+          availableExperts.push(expert);
+          continue;
+        }
+        try {
+          const response = await fetch(`${BACKEND_URL}api/slots/expert/${expert._id}`);
+          if (response.ok) {
+            const slotData = await response.json();
+            let hasSlot = false;
+            if (slotData.dateAvailability) {
+              hasSlot = slotData.dateAvailability.some(dateAvail => dateAvail.date === filterDate && dateAvail.isActive && dateAvail.slots && dateAvail.slots.length > 0);
+            }
+            if (!hasSlot && slotData.dailyAvailability) {
+              const dayOfWeek = new Date(filterDate).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+              hasSlot = slotData.dailyAvailability[dayOfWeek] && slotData.dailyAvailability[dayOfWeek].length > 0;
+            }
+            if (hasSlot) availableExperts.push(expert);
+          }
+        } catch (e) { /* ignore errors */ }
+      }
+      setExpertsWithSlots(availableExperts);
+    };
+    fetchExpertsWithSlots();
+  }, [filterDate, filterLocation, serviceProviders]);
+
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     navigate('/login');
   };
 
-  const loadProviderSlots = (providerId) => {
-    // In a real app, this would fetch from an API
-    // For demo, we'll use localStorage data from service providers
-    const savedSlots = localStorage.getItem('serviceSlots');
-    if (savedSlots) {
-      const allSlots = JSON.parse(savedSlots);
-      // Filter slots for the selected provider and future dates only
-      const today = new Date().toISOString().split('T')[0];
-      const providerSlots = allSlots.filter(slot => 
-        slot.providerId === providerId && slot.date >= today
-      );
-      setAvailableSlots(providerSlots);
-    } else {
-      // Sample slots for demo
-      const sampleSlots = [
-        {
-          id: 1,
-          providerId: providerId,
-          date: '2024-06-15',
-          startTime: '10:00',
-          endTime: '11:00',
-          service: 'Consultation',
-          price: 1500,
-          description: 'One-on-one consultation session'
-        },
-        {
-          id: 2,
-          providerId: providerId,
-          date: '2024-06-15',
-          startTime: '14:00',
-          endTime: '15:30',
-          service: 'Training Session',
-          price: 2500,
-          description: 'Comprehensive training on latest technologies'
-        },
-        {
-          id: 3,
-          providerId: providerId,
-          date: '2024-06-16',
-          startTime: '09:00',
-          endTime: '10:00',
-          service: 'Technical Support',
-          price: 1200,
-          description: 'Technical troubleshooting and support'
+  const loadProviderSlots = async (providerId) => {
+    setLoadingSlots(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}api/slots/expert/${providerId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
-      ];
-      setAvailableSlots(sampleSlots);
+      });
+
+      if (response.ok) {
+        const slotData = await response.json();
+        console.log('Slot data received:', slotData);
+        
+        // Transform the slot data to match our component structure
+        let transformedSlots = [];
+        
+        // Process date-specific availability
+        if (slotData.dateAvailability && slotData.dateAvailability.length > 0) {
+          console.log('Processing date-specific availability:', slotData.dateAvailability);
+          slotData.dateAvailability.forEach(dateAvail => {
+            if (dateAvail.isActive && dateAvail.slots && dateAvail.slots.length > 0) {
+              console.log(`Processing slots for date ${dateAvail.date}:`, dateAvail.slots);
+              dateAvail.slots.forEach((slot, index) => {
+                transformedSlots.push({
+                  id: `${dateAvail.date}-${index}`,
+                  providerId: providerId,
+                  date: dateAvail.date,
+                  startTime: slot.startTime,
+                  endTime: slot.endTime,
+                  service: 'Consultation',
+                  price: 1000, // Default price - you might want to make this configurable
+                  description: 'Expert consultation session',
+                  type: 'date-specific'
+                });
+              });
+            }
+          });
+        }
+        
+        // Process daily availability for future dates (next 30 days)
+        if (slotData.dailyAvailability) {
+          console.log('Processing daily availability:', slotData.dailyAvailability);
+          const today = new Date();
+          for (let i = 0; i < 30; i++) {
+            const futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + i);
+            // Fix: Use proper weekday format and convert to lowercase
+            const dayOfWeek = futureDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+            const dateString = futureDate.toISOString().split('T')[0];
+            
+            const dailySlots = slotData.dailyAvailability[dayOfWeek];
+            if (dailySlots && dailySlots.length > 0) {
+              console.log(`Processing daily slots for ${dayOfWeek} (${dateString}):`, dailySlots);
+              dailySlots.forEach((slot, index) => {
+                transformedSlots.push({
+                  id: `${dateString}-daily-${index}`,
+                  providerId: providerId,
+                  date: dateString,
+                  startTime: slot.start,
+                  endTime: slot.end,
+                  service: 'Consultation',
+                  price: 1000,
+                  description: 'Regular consultation session',
+                  type: 'daily'
+                });
+              });
+            }
+          }
+        }
+        
+        // Filter out blocked dates
+        if (slotData.blockedDates && slotData.blockedDates.length > 0) {
+          const blockedDateStrings = slotData.blockedDates.map(date => 
+            new Date(date).toISOString().split('T')[0]
+          );
+          transformedSlots = transformedSlots.filter(slot => 
+            !blockedDateStrings.includes(slot.date)
+          );
+        }
+        
+        // Sort slots by date and time
+        transformedSlots.sort((a, b) => {
+          if (a.date !== b.date) {
+            return new Date(a.date) - new Date(b.date);
+          }
+          return a.startTime.localeCompare(b.startTime);
+        });
+        
+        console.log('Transformed slots:', transformedSlots);
+        setAvailableSlots(transformedSlots);
+        if (transformedSlots.length > 0) {
+          setSelectedDate(transformedSlots[0].date);
+          setSelectedTime(null);
+        }
+      } else {
+        console.error('Failed to fetch expert slots');
+        setAvailableSlots([]);
+      }
+    } catch (error) {
+      console.error('Error fetching expert slots:', error);
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
     }
   };
 
   const handleProviderSelect = (provider) => {
     setSelectedProvider(provider);
-    loadProviderSlots(provider.id);
+    loadProviderSlots(provider._id);
   };
 
   const handleSlotSelect = (slot) => {
@@ -152,7 +313,7 @@ const ServiceBooking = () => {
         id: Date.now(),
         ...selectedSlot,
         ...bookingForm,
-        providerId: selectedProvider.id,
+        providerId: selectedProvider._id,
         providerName: selectedProvider.name,
         status: 'pending',
         bookingDate: new Date().toISOString()
@@ -212,8 +373,9 @@ const ServiceBooking = () => {
   const filteredProviders = serviceProviders.filter(provider => {
     const matchesCategory = selectedCategory === 'all' || provider.services.includes(selectedCategory);
     const matchesSearch = provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      provider.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      provider.description.toLowerCase().includes(searchTerm.toLowerCase());
+      provider.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.organization.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -257,13 +419,29 @@ const ServiceBooking = () => {
           </div>
         </div>
       <div className="booking-content">
-        {!selectedProvider ? (
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading domain experts...</p>
+          </div>
+        ) : !selectedProvider ? (
           /* Service Providers List */
           <div className="providers-section">
             {/* <h2>Available Domain Experts</h2> */}
+            <div className="provider-date-filter">
+              <label>Show experts available on: </label>
+              <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
+              {filterDate && <button onClick={() => setFilterDate('')}>Clear</button>}
+              <label style={{marginLeft: '18px'}}>Location:</label>
+              <select value={filterLocation} onChange={e => setFilterLocation(e.target.value)}>
+                <option value="">All</option>
+                {uniqueLocations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+              </select>
+              {filterLocation && <button onClick={() => setFilterLocation('')}>Clear</button>}
+            </div>
             <div className="providers-grid">
-              {filteredProviders.map(provider => (
-                <div key={provider.id} className="provider-card">
+              {expertsWithSlots.map(provider => (
+                <div key={provider._id} className="provider-card">
                   <div className="provider-image">
                     <img src={provider.image} alt={provider.name} />
                     <div className="rating-badge">
@@ -273,9 +451,10 @@ const ServiceBooking = () => {
                   
                   <div className="provider-info">
                     <h3>{provider.name}</h3>
-                    <p className="specialization">{provider.specialization}</p>
+                    <p className="specialization">{provider.role}</p>
                     <p className="experience">{provider.experience} experience</p>
                     <p className="location">📍 {provider.location}</p>
+                    <p className="organization">🏢 {provider.organization}</p>
                     <p className="description">{provider.description}</p>
                     
                     <div className="services-list">
@@ -319,48 +498,106 @@ const ServiceBooking = () => {
                 <img src={selectedProvider.image} alt={selectedProvider.name} />
                 <div>
                   <h2>{selectedProvider.name}</h2>
-                  <p>{selectedProvider.specialization}</p>
+                  <p>{selectedProvider.role}</p>
+                  <p className="provider-organization">{selectedProvider.organization}</p>
                 </div>
               </div>
             </div>
 
             <h3>Available Time Slots</h3>
-            {availableSlots.length === 0 ? (
+            {loadingSlots ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading available slots...</p>
+              </div>
+            ) : availableSlots.length === 0 ? (
               <div className="no-slots">
                 <p>No available slots for this provider at the moment.</p>
                 <p>Please check back later or contact the provider directly.</p>
+                <div className="provider-contact">
+                  <p><strong>Contact Information:</strong></p>
+                  <p>📧 Email: {selectedProvider.email}</p>
+                  <p>📱 Phone: {selectedProvider.mobileNumber}</p>
+                  {selectedProvider.linkedinProfile && (
+                    <p>💼 LinkedIn: <a href={selectedProvider.linkedinProfile} target="_blank" rel="noopener noreferrer">View Profile</a></p>
+                  )}
+                </div>
               </div>
             ) : (
-              <div className="slots-grid">
-                {availableSlots.map(slot => (
-                  <div key={slot.id} className="slot-card">
-                    <div className="slot-date">
-                      {formatDate(slot.date)}
-                    </div>
-                    <div className="slot-time">
-                      {slot.startTime} - {slot.endTime}
-                    </div>
-                    <div className="slot-service">
-                      {slot.service}
-                    </div>
-                    {slot.description && (
-                      <div className="slot-description">
-                        {slot.description}
+              // New UI for slots selection
+              <div className="slot-booking-ui">
+                {/* Group slots by date */}
+                {(() => {
+                  // Group slots by date
+                  const slotsByDate = {};
+                  availableSlots.forEach(slot => {
+                    if (!slotsByDate[slot.date]) slotsByDate[slot.date] = [];
+                    slotsByDate[slot.date].push(slot);
+                  });
+                  const dateKeys = Object.keys(slotsByDate).sort();
+                  // Timezone options (can be expanded)
+                  const timezoneOptions = [
+                    { value: 'Asia/Kolkata', label: '(GMT+5:30) Chennai, Kolkata, Mumbai, New Delhi (IST)' },
+                    { value: 'UTC', label: '(GMT+0:00) UTC' },
+                    { value: 'America/New_York', label: '(GMT-4:00) New York (EDT)' },
+                    { value: 'Europe/London', label: '(GMT+1:00) London (BST)' },
+                  ];
+                  // Confirm handler
+                  const handleConfirm = () => {
+                    if (!selectedDate || !selectedTime) {
+                      alert('Please select a date and time slot.');
+                      return;
+                    }
+                    // Find the slot object
+                    const slot = slotsByDate[selectedDate].find(s => s.startTime === selectedTime);
+                    handleSlotSelect(slot);
+                  };
+                  return (
+                    <div className="slot-booking-card">
+                      <div className="date-scroll-row">
+                        <button className="scroll-arrow" onClick={e => {e.preventDefault(); document.getElementById('date-scroll').scrollLeft -= 200;}}>&lt;</button>
+                        <div className="date-list" id="date-scroll">
+                          {dateKeys.map(date => (
+                            <button
+                              key={date}
+                              className={`date-btn${selectedDate === date ? ' selected' : ''}`}
+                              onClick={() => { setSelectedDate(date); setSelectedTime(null); }}
+                            >
+                              <div className="date-day">{new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                              <div className="date-num">{new Date(date).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}</div>
+                            </button>
+                          ))}
+                        </div>
+                        <button className="scroll-arrow" onClick={e => {e.preventDefault(); document.getElementById('date-scroll').scrollLeft += 200;}}>&gt;</button>
                       </div>
-                    )}
-                    <div className="slot-footer">
-                      <div className="slot-price">
-                        ₹{slot.price}
+                      <div className="time-slot-row">
+                        {slotsByDate[selectedDate].map(slot => (
+                          <button
+                            key={slot.startTime}
+                            className={`time-btn${selectedTime === slot.startTime ? ' selected' : ''}`}
+                            onClick={() => setSelectedTime(slot.startTime)}
+                          >
+                            {slot.startTime} - {slot.endTime}
+                          </button>
+                        ))}
                       </div>
-                      <button 
-                        onClick={() => handleSlotSelect(slot)}
-                        className="book-slot-btn"
-                      >
-                        Book Now
+                      <div className="timezone-section">
+                        <label>Timezone</label>
+                        <select
+                          value={selectedTimezone}
+                          onChange={e => setSelectedTimezone(e.target.value)}
+                        >
+                          {timezoneOptions.map(tz => (
+                            <option key={tz.value} value={tz.value}>{tz.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button className="confirm-details-btn" onClick={handleConfirm}>
+                        Confirm Details
                       </button>
                     </div>
-                  </div>
-                ))}
+                  );
+                })()}
               </div>
             )}
           </div>

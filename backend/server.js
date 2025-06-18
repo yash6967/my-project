@@ -27,6 +27,8 @@ app.use('/api/events',require('./routes/event'))
 app.use('/api/requests', require('./routes/requests'));
 app.use('/api/register', require('./routes/user'));
 app.use('/api/user',require('./routes/user'));
+app.use('/api/sessions', require('./routes/session'));
+app.use('/api/slots', require('./routes/slot'));
 app.get('/api/test', (req, res) => {
   res.json({ message: 'URL working' });
 });

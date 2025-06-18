@@ -21,6 +21,13 @@ const Dashboard = () => {
   const [userType, setUserType] = useState('');
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [sessionStats, setSessionStats] = useState({
+    totalSessions: 0,
+    publishedSessions: 0,
+    completedSessions: 0,
+    draftSessions: 0
+  });
   const [view, setView] = useState('users');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editDetails, setEditDetails] = useState({
