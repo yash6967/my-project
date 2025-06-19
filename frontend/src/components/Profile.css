@@ -94,16 +94,37 @@
 .profile-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
   gap: 40px;
+  grid-template-areas:
+    "profile-details registered-events"
+    "profile-details booked-experts-section";
 }
 
-.profile-details,
-.registered-events {
+.profile-details {
+  grid-area: profile-details;
   background: white;
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
+}
+
+.registered-events {
+  grid-area: registered-events;
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.booked-experts-section {
+  grid-area: booked-experts-section;
+  background: #fff;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .profile-details h2,
@@ -331,12 +352,24 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .profile-content {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "profile-details"
+      "registered-events"
+      "booked-experts-section";
     gap: 20px;
   }
+  .profile-details,
+  .registered-events,
+  .booked-experts-section {
+    padding: 20px;
+  }
+}
 
+@media (max-width: 768px) {
   .profile-header {
     flex-direction: column;
     gap: 20px;
@@ -390,4 +423,56 @@
   .profile-header h1 {
     font-size: 1.8rem;
   }
+}
+
+.booked-experts-section h2 {
+  color: #282769;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.booked-experts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fafaff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+}
+.booked-experts-table th, .booked-experts-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+.booked-experts-table th {
+  background: #f6f2ff;
+  color: #6c3fc5;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.booked-experts-table tr:last-child td {
+  border-bottom: none;
+}
+.booked-experts-table td {
+  color: #333;
+  font-size: 0.98rem;
+}
+
+.cancel-booking-btn {
+  background: linear-gradient(135deg, #e51b00, #c41600);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(229, 27, 0, 0.08);
+}
+.cancel-booking-btn:hover {
+  background: linear-gradient(135deg, #c41600, #a01300);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(229, 27, 0, 0.18);
 } 

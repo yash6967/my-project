@@ -27,6 +27,7 @@ const Profile = () => {
     dateOfBirth: user?.dateOfBirth || '',
     linkedinProfile: user?.linkedinProfile || '',
   });
+  const [bookedExperts, setBookedExperts] = useState([]);
 
   useEffect(() => {
     // Check if user is logged in
@@ -44,6 +45,7 @@ const Profile = () => {
     
     // Check if user has already applied for domain expert
     checkDomainExpertApplication();
+    fetchBookedExperts();
   }, [navigate]);
 
   const checkDomainExpertApplication = async () => {
@@ -101,6 +103,28 @@ const Profile = () => {
     } catch (error) {
       console.error('Error fetching registered events:', error);
       setRegisteredEvents([]);
+    }
+  };
+
+  const fetchBookedExperts = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const response = await fetch(`${BACKEND_URL}api/slots/booked-by-user`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setBookedExperts(data);
+      } else {
+        setBookedExperts([]);
+      }
+    } catch (error) {
+      setBookedExperts([]);
     }
   };
 
@@ -319,6 +343,36 @@ const Profile = () => {
     return timeString;
   };
 
+  const handleCancelBooking = async (booking) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const response = await fetch(`${BACKEND_URL}api/slots/cancel-booking`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          expertId: booking.expert?._id,
+          date: booking.date,
+          startTime: booking.startTime,
+          endTime: booking.endTime
+        })
+      });
+      if (response.ok) {
+        toast.success('Booking cancelled successfully');
+        fetchBookedExperts();
+      } else {
+        const data = await response.json();
+        toast.error(data.error || 'Failed to cancel booking');
+      }
+    } catch (error) {
+      toast.error('Failed to cancel booking');
+    }
+  };
+
   if (!user) {
     return <div className="profile-loading">Loading...</div>;
   }
@@ -400,6 +454,41 @@ const Profile = () => {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Booked Experts Section */}
+        <div className="booked-experts-section">
+          <h2>Booked Experts</h2>
+          {bookedExperts.length === 0 ? (
+            <p>You have not booked any experts yet.</p>
+          ) : (
+            <table className="booked-experts-table">
+              <thead>
+                <tr>
+                  <th>Expert Name</th>
+                  <th>Organization</th>
+                  <th>Date</th>
+                  <th>Time Slot</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookedExperts.map((booking, idx) => (
+                  <tr key={idx}>
+                    <td>{booking.expert?.name || 'N/A'}</td>
+                    <td>{booking.expert?.organization || 'N/A'}</td>
+                    <td>{booking.date}</td>
+                    <td>{booking.startTime} - {booking.endTime}</td>
+                    <td>
+                      <button className="cancel-booking-btn" onClick={() => handleCancelBooking(booking)}>
+                        Cancel
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className="registered-events">

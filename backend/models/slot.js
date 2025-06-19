@@ -18,6 +18,7 @@ const dailyAvailabilitySchema = new mongoose.Schema({
 const dateSlotSchema = new mongoose.Schema({
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
+  booked_by: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { _id: false });
 
 const dateAvailabilitySchema = new mongoose.Schema({

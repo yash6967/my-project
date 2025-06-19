@@ -223,7 +223,8 @@ const ServiceBooking = () => {
                   service: 'Consultation',
                   price: 1000, // Default price - you might want to make this configurable
                   description: 'Expert consultation session',
-                  type: 'date-specific'
+                  type: 'date-specific',
+                  booked_by: slot.booked_by || {}
                 });
               });
             }
@@ -254,7 +255,8 @@ const ServiceBooking = () => {
                   service: 'Consultation',
                   price: 1000,
                   description: 'Regular consultation session',
-                  type: 'daily'
+                  type: 'daily',
+                  booked_by: slot.booked_by || {}
                 });
               });
             }
@@ -307,37 +309,61 @@ const ServiceBooking = () => {
     setShowBookingModal(true);
   };
 
-  const handleBookingSubmit = () => {
+  const handleBookingSubmit = async () => {
     if (selectedSlot && bookingForm.clientName && bookingForm.clientEmail) {
-      const newBooking = {
-        id: Date.now(),
-        ...selectedSlot,
-        ...bookingForm,
-        providerId: selectedProvider._id,
-        providerName: selectedProvider.name,
-        status: 'pending',
-        bookingDate: new Date().toISOString()
-      };
-
-      const updatedBookings = [...myBookings, newBooking];
-      setMyBookings(updatedBookings);
-      localStorage.setItem('userBookings', JSON.stringify(updatedBookings));
-
-      // Also add to service provider's bookings
-      const existingServiceBookings = localStorage.getItem('serviceBookings');
-      const serviceBookings = existingServiceBookings ? JSON.parse(existingServiceBookings) : [];
-      serviceBookings.push(newBooking);
-      localStorage.setItem('serviceBookings', JSON.stringify(serviceBookings));
-
-      setShowBookingModal(false);
-      setSelectedSlot(null);
-      setBookingForm({
-        clientName: 'John Doe',
-        clientEmail: 'user@example.com',
-        notes: ''
-      });
-
-      alert('🎉 Booking request submitted successfully! The service provider will confirm shortly.');
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('You must be logged in to book a slot.');
+          return;
+        }
+        // Call backend to book the slot
+        const response = await fetch(`${BACKEND_URL}api/slots/book`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            expertId: selectedProvider._id,
+            date: selectedSlot.date,
+            startTime: selectedSlot.startTime,
+            endTime: selectedSlot.endTime
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to book slot');
+        }
+        // Only update local state if booking succeeded
+        const newBooking = {
+          id: Date.now(),
+          ...selectedSlot,
+          ...bookingForm,
+          providerId: selectedProvider._id,
+          providerName: selectedProvider.name,
+          status: 'pending',
+          bookingDate: new Date().toISOString()
+        };
+        const updatedBookings = [...myBookings, newBooking];
+        setMyBookings(updatedBookings);
+        localStorage.setItem('userBookings', JSON.stringify(updatedBookings));
+        // Also add to service provider's bookings
+        const existingServiceBookings = localStorage.getItem('serviceBookings');
+        const serviceBookings = existingServiceBookings ? JSON.parse(existingServiceBookings) : [];
+        serviceBookings.push(newBooking);
+        localStorage.setItem('serviceBookings', JSON.stringify(serviceBookings));
+        setShowBookingModal(false);
+        setSelectedSlot(null);
+        setBookingForm({
+          clientName: 'John Doe',
+          clientEmail: 'user@example.com',
+          notes: ''
+        });
+        alert('🎉 Booking request submitted successfully! The service provider will confirm shortly.');
+      } catch (err) {
+        alert(err.message || 'Failed to book slot. Please try again.');
+      }
     }
   };
 
@@ -574,8 +600,9 @@ const ServiceBooking = () => {
                         {slotsByDate[selectedDate].map(slot => (
                           <button
                             key={slot.startTime}
-                            className={`time-btn${selectedTime === slot.startTime ? ' selected' : ''}`}
+                            className={`time-btn${selectedTime === slot.startTime ? ' selected' : ''}${Array.isArray(slot.booked_by) && slot.booked_by.length > 0 ? ' disabled' : ''}`}
                             onClick={() => setSelectedTime(slot.startTime)}
+                            disabled={Array.isArray(slot.booked_by) && slot.booked_by.length > 0}
                           >
                             {slot.startTime} - {slot.endTime}
                           </button>

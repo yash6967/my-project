@@ -191,4 +191,143 @@ router.get('/expert/:expertId/range', async (req, res) => {
   }
 });
 
+// Book a specific slot for a user
+router.post('/book', protect, async (req, res) => {
+  try {
+    const { expertId, date, startTime, endTime } = req.body;
+    if (!expertId || !date || !startTime || !endTime) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const slotDoc = await Slot.findOne({ expertId });
+    if (!slotDoc) return res.status(404).json({ error: 'Expert not found' });
+
+    // Find the date availability
+    const dateAvail = slotDoc.dateAvailability.find(da => da.date === date && da.isActive);
+    if (!dateAvail) return res.status(404).json({ error: 'No availability for this date' });
+
+    // Find the slot
+    const slot = dateAvail.slots.find(s => s.startTime === startTime && s.endTime === endTime);
+    if (!slot) return res.status(404).json({ error: 'Time slot not found' });
+
+    // Prevent double booking (optional)
+    if (slot.booked_by && slot.booked_by.map(id => id.toString()).includes(req.user.id)) {
+      return res.status(400).json({ error: 'You have already booked this slot' });
+    }
+
+    // Add user to booked_by
+    slot.booked_by = slot.booked_by || [];
+    slot.booked_by.push(req.user.id);
+
+    await slotDoc.save();
+
+    res.json({ message: 'Slot booked successfully', slotDoc });
+  } catch (error) {
+    console.error('Error booking slot:', error);
+    res.status(500).json({ error: 'Failed to book slot' });
+  }
+});
+
+// Get all slots booked by the current user
+router.get('/booked-by-user', protect, async (req, res) => {
+  try {
+    // Find all Slot documents where any dateAvailability.slots.booked_by contains req.user.id
+    const slots = await Slot.find({
+      'dateAvailability.slots.booked_by': req.user.id
+    }).populate('expertId', 'name email organization role');
+
+    // Flatten the results to get each booked slot with expert info, date, and time
+    const bookedSlots = [];
+    slots.forEach(slotDoc => {
+      slotDoc.dateAvailability.forEach(dateAvail => {
+        dateAvail.slots.forEach(slot => {
+          if (slot.booked_by && slot.booked_by.map(id => id.toString()).includes(req.user.id)) {
+            bookedSlots.push({
+              expert: slotDoc.expertId,
+              date: dateAvail.date,
+              startTime: slot.startTime,
+              endTime: slot.endTime
+            });
+          }
+        });
+      });
+    });
+
+    res.json(bookedSlots);
+  } catch (error) {
+    console.error('Error fetching booked slots:', error);
+    res.status(500).json({ error: 'Failed to fetch booked slots' });
+  }
+});
+
+// Cancel a booking for a user
+router.delete('/cancel-booking', protect, async (req, res) => {
+  try {
+    const { expertId, date, startTime, endTime } = req.body;
+    if (!expertId || !date || !startTime || !endTime) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const slotDoc = await Slot.findOne({ expertId });
+    if (!slotDoc) return res.status(404).json({ error: 'Expert not found' });
+    // Find the date availability
+    const dateAvail = slotDoc.dateAvailability.find(da => da.date === date && da.isActive);
+    if (!dateAvail) return res.status(404).json({ error: 'No availability for this date' });
+    // Find the slot
+    const slot = dateAvail.slots.find(s => s.startTime === startTime && s.endTime === endTime);
+    if (!slot) return res.status(404).json({ error: 'Time slot not found' });
+    // Remove user from booked_by
+    if (slot.booked_by) {
+      slot.booked_by = slot.booked_by.filter(id => id.toString() !== req.user.id);
+    }
+    await slotDoc.save();
+    res.json({ message: 'Booking cancelled successfully' });
+  } catch (error) {
+    console.error('Error cancelling booking:', error);
+    res.status(500).json({ error: 'Failed to cancel booking' });
+  }
+});
+
+// Get all bookings for the current domain expert
+router.get('/bookings-for-expert', protect, async (req, res) => {
+  try {
+    // Only allow domain experts
+    if (req.user.userType !== 'domain_expert') {
+      return res.status(403).json({ error: 'Only domain experts can view their bookings' });
+    }
+    // Find the expert's slot document
+    const slotDoc = await Slot.findOne({ expertId: req.user.id });
+    if (!slotDoc) return res.json([]);
+    // Gather all bookings (where booked_by is not empty)
+    const bookings = [];
+    for (const dateAvail of slotDoc.dateAvailability) {
+      for (const slot of dateAvail.slots) {
+        if (slot.booked_by && slot.booked_by.length > 0) {
+          // Populate user info for each booked_by
+          for (const userId of slot.booked_by) {
+            bookings.push({
+              userId,
+              date: dateAvail.date,
+              startTime: slot.startTime,
+              endTime: slot.endTime
+            });
+          }
+        }
+      }
+    }
+    // Populate user info for all userIds
+    const userIds = bookings.map(b => b.userId);
+    const User = require('../models/User');
+    const users = await User.find({ _id: { $in: userIds } }).select('name email');
+    // Attach user info to each booking
+    const bookingsWithUser = bookings.map(b => ({
+      ...b,
+      user: users.find(u => u._id.toString() === b.userId.toString())
+    }));
+    res.json(bookingsWithUser);
+  } catch (error) {
+    console.error('Error fetching expert bookings:', error);
+    res.status(500).json({ error: 'Failed to fetch expert bookings' });
+  }
+});
+
 module.exports = router; 

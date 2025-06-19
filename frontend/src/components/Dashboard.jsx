@@ -43,6 +43,7 @@ const Dashboard = () => {
     linkedinProfile: user?.linkedinProfile || '',
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [expertBookings, setExpertBookings] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -119,6 +120,34 @@ const Dashboard = () => {
 
     fetchUserDetails();
   }, [userType, view]);
+
+  useEffect(() => {
+    if (userType === 'domain_expert') {
+      fetchExpertBookings();
+    }
+  }, [userType]);
+
+  const fetchExpertBookings = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const response = await fetch(`${BACKEND_URL}api/slots/bookings-for-expert`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setExpertBookings(data);
+      } else {
+        setExpertBookings([]);
+      }
+    } catch (error) {
+      setExpertBookings([]);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -325,96 +354,38 @@ const Dashboard = () => {
             </div>
           )}
           {userType === 'domain_expert' && (
-            <div className="sessions-management-section">
+            <div className="my-bookings-section">
               <div className="sessions-header">
-                <h3>My Sessions</h3>
+                <h3>My Bookings</h3>
                 <button className="create-session-btn" onClick={() => navigate('/create-session')}>
                   <span className="btn-icon">+</span>
                   Create New Session
                 </button>
               </div>
-              
-              <div className="sessions-tabs">
-                <button className="tab-btn active">All Sessions</button>
-                <button className="tab-btn">Upcoming</button>
-                <button className="tab-btn">Completed</button>
-                <button className="tab-btn">Drafts</button>
-              </div>
-
-              <div className="sessions-content">
-                <div className="sessions-stats">
-                  <div className="stat-card">
-                    <div className="stat-number">12</div>
-                    <div className="stat-label">Total Sessions</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-number">5</div>
-                    <div className="stat-label">Upcoming</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-number">7</div>
-                    <div className="stat-label">Completed</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-number">2</div>
-                    <div className="stat-label">Drafts</div>
-                  </div>
-                </div>
-
-                <div className="sessions-list">
-                  <div className="session-item">
-                    <div className="session-header">
-                      <h4>Introduction to Machine Learning</h4>
-                      <span className="session-status upcoming">Upcoming</span>
-                    </div>
-                    <div className="session-details">
-                      <p><strong>Date:</strong> June 25, 2025</p>
-                      <p><strong>Time:</strong> 2:00 PM - 4:00 PM</p>
-                      <p><strong>Location:</strong> AICTE Jaipur Innovation Center</p>
-                      <p><strong>Audience:</strong> 50 students</p>
-                    </div>
-                    <div className="session-actions">
-                      <button className="action-btn edit-btn">Edit</button>
-                      <button className="action-btn view-btn">View Details</button>
-                      <button className="action-btn delete-btn">Delete</button>
-                    </div>
-                  </div>
-
-                  <div className="session-item">
-                    <div className="session-header">
-                      <h4>Advanced Data Analytics Workshop</h4>
-                      <span className="session-status completed">Completed</span>
-                    </div>
-                    <div className="session-details">
-                      <p><strong>Date:</strong> June 15, 2025</p>
-                      <p><strong>Time:</strong> 10:00 AM - 12:00 PM</p>
-                      <p><strong>Location:</strong> Online (Zoom)</p>
-                      <p><strong>Audience:</strong> 35 professionals</p>
-                    </div>
-                    <div className="session-actions">
-                      <button className="action-btn view-btn">View Details</button>
-                      <button className="action-btn feedback-btn">View Feedback</button>
-                    </div>
-                  </div>
-
-                  <div className="session-item">
-                    <div className="session-header">
-                      <h4>AI in Healthcare - Draft</h4>
-                      <span className="session-status draft">Draft</span>
-                    </div>
-                    <div className="session-details">
-                      <p><strong>Date:</strong> Not scheduled</p>
-                      <p><strong>Duration:</strong> 90 minutes</p>
-                      <p><strong>Target Audience:</strong> Healthcare professionals</p>
-                    </div>
-                    <div className="session-actions">
-                      <button className="action-btn edit-btn">Continue Editing</button>
-                      <button className="action-btn schedule-btn">Schedule Session</button>
-                      <button className="action-btn delete-btn">Delete</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {expertBookings.length === 0 ? (
+                <p>No bookings yet.</p>
+              ) : (
+                <table className="my-bookings-table">
+                  <thead>
+                    <tr>
+                      <th>User Name</th>
+                      <th>User Email</th>
+                      <th>Date</th>
+                      <th>Time Slot</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {expertBookings.map((booking, idx) => (
+                      <tr key={idx}>
+                        <td>{booking.user?.name || 'N/A'}</td>
+                        <td>{booking.user?.email || 'N/A'}</td>
+                        <td>{booking.date}</td>
+                        <td>{booking.startTime} - {booking.endTime}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
           {userType === 'super_admin' && (
