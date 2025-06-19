@@ -91,8 +91,8 @@ const CreateSession = () => {
         // Show popup for newly selected dates that don't have time slots yet
         const datesWithoutSlots = newSelectedDates.filter(d => !selectedTimes[d] || selectedTimes[d].length === 0);
         if (datesWithoutSlots.length > 0) {
-          setPopupDates(datesWithoutSlots);
-          setShowTimeSlotPopup(true);
+          // setPopupDates(datesWithoutSlots);
+          // setShowTimeSlotPopup(true);
         }
         return newSelectedDates;
       }
@@ -516,7 +516,7 @@ const CreateSession = () => {
         </div>
 
         {/* Time Selection Section */}
-        {selectedDates.length > 0 && (
+        {/* {selectedDates.length > 0 && (
           <div className="time-selection-section">
             <h3>Set Time Slots</h3>
             <p>Configure time slots for each selected date</p>
@@ -575,7 +575,7 @@ const CreateSession = () => {
               );
             })}
           </div>
-        )}
+        )} */}
 
         {/* Submit Section */}
         <div className="submit-section">

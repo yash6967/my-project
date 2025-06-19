@@ -202,8 +202,28 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 90px;
+  row-gap: 1px;
+  column-gap: 120px;
   background: #f8f9fa;
   padding: 10px;
+}
+
+@media (max-width: 1050px) {
+  .calendar-days {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 40px;
+    column-gap: 100px;
+    row-gap: 1px;
+  }
+}
+
+@media (max-width: 600px) {
+  .calendar-days {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    column-gap: 100px;
+    row-gap: 1px;
+  }
 }
 
 .calendar-day {
