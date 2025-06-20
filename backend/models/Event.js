@@ -44,6 +44,12 @@ const eventSchema = new mongoose.Schema({
             ref: 'User',
         },
     ],
+    booked_experts: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
     // photo: {
     //     type: String,
     //     required: false,

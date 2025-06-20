@@ -36,6 +36,11 @@ router.post('/', upload.single('image'), async (req, res) => {
       organizer: req.body.organizer,
       availableSeats: req.body.availableSeats, // Ensure availableSeats is included
       registeredUsers: req.body.registeredUsers || [], // Default to an empty array
+      booked_experts: req.body.booked_experts
+        ? Array.isArray(req.body.booked_experts)
+          ? req.body.booked_experts
+          : [req.body.booked_experts]
+        : [],
     };
 
     const event = new Event(eventData);
@@ -52,8 +57,8 @@ router.get('/', async (req, res) => {
   try {
     const { title } = req.query;
     const events = title
-      ? await Event.find({ title: new RegExp(title, 'i') })
-      : await Event.find();
+      ? await Event.find({ title: new RegExp(title, 'i') }).populate('booked_experts', 'name email organization role mobileNumber linkedinProfile photo')
+      : await Event.find().populate('booked_experts', 'name email organization role mobileNumber linkedinProfile photo');
 
     // Update image paths to include full URL
     const updatedEvents = events.map((event) => {

@@ -16,9 +16,13 @@ const CreateEvent = () => {
     image: null,
     availableSeats: '',
     organizer: '',
+    booked_experts: [],
   });
   const [users, setUsers] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
+  const [domainExperts, setDomainExperts] = useState([]);
+  const [filteredExperts, setFilteredExperts] = useState([]);
+  const [loadingExperts, setLoadingExperts] = useState(false);
 
   useEffect(() => {
     // Fetch users from the backend
@@ -33,6 +37,28 @@ const CreateEvent = () => {
     };
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    // Fetch all domain experts
+    const fetchDomainExperts = async () => {
+      setLoadingExperts(true);
+      try {
+        const response = await fetch(`${BACKEND_URL}api/user/domain-experts`);
+        const experts = await response.json();
+        setDomainExperts(experts);
+      } catch (error) {
+        setDomainExperts([]);
+      } finally {
+        setLoadingExperts(false);
+      }
+    };
+    fetchDomainExperts();
+  }, []);
+
+  // Show all domain experts in the dropdown, no filtering by time
+  useEffect(() => {
+    setFilteredExperts(domainExperts);
+  }, [domainExperts]);
 
   const navigate = useNavigate();
 
@@ -65,7 +91,9 @@ const CreateEvent = () => {
 
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (value) {
+      if (key === 'booked_experts' && Array.isArray(value)) {
+        value.forEach(id => formDataToSend.append('booked_experts', id));
+      } else if (value) {
         formDataToSend.append(key, value);
       }
     });
@@ -217,6 +245,33 @@ const CreateEvent = () => {
             onChange={handleInputChange}
             required
           />
+        </label>
+        <label>
+          Select Domain Experts (filtered by slot availability):
+          {loadingExperts ? (
+            <span>Loading experts...</span>
+          ) : (
+            <select
+              name="booked_experts"
+              multiple
+              value={formData.booked_experts || []}
+              onChange={e => {
+                const options = Array.from(e.target.selectedOptions).map(opt => opt.value);
+                setFormData(prev => ({ ...prev, booked_experts: options }));
+              }}
+              style={{ minHeight: '80px' }}
+            >
+              {filteredExperts.length === 0 ? (
+                <option value="" disabled>No available experts for this time</option>
+              ) : (
+                filteredExperts.map(expert => (
+                  <option key={expert._id} value={expert._id}>
+                    {expert.name} ({expert.email})
+                  </option>
+                ))
+              )}
+            </select>
+          )}
         </label>
         <button type="submit">Create Event</button>
       </form>

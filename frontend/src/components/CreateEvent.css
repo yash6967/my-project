@@ -22,8 +22,11 @@
 }
 
 .create-event-form label {
-  font-weight: bold;
-  color: #555;
+  display: block;
+  margin-bottom: 18px;
+  font-weight: 600;
+  color: #282769;
+  font-size: 1rem;
 }
 
 .create-event-form input {
@@ -96,4 +99,43 @@
 
 .remove-image-button:hover {
   background: darkred;
+}
+
+.create-event-form select[name="booked_experts"] {
+  width: 100%;
+  min-height: 80px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  background: #fafaff;
+  color: #222;
+  font-weight: 500;
+  transition: border-color 0.2s;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.create-event-form select[name="booked_experts"]:focus {
+  border-color: #a084e8;
+  background: #fff;
+}
+
+.create-event-form select[name="booked_experts"] option {
+  padding: 8px 12px;
+  font-size: 1rem;
+  color: #282769;
+}
+
+.create-event-form select[name="booked_experts"] option:checked {
+  background: #e6e6fa;
+  color: #6c3fc5;
+  font-weight: 700;
+}
+
+.create-event-form .loading-experts {
+  color: #e51b00;
+  font-size: 1rem;
+  font-style: italic;
+  margin-left: 8px;
 }

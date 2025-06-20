@@ -298,3 +298,94 @@
 .registrations-table tr:hover {
   background-color: #f1f1f1;
 }
+
+.booked-experts-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 12px 0;
+  flex-wrap: wrap;
+}
+.expert-avatar-wrapper {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+.expert-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #a084e8;
+  object-fit: cover;
+  margin-right: 4px;
+  transition: box-shadow 0.2s;
+}
+.expert-avatar:hover {
+  box-shadow: 0 0 0 3px #e6e6fa;
+}
+.expert-name {
+  font-size: 1rem;
+  color: #282769;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+/* Modal for expert details */
+.expert-modal-overlay {
+  background: rgba(40, 39, 105, 0.18) !important;
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.expert-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px 24px 28px;
+  max-width: 350px;
+  margin: 0;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
+  outline: none;
+  position: relative;
+  text-align: center;
+  left: 0;
+  top: 0;
+}
+.expert-details-modal h2 {
+  color: #6c3fc5;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+.expert-details-modal p {
+  margin: 6px 0;
+  color: #333;
+  font-size: 1rem;
+}
+.expert-modal-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #a084e8;
+  margin-bottom: 16px;
+}
+.close-modal-btn {
+  background: #e51b00;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 18px;
+  transition: background 0.2s;
+}
+.close-modal-btn:hover {
+  background: #c41600;
+}

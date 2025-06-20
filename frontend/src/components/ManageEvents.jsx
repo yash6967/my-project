@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Media } from 'docx';
 import { saveAs } from 'file-saver';
 import './ManageEvents.css';
+import elonMuskImage from '../people/elon musk.png';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
@@ -14,6 +15,8 @@ const ManageEvents = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [editEvent, setEditEvent] = useState(null);
   const [infoModal, setInfoModal] = useState({ isOpen: false, registrations: [] });
+  const [selectedExpert, setSelectedExpert] = useState(null);
+  const [showExpertModal, setShowExpertModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,56 +72,6 @@ const ManageEvents = () => {
     setEditEvent(event);
   };
 
-  // const handleEditSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   // const formDataToSend = new FormData();
-  //   // Object.entries(editEvent).forEach(([key, value]) => {
-  //   //   if (value) {
-  //   //     formDataToSend.append(key, value);
-  //   //   }
-  //   // });
-  //   const allowedFields = [
-  //     'title',
-  //     'description',
-  //     'date',
-  //     'time',
-  //     'endTime',
-  //     'location',
-  //     'category',
-  //     'organizer',
-  //     'availableSeats'
-  //   ];
-    
-  //   allowedFields.forEach(field => {
-  //     if (editEvent[field] !== undefined && editEvent[field] !== null) {
-  //       formDataToSend.append(field, editEvent[field]);
-  //     }
-  //   });
-    
-  //   if (editEvent.photo || editEvent.image) {
-  //     formDataToSend.append('image', editEvent.photo || editEvent.image);
-  //   }
-    
-  //   try {
-  //     const response = await fetch(`${BACKEND_URL}api/events/${editEvent._id}`, {
-  //       method: 'PUT',
-  //       body: formDataToSend,
-  //     });
-
-  //     if (response.ok) {
-  //       alert('Event updated successfully!');
-  //       setEditEvent(null);
-  //       fetchEvents(); // Refresh the events list
-  //     } else {
-  //       const errorText = await response.text();
-  //       console.error('Error updating event:', errorText);
-  //       alert(`Error: ${errorText}`);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error updating event:', error);
-  //   }
-  // };
   const handleEditSubmit = async (e) => {
     e.preventDefault();
   
@@ -190,8 +143,7 @@ const ManageEvents = () => {
     setInfoModal({ isOpen: false, registrations: [] });
   };
 
-
-   // Helper to fetch registrations for a given event
+  // Helper to fetch registrations for a given event
   const fetchRegistrationsForReport = async (eventId) => {
     try {
       const response = await fetch(`${BACKEND_URL}api/events/${eventId}/registrations`);
@@ -330,6 +282,23 @@ const ManageEvents = () => {
             <p><strong>Category:</strong> {event.category}</p>
             <p><strong>Organizer:</strong> {event.organizer}</p>
             <p><strong>Available Seats:</strong> {event.availableSeats}</p>
+            {event.booked_experts && event.booked_experts.length > 0 && (
+              <div className="booked-experts-row">
+                <strong>Booked Experts:</strong>
+                {event.booked_experts.map((expert, idx) => (
+                  <span key={expert._id || idx} className="expert-avatar-wrapper">
+                    <img
+                      src={expert.photo || elonMuskImage}
+                      alt={expert.name}
+                      className="expert-avatar"
+                      onClick={() => { setSelectedExpert(expert); setShowExpertModal(true); }}
+                      style={{ cursor: 'pointer', width: 36, height: 36, borderRadius: '50%', margin: '0 6px', border: '2px solid #a084e8' }}
+                    />
+                    <span className="expert-name">{expert.name}</span>
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="event-actions">
               <button onClick={() => handleEdit(event)}>Edit</button>
               <button onClick={() => fetchEventRegistrations(event._id)}>Info</button>
@@ -463,6 +432,32 @@ const ManageEvents = () => {
             ))}
           </tbody>
         </table>
+      </Modal>
+
+      <Modal
+        isOpen={showExpertModal}
+        onRequestClose={() => setShowExpertModal(false)}
+        contentLabel="Expert Details"
+        className="expert-modal"
+        overlayClassName="expert-modal-overlay"
+      >
+        {selectedExpert && (
+          <div className="expert-details-modal">
+            <img
+              src={selectedExpert.photo || elonMuskImage}
+              alt={selectedExpert.name}
+              className="expert-modal-avatar"
+              style={{ width: 80, height: 80, borderRadius: '50%', marginBottom: 16, border: '3px solid #a084e8' }}
+            />
+            <h2>{selectedExpert.name}</h2>
+            {selectedExpert.email && <p><strong>Email:</strong> {selectedExpert.email}</p>}
+            {selectedExpert.organization && <p><strong>Organization:</strong> {selectedExpert.organization}</p>}
+            {selectedExpert.role && <p><strong>Role:</strong> {selectedExpert.role}</p>}
+            {selectedExpert.mobileNumber && <p><strong>Mobile:</strong> {selectedExpert.mobileNumber}</p>}
+            {selectedExpert.linkedinProfile && <p><strong>LinkedIn:</strong> <a href={selectedExpert.linkedinProfile} target="_blank" rel="noopener noreferrer">Profile</a></p>}
+            <button onClick={() => setShowExpertModal(false)} className="close-modal-btn">Close</button>
+          </div>
+        )}
       </Modal>
     </div>
   );
