@@ -469,6 +469,7 @@ const Profile = () => {
                   <th>Organization</th>
                   <th>Date</th>
                   <th>Time Slot</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -479,6 +480,18 @@ const Profile = () => {
                     <td>{booking.expert?.organization || 'N/A'}</td>
                     <td>{booking.date}</td>
                     <td>{booking.startTime} - {booking.endTime}</td>
+                    <td>
+                      <span style={{
+                        color: booking.isAccepted ? 'green' : booking.isRejected ? 'red' : 'orange',
+                        fontWeight: 600
+                      }}>
+                        {booking.isAccepted
+                          ? 'Accepted'
+                          : booking.isRejected
+                          ? 'Rejected'
+                          : 'Pending'}
+                      </span>
+                    </td>
                     <td>
                       <button className="cancel-booking-btn" onClick={() => handleCancelBooking(booking)}>
                         Cancel
@@ -646,4 +659,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default Profile;

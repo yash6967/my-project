@@ -208,24 +208,6 @@
   padding: 10px;
 }
 
-@media (max-width: 1050px) {
-  .calendar-days {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 40px;
-    column-gap: 100px;
-    row-gap: 1px;
-  }
-}
-
-@media (max-width: 600px) {
-  .calendar-days {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    column-gap: 100px;
-    row-gap: 1px;
-  }
-}
-
 .calendar-day {
   background: #ffffff;
   border: 2px solid #e9ecef;

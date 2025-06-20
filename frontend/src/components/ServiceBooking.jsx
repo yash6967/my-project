@@ -405,6 +405,17 @@ const ServiceBooking = () => {
     return matchesCategory && matchesSearch;
   });
 
+  // Helper: Get slot status for current user
+  const getSlotStatus = (slot) => {
+    if (!Array.isArray(slot.booked_by)) return null;
+    const userId = localStorage.getItem('userId');
+    const booking = slot.booked_by.find(b => b.userId === userId || (b.userId && b.userId.toString() === userId));
+    if (!booking) return null;
+    if (booking.isAccepted) return 'Accepted';
+    if (booking.isRejected) return 'Rejected';
+    return 'Pending';
+  };
+
   return (
     <div className="service-booking-container">
       {/* Header */}
@@ -597,16 +608,36 @@ const ServiceBooking = () => {
                         <button className="scroll-arrow" onClick={e => {e.preventDefault(); document.getElementById('date-scroll').scrollLeft += 200;}}>&gt;</button>
                       </div>
                       <div className="time-slot-row">
-                        {slotsByDate[selectedDate].map(slot => (
-                          <button
-                            key={slot.startTime}
-                            className={`time-btn${selectedTime === slot.startTime ? ' selected' : ''}${Array.isArray(slot.booked_by) && slot.booked_by.length > 0 ? ' disabled' : ''}`}
-                            onClick={() => setSelectedTime(slot.startTime)}
-                            disabled={Array.isArray(slot.booked_by) && slot.booked_by.length > 0}
-                          >
-                            {slot.startTime} - {slot.endTime}
-                          </button>
-                        ))}
+                        {slotsByDate[selectedDate].map(slot => {
+                          const status = getSlotStatus(slot);
+                          // Determine if slot is available for booking
+                          const available = !Array.isArray(slot.booked_by) || slot.booked_by.length === 0
+                            ? true
+                            : !slot.booked_by.some(b => b.isAccepted);
+
+                          return (
+                            <button
+                              key={slot.startTime}
+                              className={`time-btn${selectedTime === slot.startTime ? ' selected' : ''}${!available ? ' disabled' : ''}`}
+                              onClick={() => setSelectedTime(slot.startTime)}
+                              disabled={!available}
+                            >
+                              {slot.startTime} - {slot.endTime}
+                              {status && (
+                                <span
+                                  className={`slot-status slot-status-${status.toLowerCase()}`}
+                                  style={{
+                                    marginLeft: 8,
+                                    color: status === 'Accepted' ? 'green' : status === 'Rejected' ? 'red' : 'orange',
+                                    fontWeight: 600
+                                  }}
+                                >
+                                  {status}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
                       <div className="timezone-section">
                         <label>Timezone</label>

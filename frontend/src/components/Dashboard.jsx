@@ -372,6 +372,8 @@ const Dashboard = () => {
                       <th>User Email</th>
                       <th>Date</th>
                       <th>Time Slot</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -381,6 +383,73 @@ const Dashboard = () => {
                         <td>{booking.user?.email || 'N/A'}</td>
                         <td>{booking.date}</td>
                         <td>{booking.startTime} - {booking.endTime}</td>
+                        <td>
+                          <span style={{
+                            color: booking.isAccepted ? 'green' : booking.isRejected ? 'red' : 'orange',
+                            fontWeight: 600
+                          }}>
+                            {booking.isAccepted
+                              ? 'Accepted'
+                              : booking.isRejected
+                              ? 'Rejected'
+                              : 'Pending'}
+                          </span>
+                        </td>
+                        <td>
+                          {!booking.isAccepted && !booking.isRejected && (
+                            <>
+                              <button
+                                style={{ marginRight: 8 }}
+                                onClick={async () => {
+                                  const token = localStorage.getItem('token');
+                                  await fetch(`${BACKEND_URL}api/slots/booking-status`, {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({
+                                      date: booking.date,
+                                      startTime: booking.startTime,
+                                      endTime: booking.endTime,
+                                      userId: booking.userId,
+                                      isAccepted: true,
+                                      isRejected: false
+                                    })
+                                  });
+                                  // Refresh bookings
+                                  fetchExpertBookings();
+                                }}
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  const token = localStorage.getItem('token');
+                                  await fetch(`${BACKEND_URL}api/slots/booking-status`, {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({
+                                      date: booking.date,
+                                      startTime: booking.startTime,
+                                      endTime: booking.endTime,
+                                      userId: booking.userId,
+                                      isAccepted: false,
+                                      isRejected: true
+                                    })
+                                  });
+                                  // Refresh bookings
+                                  fetchExpertBookings();
+                                }}
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

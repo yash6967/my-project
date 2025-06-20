@@ -210,14 +210,26 @@ router.post('/book', protect, async (req, res) => {
     const slot = dateAvail.slots.find(s => s.startTime === startTime && s.endTime === endTime);
     if (!slot) return res.status(404).json({ error: 'Time slot not found' });
 
-    // Prevent double booking (optional)
-    if (slot.booked_by && slot.booked_by.map(id => id.toString()).includes(req.user.id)) {
+    // Only allow booking if booked_by is empty or all bookings are rejected
+    const isBookable = !slot.booked_by || slot.booked_by.length === 0 ||
+      slot.booked_by.every(b => b.isRejected === true);
+
+    if (!isBookable) {
+      return res.status(400).json({ error: 'Slot is already booked and not available' });
+    }
+
+    // Prevent double booking by the same user
+    if (slot.booked_by && slot.booked_by.some(b => b.userId.toString() === req.user.id)) {
       return res.status(400).json({ error: 'You have already booked this slot' });
     }
 
-    // Add user to booked_by
+    // Add user to booked_by with status pending
     slot.booked_by = slot.booked_by || [];
-    slot.booked_by.push(req.user.id);
+    slot.booked_by.push({
+      userId: req.user.id,
+      isAccepted: false,
+      isRejected: false
+    });
 
     await slotDoc.save();
 
@@ -228,25 +240,31 @@ router.post('/book', protect, async (req, res) => {
   }
 });
 
-// Get all slots booked by the current user
+// Get all slots booked by the current user (include status)
 router.get('/booked-by-user', protect, async (req, res) => {
   try {
-    // Find all Slot documents where any dateAvailability.slots.booked_by contains req.user.id
+    // Find all Slot documents where any dateAvailability.slots.booked_by.userId contains req.user.id
     const slots = await Slot.find({
-      'dateAvailability.slots.booked_by': req.user.id
+      'dateAvailability.slots.booked_by.userId': req.user.id
     }).populate('expertId', 'name email organization role');
 
-    // Flatten the results to get each booked slot with expert info, date, and time
+    // Flatten the results to get each booked slot with expert info, date, and time, and status
     const bookedSlots = [];
     slots.forEach(slotDoc => {
       slotDoc.dateAvailability.forEach(dateAvail => {
         dateAvail.slots.forEach(slot => {
-          if (slot.booked_by && slot.booked_by.map(id => id.toString()).includes(req.user.id)) {
-            bookedSlots.push({
-              expert: slotDoc.expertId,
-              date: dateAvail.date,
-              startTime: slot.startTime,
-              endTime: slot.endTime
+          if (slot.booked_by) {
+            slot.booked_by.forEach(b => {
+              if (b.userId && b.userId.toString() === req.user.id) {
+                bookedSlots.push({
+                  expert: slotDoc.expertId,
+                  date: dateAvail.date,
+                  startTime: slot.startTime,
+                  endTime: slot.endTime,
+                  isAccepted: b.isAccepted,
+                  isRejected: b.isRejected
+                });
+              }
             });
           }
         });
@@ -277,7 +295,7 @@ router.delete('/cancel-booking', protect, async (req, res) => {
     if (!slot) return res.status(404).json({ error: 'Time slot not found' });
     // Remove user from booked_by
     if (slot.booked_by) {
-      slot.booked_by = slot.booked_by.filter(id => id.toString() !== req.user.id);
+      slot.booked_by = slot.booked_by.filter(b => !b.userId || b.userId.toString() !== req.user.id);
     }
     await slotDoc.save();
     res.json({ message: 'Booking cancelled successfully' });
@@ -287,7 +305,7 @@ router.delete('/cancel-booking', protect, async (req, res) => {
   }
 });
 
-// Get all bookings for the current domain expert
+// Get all bookings for the current domain expert (include status)
 router.get('/bookings-for-expert', protect, async (req, res) => {
   try {
     // Only allow domain experts
@@ -302,13 +320,14 @@ router.get('/bookings-for-expert', protect, async (req, res) => {
     for (const dateAvail of slotDoc.dateAvailability) {
       for (const slot of dateAvail.slots) {
         if (slot.booked_by && slot.booked_by.length > 0) {
-          // Populate user info for each booked_by
-          for (const userId of slot.booked_by) {
+          for (const b of slot.booked_by) {
             bookings.push({
-              userId,
+              userId: b.userId,
               date: dateAvail.date,
               startTime: slot.startTime,
-              endTime: slot.endTime
+              endTime: slot.endTime,
+              isAccepted: b.isAccepted,
+              isRejected: b.isRejected
             });
           }
         }
@@ -330,4 +349,50 @@ router.get('/bookings-for-expert', protect, async (req, res) => {
   }
 });
 
-module.exports = router; 
+// Expert accepts or rejects a booking request for a slot
+router.post('/booking-status', protect, async (req, res) => {
+  try {
+    if (req.user.userType !== 'domain_expert') {
+      return res.status(403).json({ error: 'Only domain experts can update booking status' });
+    }
+    const { date, startTime, endTime, userId, isAccepted, isRejected } = req.body;
+    if (!date || !startTime || !endTime || !userId) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const slotDoc = await Slot.findOne({ expertId: req.user.id });
+    if (!slotDoc) return res.status(404).json({ error: 'Slot not found' });
+
+    const dateAvail = slotDoc.dateAvailability.find(da => da.date === date && da.isActive);
+    if (!dateAvail) return res.status(404).json({ error: 'No availability for this date' });
+
+    const slot = dateAvail.slots.find(s => s.startTime === startTime && s.endTime === endTime);
+    if (!slot) return res.status(404).json({ error: 'Time slot not found' });
+
+    const booking = slot.booked_by.find(b => b.userId && b.userId.toString() === userId);
+    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+    // Accept or reject logic
+    if (isAccepted) {
+      booking.isAccepted = true;
+      booking.isRejected = false;
+      // Optionally, reject all other bookings for this slot
+      slot.booked_by.forEach(b => {
+        if (b.userId && b.userId.toString() !== userId) {
+          b.isAccepted = false;
+          b.isRejected = true;
+        }
+      });
+    } else if (isRejected) {
+      booking.isAccepted = false;
+      booking.isRejected = true;
+    }
+
+    await slotDoc.save();
+    res.json({ message: 'Booking status updated', slotDoc });
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    res.status(500).json({ error: 'Failed to update booking status' });
+  }
+});
+
+module.exports = router;

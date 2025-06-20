@@ -18,7 +18,12 @@ const dailyAvailabilitySchema = new mongoose.Schema({
 const dateSlotSchema = new mongoose.Schema({
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
-  booked_by: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  booked_by: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    isAccepted: { type: Boolean, default: false },
+    isRejected: { type: Boolean, default: false }
+  }],
+  
 }, { _id: false });
 
 const dateAvailabilitySchema = new mongoose.Schema({
@@ -115,4 +120,4 @@ slotSchema.statics.findByDate = function(date) {
   }).populate('expertId', 'name email organization role');
 };
 
-module.exports = mongoose.model('Slot', slotSchema); 
+module.exports = mongoose.model('Slot', slotSchema);
