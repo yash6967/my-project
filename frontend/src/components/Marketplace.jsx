@@ -24,6 +24,7 @@ const Marketplace = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const navigate = useNavigate();
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const eventImages = [event1, event2, event3];
   // AICTE Events data
   const sampleEvents = [
@@ -68,6 +69,19 @@ const Marketplace = () => {
     // },
     
   ];
+
+  // Auto-slide functionality
+  useEffect(() => {
+    let interval;
+    if (isAutoPlaying) {
+      interval = setInterval(() => {
+        setCurrentEventIndex((prevIndex) => (prevIndex + 1) % eventImages.length);
+      }, 3000); // Change every 3 seconds
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAutoPlaying, eventImages.length]);
 
   useEffect(() => {
     // Check if user is logged in and is a normal user
@@ -253,13 +267,66 @@ const Marketplace = () => {
   const handlePreviousEvent = () => {
     setCurrentEventIndex((prevIndex) => (prevIndex - 1 + eventImages.length) % eventImages.length);
   };
+
+  const handleDotClick = (index) => {
+    setCurrentEventIndex(index);
+  };
+
+  const handleHeroMouseEnter = () => {
+    setIsAutoPlaying(false);
+  };
+
+  const handleHeroMouseLeave = () => {
+    setIsAutoPlaying(true);
+  };
+
   return (
     <div className="marketplace-container" onClick={handleScreenClick}>
    
-      <div className="hero-section">
-        <button className="arrow-button" onClick={handlePreviousEvent}>❮</button>
-        <img src={eventImages[currentEventIndex]} alt="Ongoing Event" className="hero-image" />
-        <button className="arrow-button" onClick={handleNextEvent}>❯</button>
+      <div 
+        className="hero-section"
+        onMouseEnter={handleHeroMouseEnter}
+        onMouseLeave={handleHeroMouseLeave}
+      >
+        <button className="arrow-button prev-arrow" onClick={handlePreviousEvent}>
+          <span>❮</span>
+        </button>
+        
+        <div className="hero-slider">
+          <img 
+            src={eventImages[currentEventIndex]} 
+            alt={`Event ${currentEventIndex + 1}`} 
+            className="hero-image" 
+          />
+          <div className="hero-overlay">
+            <div className="hero-content">
+              <h2 className="hero-title">Featured Events</h2>
+              <p className="hero-subtitle">Discover amazing opportunities and connect with experts</p>
+            </div>
+          </div>
+        </div>
+        
+        <button className="arrow-button next-arrow" onClick={handleNextEvent}>
+          <span>❯</span>
+        </button>
+
+        {/* Indicator dots */}
+        <div className="slider-indicators">
+          {eventImages.map((_, index) => (
+            <button
+              key={index}
+              className={`indicator-dot ${index === currentEventIndex ? 'active' : ''}`}
+              onClick={() => handleDotClick(index)}
+            />
+          ))}
+        </div>
+
+        {/* Auto-play indicator */}
+        <div className="auto-play-indicator">
+          <span className={`play-status ${isAutoPlaying ? 'playing' : 'paused'}`}>
+            {isAutoPlaying ? '▶' : '⏸'}
+          </span>
+        </div>
       </div>
       
       {isFilterVisible && (
