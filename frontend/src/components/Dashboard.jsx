@@ -365,95 +365,121 @@ const Dashboard = () => {
               {expertBookings.length === 0 ? (
                 <p>No bookings yet.</p>
               ) : (
-                <table className="my-bookings-table">
-                  <thead>
-                    <tr>
-                      <th>User Name</th>
-                      <th>User Email</th>
-                      <th>Date</th>
-                      <th>Time Slot</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {expertBookings.map((booking, idx) => (
-                      <tr key={idx}>
-                        <td>{booking.user?.name || 'N/A'}</td>
-                        <td>{booking.user?.email || 'N/A'}</td>
-                        <td>{booking.date}</td>
-                        <td>{booking.startTime} - {booking.endTime}</td>
-                        <td>
-                          <span style={{
-                            color: booking.isAccepted ? 'green' : booking.isRejected ? 'red' : 'orange',
-                            fontWeight: 600
-                          }}>
-                            {booking.isAccepted
-                              ? 'Accepted'
-                              : booking.isRejected
-                              ? 'Rejected'
-                              : 'Pending'}
-                          </span>
-                        </td>
-                        <td>
-                          {!booking.isAccepted && !booking.isRejected && (
-                            <>
-                              <button
-                                style={{ marginRight: 8 }}
-                                onClick={async () => {
-                                  const token = localStorage.getItem('token');
-                                  await fetch(`${BACKEND_URL}api/slots/booking-status`, {
-                                    method: 'POST',
-                                    headers: {
-                                      'Content-Type': 'application/json',
-                                      'Authorization': `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({
-                                      date: booking.date,
-                                      startTime: booking.startTime,
-                                      endTime: booking.endTime,
-                                      userId: booking.userId,
-                                      isAccepted: true,
-                                      isRejected: false
-                                    })
-                                  });
-                                  // Refresh bookings
-                                  fetchExpertBookings();
-                                }}
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={async () => {
-                                  const token = localStorage.getItem('token');
-                                  await fetch(`${BACKEND_URL}api/slots/booking-status`, {
-                                    method: 'POST',
-                                    headers: {
-                                      'Content-Type': 'application/json',
-                                      'Authorization': `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({
-                                      date: booking.date,
-                                      startTime: booking.startTime,
-                                      endTime: booking.endTime,
-                                      userId: booking.userId,
-                                      isAccepted: false,
-                                      isRejected: true
-                                    })
-                                  });
-                                  // Refresh bookings
-                                  fetchExpertBookings();
-                                }}
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )}
-                        </td>
+                <div className="my-bookings-table-responsive">
+                  <table className="my-bookings-table">
+                    <thead>
+                      <tr>
+                        <th>User Name</th>
+                        <th>User Email</th>
+                        <th>Date</th>
+                        <th>Time Slot</th>
+                        <th>Status</th>
+                        <th>Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {expertBookings.map((booking, idx) => (
+                        <tr key={idx}>
+                          <td data-label="User Name">{booking.user?.name || 'N/A'}</td>
+                          <td data-label="User Email">{booking.user?.email || 'N/A'}</td>
+                          <td data-label="Date">{booking.date}</td>
+                          <td data-label="Time Slot">{booking.startTime} - {booking.endTime}</td>
+                          <td data-label="Status">
+                            <span style={{
+                              color: booking.isAccepted ? 'green' : booking.isRejected ? 'red' : 'orange',
+                              fontWeight: 600
+                            }}>
+                              {booking.isAccepted
+                                ? 'Accepted'
+                                : booking.isRejected
+                                ? 'Rejected'
+                                : 'Pending'}
+                            </span>
+                          </td>
+                          <td data-label="Action">
+                            {!booking.isAccepted && !booking.isRejected && (
+                              <>
+                                <button
+                                  style={{
+                                    marginRight: 8,
+                                    background: '#27ae60',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: 4,
+                                    padding: '6px 14px',
+                                    cursor: 'pointer',
+                                    fontWeight: 600,
+                                    transition: 'background 0.2s',
+                                  }}
+                                  onMouseOver={e => (e.currentTarget.style.background = '#219150')}
+                                  onMouseOut={e => (e.currentTarget.style.background = '#27ae60')}
+                                  onClick={async () => {
+                                    const token = localStorage.getItem('token');
+                                    await fetch(`${BACKEND_URL}api/slots/booking-status`, {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                      },
+                                      body: JSON.stringify({
+                                        date: booking.date,
+                                        startTime: booking.startTime,
+                                        endTime: booking.endTime,
+                                        userId: booking.userId,
+                                        isAccepted: true,
+                                        isRejected: false
+                                      })
+                                    });
+                                    // Refresh bookings
+                                    fetchExpertBookings();
+                                  }}
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  style={{
+                                    background: '#e74c3c',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: 4,
+                                    padding: '6px 14px',
+                                    cursor: 'pointer',
+                                    fontWeight: 600,
+                                    transition: 'background 0.2s',
+                                  }}
+                                  onMouseOver={e => (e.currentTarget.style.background = '#c0392b')}
+                                  onMouseOut={e => (e.currentTarget.style.background = '#e74c3c')}
+                                  onClick={async () => {
+                                    const token = localStorage.getItem('token');
+                                    await fetch(`${BACKEND_URL}api/slots/booking-status`, {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                      },
+                                      body: JSON.stringify({
+                                        date: booking.date,
+                                        startTime: booking.startTime,
+                                        endTime: booking.endTime,
+                                        userId: booking.userId,
+                                        isAccepted: false,
+                                        isRejected: true
+                                      })
+                                    });
+                                    // Refresh bookings
+                                    fetchExpertBookings();
+                                  }}
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}

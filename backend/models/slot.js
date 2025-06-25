@@ -19,9 +19,9 @@ const dateSlotSchema = new mongoose.Schema({
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
   booked_by: [{
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    isAccepted: { type: Boolean, default: false },
-    isRejected: { type: Boolean, default: false }
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+    isAccepted: { type: Boolean, default: false, required: false },
+    isRejected: { type: Boolean, default: false, required: false }
   }],
   
 }, { _id: false });
