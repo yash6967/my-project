@@ -7,6 +7,7 @@ import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Media
 import { saveAs } from 'file-saver';
 import './ManageEvents.css';
 import elonMuskImage from '../people/elon musk.png';
+import fallBackImage from '../images/Image-not-found.png';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
@@ -307,7 +308,11 @@ const ManageEvents = () => {
       <div className="events-list">
         {events.map((event) => (
           <div key={event._id} className="event-card">
-            {event.image && <img src={`${event.image}`} alt="Event" className="event-image" />}
+            <img
+              src={event.image ? `${event.image}` : `${fallBackImage}`}
+              alt="evenet"
+              className="event-image"
+            />
             {console.log(`${event.image}`)}
             <h3>{event.title}</h3>
             <p><strong>Description:</strong> {event.description}</p>

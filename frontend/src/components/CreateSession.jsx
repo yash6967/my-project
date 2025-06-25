@@ -30,6 +30,7 @@ const CreateSession = () => {
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const [filteredDates, setFilteredDates] = useState([]);
+  const [expertBookings, setExpertBookings] = useState([]); // For expert bookings
 
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +42,32 @@ const CreateSession = () => {
     generateAvailableDates();
   }, [user, navigate, currentMonth]);
 
-  // Generate available dates for the current month (excluding past dates and weekends)
+  const fetchExpertBookings = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const response = await fetch(`${BACKEND_URL}api/slots/bookings-for-expert`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setExpertBookings(data);
+      } else {
+        setExpertBookings([]);
+      }
+    } catch (error) {
+      setExpertBookings([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpertBookings();
+  },[])
+   // Generate available dates for the current month (excluding past dates and weekends)
   const generateAvailableDates = () => {
     const dates = [];
     const year = currentMonth.getFullYear();
@@ -292,6 +318,7 @@ const CreateSession = () => {
     
     try {
       const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
       if (!token) {
         toast.error('Authentication required. Please login again.');
         return;
@@ -300,11 +327,12 @@ const CreateSession = () => {
       // Save each selected date with its time slots to the slot API
       const promises = selectedDates.map(async (date) => {
         const timeSlots = selectedTimes[date] || [{ start: '09:00', end: '10:00' }];
-        
+        console.log(userId);
         // Transform time slots to match the slot schema format
         const slots = timeSlots.map(slot => ({
           startTime: slot.start,
-          endTime: slot.end
+          endTime: slot.end,
+          booked_by: [],
         }));
 
         const response = await fetch(`${BACKEND_URL}api/slots/date-availability`, {
