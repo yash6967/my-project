@@ -7,6 +7,13 @@ import './Profile.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
+const DOMAIN_OPTIONS = [
+  { value: 'ip_consultancy', label: 'IP Consultancy' },
+  { value: 'company_registration', label: 'Company Registration' },
+  { value: 'mentoring', label: 'Mentoring' },
+  { value: 'expert_guidance', label: 'Expert Guidance' },
+];
+
 const Profile = () => {
   const navigate = useNavigate();
   const { user, setUser } = useUser();
@@ -26,6 +33,7 @@ const Profile = () => {
     locationOfWork: user?.locationOfWork || '',
     dateOfBirth: user?.dateOfBirth || '',
     linkedinProfile: user?.linkedinProfile || '',
+    Domain: user?.Domain || '',
   });
   const [bookedExperts, setBookedExperts] = useState([]);
 
@@ -232,6 +240,7 @@ const Profile = () => {
           locationOfWork: userData.locationOfWork || '',
           dateOfBirth: userData.dateOfBirth || '',
           linkedinProfile: userData.linkedinProfile || '',
+          Domain: userData.Domain || '',
         });
         setIsEditModalOpen(true);
       } else {
@@ -453,6 +462,16 @@ const Profile = () => {
                 )}
               </span>
             </div>
+            <div className="profile-field">
+              <label>Domain:</label>
+              <span>
+                {user.Domain ? (
+                  DOMAIN_OPTIONS.find(opt => opt.value === user.Domain)?.label || user.Domain
+                ) : (
+                  'N/A'
+                )}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -644,6 +663,20 @@ const Profile = () => {
                       value={editDetails.linkedinProfile || ''}
                       onChange={handleInputChange}
                     />
+                  </label>
+                  <label>
+                    Domain:
+                    <select
+                      name="Domain"
+                      value={editDetails.Domain || ''}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">Select Domain</option>
+                      {DOMAIN_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
                   </label>
                 </div>
                 <div className="modal-actions">

@@ -31,8 +31,14 @@ const eventSchema = new mongoose.Schema({
         required: true,
     },
     category: {
-        type: String,
+        type: [String],
         required: true,
+        validate: {
+            validator: function(categories) {
+                return categories && categories.length > 0;
+            },
+            message: 'At least one category must be selected'
+        }
     },
     image: {
         type: String,

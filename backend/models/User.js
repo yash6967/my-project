@@ -72,12 +72,10 @@ const userSchema = new mongoose.Schema({
     required: false,
     match: [/^(https?:\/\/)?([\w]+\.)?linkedin\.com\/.*$/, 'Please provide a valid LinkedIn profile URL']
   },
-  Domain:{
+  Domain: {
     type: String,
-    required: [true, 'Please provide a domain'],
-    minlength: 6,
-    select: false,
-    default: 'normal'
+    enum: ['ip_consultancy', 'company_registration', 'mentoring', 'expert_guidance'],
+    required: [true, 'Please provide a domain']
   },
   events: [
     {

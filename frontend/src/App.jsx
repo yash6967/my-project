@@ -14,6 +14,9 @@ import CreateEvent from './components/CreateEvent';
 import Profile from './components/Profile';
 import AvailabilityManager from './components/AvailabilityManager';
 import CreateSession from './components/CreateSession';
+import Impact from './components/Impact';
+import EventsStats from './components/EventsStats';
+import DomainExpertStats from './components/DomainExpertStats';
 import './App.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -29,6 +32,9 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/events" element={<Marketplace />} />
+          <Route path="/impact" element={<Impact />} />
+          <Route path="/impact/events-stats" element={<EventsStats />} />
+          <Route path="/DomainExpertStats" element={<DomainExpertStats />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/service-calendar" element={<ServiceCalendar />} />
           <Route path="/service-booking" element={<ServiceBooking />} />

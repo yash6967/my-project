@@ -232,7 +232,10 @@ const Marketplace = () => {
   };
 
   const filteredEvents = events.filter(event => {
-    const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || 
+      (Array.isArray(event.category) 
+        ? event.category.includes(selectedCategory)
+        : event.category === selectedCategory);
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          event.description.toLowerCase().includes(searchTerm.toLowerCase());
     if (filter === 'registered') {
@@ -252,13 +255,25 @@ const Marketplace = () => {
   ];
 
   const formatCategoryName = (category) => {
-    const categoryMap = {
-      'ip_consultancy': 'IP Consultancy',
-      'company_registration': 'Company Registration',
-      'mentoring': 'Mentoring',
-      'expert_guidance': 'Expert Guidance'
-    };
-    return categoryMap[category] || category;
+    if (Array.isArray(category)) {
+      return category.map(cat => {
+        const categoryMap = {
+          'ip_consultancy': 'IP Consultancy',
+          'company_registration': 'Company Registration',
+          'mentoring': 'Mentoring',
+          'expert_guidance': 'Expert Guidance'
+        };
+        return categoryMap[cat] || cat;
+      }).join(', ');
+    } else {
+      const categoryMap = {
+        'ip_consultancy': 'IP Consultancy',
+        'company_registration': 'Company Registration',
+        'mentoring': 'Mentoring',
+        'expert_guidance': 'Expert Guidance'
+      };
+      return categoryMap[category] || category;
+    }
   };
   const handleNextEvent = () => {
     setCurrentEventIndex((prevIndex) => (prevIndex + 1) % eventImages.length);

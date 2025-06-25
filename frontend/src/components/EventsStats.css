@@ -1,0 +1,222 @@
+/* EventsStats.css - Styles for the EventsStats component */
+
+.events-stats-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 40px 24px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(40, 39, 105, 0.12);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.events-stats-container h2 {
+  color: #282769;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.total-events {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #282769;
+  margin-bottom: 36px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 18px 0;
+  box-shadow: 0 2px 8px rgba(229, 27, 0, 0.06);
+}
+
+.total-number {
+  color: #e51b00;
+  font-size: 2.1rem;
+  font-weight: 900;
+  margin-left: 10px;
+}
+
+.bar-chart-section {
+  margin: 0 auto;
+  max-width: 700px;
+  background: #f9f9f9;
+  border-radius: 16px;
+  padding: 32px 18px 24px 18px;
+  box-shadow: 0 4px 18px rgba(40, 39, 105, 0.08);
+}
+
+.loading {
+  text-align: center;
+  color: #282769;
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding: 40px 0;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.chart-section {
+  background: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(40, 39, 105, 0.08);
+  padding: 18px 8px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 260px;
+  max-width: 520px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.chart-section h3 {
+  color: #282769;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.doughnut-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.doughnut-numbers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #282769;
+}
+.doughnut-numbers span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.doughnut-numbers .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+.doughnut-numbers .dot.fully {
+  background: #e51b00;
+}
+.doughnut-numbers .dot.partial {
+  background: #ffc107;
+}
+.doughnut-numbers .dot.open {
+  background: #282769;
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-section {
+    padding: 8px 2px 6px 2px;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .chart-section h3 {
+    font-size: 1rem;
+  }
+}
+
+.bottom-charts-row {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}
+
+.bottom-charts-row .bar-chart-section,
+.bottom-charts-row .role-pie-section {
+  flex: 1 1 350px;
+  min-width: 320px;
+  max-width: 520px;
+  min-height: 340px;
+  max-height: 440px;
+  background: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(40, 39, 105, 0.08);
+  padding: 32px 18px 24px 18px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-charts-row h3 {
+  text-align: center;
+  margin-bottom: 18px;
+  color: #282769;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.chart-canvas {
+  width: 100% !important;
+  height: 320px !important;
+  max-height: 420px !important;
+}
+
+@media (max-width: 1100px) {
+  .bottom-charts-row {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .bottom-charts-row .bar-chart-section,
+  .bottom-charts-row .role-pie-section {
+    max-width: 100%;
+    min-width: 0;
+    padding: 18px 6px 12px 6px;
+  }
+}
+
+.heatmap-section {
+  grid-column: 1 / -1; /* Span full width */
+  max-width: none;
+  padding: 2rem;
+}
+
+/* React Calendar Heatmap specific styles */
+.react-calendar-heatmap .color-empty { fill: #eeeeee; }
+.react-calendar-heatmap .color-scale-1 { fill: #d6e685; }
+.react-calendar-heatmap .color-scale-2 { fill: #8cc665; }
+.react-calendar-heatmap .color-scale-3 { fill: #44a340; }
+.react-calendar-heatmap .color-scale-4 { fill: #1e6823; }
+
+/* Tooltip styles */
+.react-tooltip {
+  background-color: #282769 !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+  opacity: 1 !important;
+} 

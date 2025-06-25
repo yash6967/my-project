@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CreateEvent.css';
+import { Bar } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
@@ -12,7 +14,7 @@ const CreateEvent = () => {
     time: '',
     endTime: '',
     location: '',
-    category: '',
+    category: [],
     image: null,
     availableSeats: '',
     organizer: '',
@@ -23,6 +25,14 @@ const CreateEvent = () => {
   const [domainExperts, setDomainExperts] = useState([]);
   const [filteredExperts, setFilteredExperts] = useState([]);
   const [loadingExperts, setLoadingExperts] = useState(false);
+
+  // Available categories
+  const availableCategories = [
+    { value: 'ip_consultancy', label: 'IP Consultancy' },
+    { value: 'company_registration', label: 'Company Registration' },
+    { value: 'mentoring', label: 'Mentoring' },
+    { value: 'expert_guidance', label: 'Expert Guidance' }
+  ];
 
   useEffect(() => {
     // Fetch users from the backend
@@ -55,16 +65,35 @@ const CreateEvent = () => {
     fetchDomainExperts();
   }, []);
 
-  // Show all domain experts in the dropdown, no filtering by time
+  // Show only domain experts whose Domain matches any selected category
   useEffect(() => {
-    setFilteredExperts(domainExperts);
-  }, [domainExperts]);
+    if (!formData.category || formData.category.length === 0) {
+      setFilteredExperts(domainExperts);
+    } else {
+      setFilteredExperts(
+        domainExperts.filter(expert =>
+          formData.category.some(cat => cat === expert.Domain)
+        )
+      );
+    }
+  }, [domainExperts, formData.category]);
 
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryChange = (categoryValue) => {
+    setFormData((prev) => {
+      const currentCategories = prev.category || [];
+      const updatedCategories = currentCategories.includes(categoryValue)
+        ? currentCategories.filter(cat => cat !== categoryValue)
+        : [...currentCategories, categoryValue];
+      
+      return { ...prev, category: updatedCategories };
+    });
   };
 
   const handleFileChange = (e) => {
@@ -89,10 +118,18 @@ const CreateEvent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate that at least one category is selected
+    if (!formData.category || formData.category.length === 0) {
+      alert('Please select at least one category');
+      return;
+    }
+
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key === 'booked_experts' && Array.isArray(value)) {
         value.forEach(id => formDataToSend.append('booked_experts', id));
+      } else if (key === 'category' && Array.isArray(value)) {
+        value.forEach(cat => formDataToSend.append('category', cat));
       } else if (value) {
         formDataToSend.append(key, value);
       }
@@ -196,19 +233,20 @@ const CreateEvent = () => {
           </a>
         )}
         <label>
-          Category:
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Category</option>
-            <option value="ip_consultancy">IP Consultancy</option>
-            <option value="company_registration">Company Registration</option>
-            <option value="mentoring">Mentoring</option>
-            <option value="expert_guidance">Expert Guidance</option>
-          </select>
+          Categories (Select all that apply):
+          <div className="category-checkboxes">
+            {availableCategories.map(category => (
+              <div key={category.value} className="category-checkbox">
+                <input
+                  type="checkbox"
+                  id={category.value}
+                  checked={formData.category.includes(category.value)}
+                  onChange={() => handleCategoryChange(category.value)}
+                />
+                <label htmlFor={category.value}>{category.label}</label>
+              </div>
+            ))}
+          </div>
         </label>
         <label>
           Image:
@@ -247,30 +285,37 @@ const CreateEvent = () => {
           />
         </label>
         <label>
-          Select Domain Experts (filtered by slot availability):
+          Select Domain Experts:
           {loadingExperts ? (
             <span>Loading experts...</span>
           ) : (
-            <select
-              name="booked_experts"
-              multiple
-              value={formData.booked_experts || []}
-              onChange={e => {
-                const options = Array.from(e.target.selectedOptions).map(opt => opt.value);
-                setFormData(prev => ({ ...prev, booked_experts: options }));
-              }}
-              style={{ minHeight: '80px' }}
-            >
+            <div className="experts-checkboxes">
               {filteredExperts.length === 0 ? (
-                <option value="" disabled>No available experts for this time</option>
+                <span className="no-experts">No available experts for this time</span>
               ) : (
                 filteredExperts.map(expert => (
-                  <option key={expert._id} value={expert._id}>
-                    {expert.name} ({expert.email})
-                  </option>
+                  <div key={expert._id} className="expert-checkbox">
+                    <input
+                      type="checkbox"
+                      id={`expert-${expert._id}`}
+                      checked={formData.booked_experts.includes(expert._id)}
+                      onChange={() => {
+                        const updatedExperts = formData.booked_experts.includes(expert._id)
+                          ? formData.booked_experts.filter(id => id !== expert._id)
+                          : [...formData.booked_experts, expert._id];
+                        setFormData(prev => ({ ...prev, booked_experts: updatedExperts }));
+                      }}
+                    />
+                    <label htmlFor={`expert-${expert._id}`}>
+                      <div className="expert-info">
+                        <span className="expert-name">{expert.name}</span>
+                        <span className="expert-email">({expert.email})</span>
+                      </div>
+                    </label>
+                  </div>
                 ))
               )}
-            </select>
+            </div>
           )}
         </label>
         <button type="submit">Create Event</button>

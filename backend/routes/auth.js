@@ -71,7 +71,7 @@ router.get('/user-details/:userId', async (req, res) => {
     const userId = req.params.userId;
     console.log('GET /user-details/:userId - Fetching user:', userId);
     
-    const user = await User.findById(userId).select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType');
+    const user = await User.findById(userId).select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType Domain');
     if (!user) {
       console.log('User not found for ID:', userId);
       return res.status(404).json({ error: 'User not found' });
@@ -97,7 +97,7 @@ router.put('/user-details/:userId', async (req, res) => {
     const user = await User.findByIdAndUpdate(userId, updates, {
       new: true,
       runValidators: true,
-    }).select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType');
+    }).select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType Domain');
 
     if (!user) {
       console.log('User not found for ID:', userId);

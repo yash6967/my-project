@@ -112,6 +112,7 @@ const NavBar = () => {
       </div>
       <div className="navbar-links">
         <Link to="/events" className={`navbar-link${location.pathname === '/events' ? ' active' : ''}`}>Events</Link>
+        <Link to="/impact" className={`navbar-link${location.pathname === '/impact' ? ' active' : ''}`}>Impact</Link>
         <Link to="/service-booking" className={`navbar-link${location.pathname === '/service-booking' ? ' active' : ''}`}>Domain Experts</Link>
         {isLoggedIn && (
           <Link to="/dashboard" className={`navbar-link${location.pathname === '/dashboard' ? ' active' : ''}`}>Dashboard</Link>

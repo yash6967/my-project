@@ -24,6 +24,20 @@ router.post('/', upload.single('image'), async (req, res) => {
     console.log('Request Body:', req.body); // Debugging log
     console.log('Uploaded File:', req.file); // Debugging log
 
+    // Handle multiple categories
+    let categories = [];
+    if (req.body.category) {
+      // If category is already an array, use it directly
+      if (Array.isArray(req.body.category)) {
+        categories = req.body.category;
+      } else {
+        // If it's a string, split by comma or use as single item
+        categories = req.body.category.includes(',') 
+          ? req.body.category.split(',').map(cat => cat.trim())
+          : [req.body.category];
+      }
+    }
+
     const eventData = {
       title: req.body.title,
       description: req.body.description,
@@ -31,7 +45,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       time: req.body.time,
       endTime: req.body.endTime,
       location: req.body.location,
-      category: req.body.category,
+      category: categories,
       image: req.file ? `${req.file.filename}` : null, // Make photo optional
       organizer: req.body.organizer,
       availableSeats: req.body.availableSeats, // Ensure availableSeats is included
@@ -96,8 +110,23 @@ router.get('/:id', async (req, res) => {
 // Update an event by ID
 router.put('/:id', upload.single('image'), async (req, res) => {
   try {
+    // Handle multiple categories for updates
+    let categories = [];
+    if (req.body.category) {
+      // If category is already an array, use it directly
+      if (Array.isArray(req.body.category)) {
+        categories = req.body.category;
+      } else {
+        // If it's a string, split by comma or use as single item
+        categories = req.body.category.includes(',') 
+          ? req.body.category.split(',').map(cat => cat.trim())
+          : [req.body.category];
+      }
+    }
+
     const updatedData = {
       ...req.body,
+      category: categories,
       image: req.file ? `${req.file.filename}` : req.body.image, // Update image if a new one is uploaded
     };
 
