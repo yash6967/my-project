@@ -746,7 +746,7 @@
 
 .confirm-booking-btn {
   flex: 1;
-  background: linear-gradient(135deg, #e51b00, #c41600);
+  background: linear-gradient(135deg, #4caf50, #388e3c);
   color: #ffffff;
   border: none;
   padding: 15px 25px;
@@ -760,7 +760,7 @@
 }
 
 .confirm-booking-btn:hover {
-  background: linear-gradient(135deg, #c41600, #a01300);
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(229, 27, 0, 0.3);
 }

@@ -75,7 +75,7 @@ const userSchema = new mongoose.Schema({
   Domain: {
     type: String,
     enum: ['ip_consultancy', 'company_registration', 'mentoring', 'expert_guidance'],
-    required: [true, 'Please provide a domain']
+    required: [false, 'Please provide a domain']
   },
   events: [
     {

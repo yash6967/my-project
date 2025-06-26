@@ -600,7 +600,7 @@ const Dashboard = () => {
                     <th>Request Type</th>
                     <th>Status</th>
                     <th>Applied Date</th>
-                    <th>Actions</th>
+                    {/* <th>Actions</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -621,14 +621,14 @@ const Dashboard = () => {
                       <td>
                         {new Date(request.createdAt).toLocaleDateString()}
                       </td>
-                      <td>
+                      {/* <td>
                         <button 
                           onClick={() => deleteRequest(request._id)} 
                           className="delete-btn"
                         >
                           Delete
                         </button>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
