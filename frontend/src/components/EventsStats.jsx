@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Bar, Doughnut, Line, Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { useUser } from '../context/UserContext';
 import './EventsStats.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
@@ -24,11 +25,25 @@ const GENDER_LABELS = ['male', 'female', 'other'];
 const ROLE_LABELS = ['normal', 'domain_expert', 'admin', 'super_admin'];
 
 const EventsStats = () => {
+  const { user } = useUser();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [participantFilter, setParticipantFilter] = useState('gender');
   const [participantStats, setParticipantStats] = useState({});
   const [participantLoading, setParticipantLoading] = useState(false);
+  
+  // Admin-specific state
+  const [requests, setRequests] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [systemMetrics, setSystemMetrics] = useState({
+    apiResponseTime: 0,
+    errorRate: 0,
+    activeFeatures: []
+  });
+  const [adminLoading, setAdminLoading] = useState(false);
+  
+  // Event Creation Trends filter state
+  const [trendsFilter, setTrendsFilter] = useState('last6'); // 'last6', 'first6', 'all'
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -97,6 +112,58 @@ const EventsStats = () => {
     if (events.length > 0) fetchParticipantStats();
   }, [events, participantFilter]);
 
+  // Fetch admin-specific data
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      if (!user || (user.userType !== 'admin' && user.userType !== 'super_admin')) {
+        return;
+      }
+      
+      setAdminLoading(true);
+      try {
+        // Fetch requests
+        const requestsRes = await fetch(`${BACKEND_URL}api/requests/all-requests`);
+        const requestsData = await requestsRes.json();
+        setRequests(requestsData);
+        
+        // Fetch all users
+        const usersRes = await fetch(`${BACKEND_URL}api/auth/allusers`);
+        const usersData = await usersRes.json();
+        setUsers(usersData);
+        
+        // Calculate real system metrics from actual data
+        const totalUsers = usersData.length;
+        const totalEventsCount = events.length;
+        const eventsWithExperts = events.filter(event => event.booked_experts && event.booked_experts.length > 0).length;
+        const totalRequests = requestsData.length;
+        
+        // Calculate more accurate feature usage metrics
+        const eventsWithRegistrations = events.filter(event => event.registeredUsers && event.registeredUsers.length > 0).length;
+        const totalRegistrations = events.reduce((sum, event) => sum + (event.registeredUsers?.length || 0), 0);
+        const pendingRequests = requestsData.filter(req => req.status === 'pending').length;
+        
+        setSystemMetrics({
+          apiResponseTime: 0, // Would need real API monitoring
+          errorRate: 0, // Would need real error tracking
+          activeFeatures: [
+            { name: 'Event Creation', usage: totalEventsCount },
+            { name: 'User Registration', usage: totalUsers },
+            { name: 'Expert Booking', usage: eventsWithExperts },
+            { name: 'Request Management', usage: totalRequests },
+            { name: 'Event Registrations', usage: totalRegistrations },
+            { name: 'Pending Requests', usage: pendingRequests }
+          ]
+        });
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+      } finally {
+        setAdminLoading(false);
+      }
+    };
+    
+    fetchAdminData();
+  }, [user]);
+
   // --- Doughnut Chart: Registration Status ---
   let fullyBooked = 0, partiallyBooked = 0, open = 0;
   events.forEach(event => {
@@ -124,11 +191,21 @@ const EventsStats = () => {
   // --- Line Chart: Events Created Over Time (by month) ---
   const eventsByMonth = {};
   events.forEach(event => {
-    if (event.date) {
-      const d = new Date(event.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      eventsByMonth[key] = (eventsByMonth[key] || 0) + 1;
+    // Use event.createdAt for actual creation date, fallback to _id timestamp if createdAt doesn't exist
+    let creationDate;
+    if (event.createdAt) {
+      creationDate = new Date(event.createdAt);
+    } else if (event._id) {
+      // Extract timestamp from ObjectId (first 4 bytes represent timestamp)
+      const timestamp = parseInt(event._id.toString().substring(0, 8), 16) * 1000;
+      creationDate = new Date(timestamp);
+    } else {
+      // Fallback to event.date if neither exists
+      creationDate = new Date(event.date);
     }
+    
+    const key = `${creationDate.getFullYear()}-${String(creationDate.getMonth() + 1).padStart(2, '0')}`;
+    eventsByMonth[key] = (eventsByMonth[key] || 0) + 1;
   });
   const sortedMonths = Object.keys(eventsByMonth).sort();
   const lineData = {
@@ -203,6 +280,169 @@ const EventsStats = () => {
     ],
   };
 
+  // --- Admin-specific chart data ---
+  
+  // 1. Request Management Dashboard - Doughnut Chart
+  const requestStatusData = {
+    labels: ['Pending', 'Approved', 'Rejected'],
+    datasets: [{
+      data: [
+        requests.filter(r => r.status === 'pending').length,
+        requests.filter(r => r.status === 'approved').length,
+        requests.filter(r => r.status === 'rejected').length
+      ],
+      backgroundColor: ['#ffc107', '#28a745', '#dc3545'],
+      borderWidth: 2,
+    }],
+  };
+
+  // 2. System Performance Metrics - Line Chart for API Response Times
+  // Comment for the next chart
+
+  // 3. Most Active Features - Bar Chart
+  const activeFeaturesData = {
+    labels: systemMetrics.activeFeatures.map(f => f.name),
+    datasets: [{
+      label: 'Usage Count',
+      data: systemMetrics.activeFeatures.map(f => f.usage),
+      backgroundColor: ['#282769', '#e51b00', '#667eea', '#ffc107'],
+      borderRadius: 8,
+    }],
+  };
+
+  // 4. Event Management Analytics - Pie Chart for Event Categories
+  const eventCategoriesData = {
+    labels: categoryLabels.map(cat => cat.label),
+    datasets: [{
+      data: categoryLabels.map(cat =>
+        events.filter(event => Array.isArray(event.category) && event.category.includes(cat.value)).length
+      ),
+      backgroundColor: ['#282769', '#e51b00', '#667eea', '#ffc107'],
+      borderWidth: 2,
+    }],
+  };
+
+  // 5. Event Attendance Rates - Bar Chart
+  const eventAttendanceData = {
+    labels: events.slice(0, 10).map(e => {
+      // Truncate long event titles for better display
+      const title = e.title || 'Untitled Event';
+      return title.length > 20 ? title.substring(0, 20) + '...' : title;
+    }),
+    datasets: [{
+      label: 'Attendance Rate (%)',
+      data: events.slice(0, 10).map(e => {
+        const totalSeats = (e.registeredUsers?.length || 0) + (e.availableSeats || 0);
+        return totalSeats > 0 ? Math.round(((e.registeredUsers?.length || 0) / totalSeats) * 100) : 0;
+      }),
+      backgroundColor: '#28a745',
+      borderColor: '#1e7e34',
+      borderWidth: 1,
+      borderRadius: 8,
+      borderSkipped: false,
+    }],
+  };
+
+  // 6. Event Creation Trends - Line Chart
+  // Calculate real event creation trends by month
+  const eventCreationByMonth = {};
+  const eventsWithExpertsByMonth = {};
+  
+  events.forEach(event => {
+    // Use event.createdAt for actual creation date, fallback to _id timestamp if createdAt doesn't exist
+    let creationDate;
+    if (event.createdAt) {
+      creationDate = new Date(event.createdAt);
+    } else if (event._id) {
+      // Extract timestamp from ObjectId (first 4 bytes represent timestamp)
+      const timestamp = parseInt(event._id.toString().substring(0, 8), 16) * 1000;
+      creationDate = new Date(timestamp);
+    } else {
+      // Fallback to event.date if neither exists
+      creationDate = new Date(event.date);
+    }
+    
+    const monthKey = `${creationDate.getFullYear()}-${String(creationDate.getMonth() + 1).padStart(2, '0')}`;
+    eventCreationByMonth[monthKey] = (eventCreationByMonth[monthKey] || 0) + 1;
+    
+    if (event.booked_experts && event.booked_experts.length > 0) {
+      eventsWithExpertsByMonth[monthKey] = (eventsWithExpertsByMonth[monthKey] || 0) + 1;
+    }
+  });
+  
+  // Get months based on filter
+  let selectedMonths = [];
+  const allMonths = Object.keys(eventCreationByMonth).sort();
+
+  const currentYear = new Date().getFullYear();
+
+  if (trendsFilter === 'last6') {
+    // Always show July to December of current year
+    selectedMonths = Array.from({ length: 6 }, (_, i) => `${currentYear}-${String(i + 7).padStart(2, '0')}`);
+  } else if (trendsFilter === 'first6') {
+    // Always show January to June of current year
+    selectedMonths = Array.from({ length: 6 }, (_, i) => `${currentYear}-${String(i + 1).padStart(2, '0')}`);
+  } else {
+    selectedMonths = allMonths;
+  }
+
+  // Fallback: if no months, create a default month
+  if (selectedMonths.length === 0) {
+    const currentDate = new Date();
+    const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    selectedMonths = [currentMonth];
+    eventCreationByMonth[currentMonth] = 0;
+    eventsWithExpertsByMonth[currentMonth] = 0;
+  }
+  
+  const eventCreationTrendsData = {
+    labels: selectedMonths.map(month => {
+      const [year, monthNum] = month.split('-');
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${monthNames[parseInt(monthNum) - 1]} ${year}`;
+    }),
+    datasets: [
+      {
+        label: 'Events Created',
+        data: selectedMonths.map(month => eventCreationByMonth[month] || 0),
+        borderColor: '#282769',
+        backgroundColor: 'rgba(40, 39, 105, 0.1)',
+        fill: true,
+        tension: 0.3,
+      },
+      {
+        label: 'Events with Experts',
+        data: selectedMonths.map(month => eventsWithExpertsByMonth[month] || 0),
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        fill: true,
+        tension: 0.3,
+      }
+    ],
+  };
+
+  // 7. Event Scheduling Patterns - Heatmap data (simplified as bar chart)
+  // Calculate real scheduling patterns by day of week
+  const dayOfWeekCounts = [0, 0, 0, 0, 0, 0, 0]; // Sunday to Saturday
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  
+  events.forEach(event => {
+    if (event.date) {
+      const dayOfWeek = new Date(event.date).getDay();
+      dayOfWeekCounts[dayOfWeek]++;
+    }
+  });
+  
+  const schedulingPatternsData = {
+    labels: dayNames,
+    datasets: [{
+      label: 'Events Scheduled',
+      data: dayOfWeekCounts,
+      backgroundColor: '#ffc107',
+      borderRadius: 8,
+    }],
+  };
+
   const options = {
     responsive: true,
     plugins: {
@@ -240,6 +480,179 @@ const EventsStats = () => {
             <span className="total-number">{totalEvents}</span>
           </div>
 
+          {/* Admin-specific charts */}
+          {(user?.userType === 'admin' || user?.userType === 'super_admin') && (
+            <>
+              <div className="admin-section">
+                <h3>Admin Dashboard Analytics</h3>
+                {adminLoading ? (
+                  <div className="loading">Loading admin data...</div>
+                ) : (
+                  <div className="charts-grid">
+                    {/* 1. Request Management Dashboard */}
+                    <div className="chart-section">
+                      <h3>Request Status Distribution</h3>
+                      <Doughnut data={requestStatusData} style={{ maxWidth: 300, maxHeight: 300 }} />
+                      <div className="chart-legend">
+                        <span><span className="dot pending"></span>Pending: {requests.filter(r => r.status === 'pending').length}</span>
+                        <span><span className="dot approved"></span>Approved: {requests.filter(r => r.status === 'approved').length}</span>
+                        <span><span className="dot rejected"></span>Rejected: {requests.filter(r => r.status === 'rejected').length}</span>
+                      </div>
+                    </div>
+
+                    {/* 3. Most Active Features */}
+                    <div className="chart-section">
+                      <h3>Most Active Features</h3>
+                      <Bar data={activeFeaturesData} options={{
+                        ...options,
+                        plugins: { ...options.plugins, title: { ...options.plugins.title, text: 'Feature Usage Analytics' } },
+                        scales: { ...options.scales, y: { ...options.scales.y, title: { ...options.scales.y.title, text: 'Usage Count' } } }
+                      }} />
+                    </div>
+
+                    {/* 4. Event Categories Distribution */}
+                    <div className="chart-section">
+                      <h3>Event Categories Distribution</h3>
+                      <Pie data={eventCategoriesData} style={{ maxWidth: 300, maxHeight: 300 }} />
+                    </div>
+
+                    {/* 5. Event Attendance Rates */}
+                    <div className="chart-section">
+                      <h3>Event Attendance Rates</h3>
+                      <Bar data={eventAttendanceData} options={{
+                        responsive: true,
+                        plugins: { 
+                          legend: { display: false },
+                          title: { display: true, text: 'Top 10 Events by Attendance', color: '#282769', font: { size: 16, weight: 'bold' } }
+                        },
+                        scales: { 
+                          x: { 
+                            title: { display: true, text: 'Events', color: '#282769', font: { size: 14 } },
+                            ticks: { 
+                              color: '#282769', 
+                              font: { size: 11 },
+                              maxRotation: 45,
+                              minRotation: 0
+                            }
+                          },
+                          y: { 
+                            title: { display: true, text: 'Attendance Rate (%)', color: '#282769', font: { size: 14 } },
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#282769', font: { size: 12 } }
+                          }
+                        },
+                        layout: {
+                          padding: {
+                            top: 20,
+                            bottom: 20
+                          }
+                        }
+                      }} />
+                    </div>
+
+                    {/* 6. Event Creation Trends */}
+                    <div className="chart-section event-creation-trends">
+                      <h3>Event Creation Trends</h3>
+                      <div style={{ marginBottom: '15px', textAlign: 'center' }}>
+                        <label htmlFor="trends-filter" style={{ marginRight: '10px', fontWeight: '600', color: '#282769' }}>
+                          Time Period:
+                        </label>
+                        <select
+                          id="trends-filter"
+                          value={trendsFilter}
+                          onChange={(e) => setTrendsFilter(e.target.value)}
+                          style={{
+                            padding: '5px 10px',
+                            borderRadius: '6px',
+                            border: '1px solid #ddd',
+                            fontSize: '14px',
+                            backgroundColor: 'white'
+                          }}
+                        >
+                          <option value="last6">Last 6 Months</option>
+                          <option value="first6">First 6 Months</option>
+                          <option value="all">All Time</option>
+                        </select>
+                      </div>
+                      <Line data={eventCreationTrendsData} options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                          legend: { display: true, position: 'top' }, 
+                          title: { display: true, text: 'Event Creation Over Time', color: '#282769', font: { size: 16, weight: 'bold' } }
+                        },
+                        scales: { 
+                          x: { 
+                            title: { display: true, text: 'Month', color: '#282769', font: { size: 14 } },
+                            ticks: { 
+                              color: '#282769', 
+                              font: { size: 10 },
+                              maxRotation: 45,
+                              minRotation: 0,
+                              autoSkip: false,
+                              maxTicksLimit: selectedMonths.length > 12 ? 12 : selectedMonths.length,
+                              callback: function(value, index) {
+                                // Show every month label
+                                return this.getLabelForValue(value);
+                              }
+                            },
+                            grid: {
+                              display: true,
+                              color: 'rgba(0,0,0,0.1)'
+                            }
+                          },
+                          y: { 
+                            title: { display: true, text: 'Number of Events', color: '#282769', font: { size: 14 } },
+                            beginAtZero: true,
+                            ticks: { 
+                              color: '#282769', 
+                              font: { size: 12 },
+                              precision: 0,
+                              stepSize: 1
+                            },
+                            grid: {
+                              display: true,
+                              color: 'rgba(0,0,0,0.1)'
+                            }
+                          }
+                        },
+                        layout: {
+                          padding: {
+                            top: 20,
+                            bottom: 40,
+                            left: 20,
+                            right: 20
+                          }
+                        },
+                        elements: {
+                          point: {
+                            radius: 4,
+                            hoverRadius: 6
+                          },
+                          line: {
+                            tension: 0.3
+                          }
+                        }
+                      }} />
+                    </div>
+
+                    {/* 7. Event Scheduling Patterns */}
+                    <div className="chart-section">
+                      <h3>Event Scheduling Patterns</h3>
+                      <Bar data={schedulingPatternsData} options={{
+                        ...options,
+                        plugins: { ...options.plugins, title: { ...options.plugins.title, text: 'Events by Day of Week' } },
+                        scales: { ...options.scales, y: { ...options.scales.y, title: { ...options.scales.y.title, text: 'Number of Events' } } }
+                      }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Existing charts for all users */}
           <div className="charts-grid">
             <div className="chart-section">
               <h3>Doughnut Chart: Registration Status</h3>

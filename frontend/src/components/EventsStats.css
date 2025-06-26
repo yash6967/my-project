@@ -40,6 +40,26 @@
   margin-left: 10px;
 }
 
+/* Admin Section Styles */
+.admin-section {
+  margin-bottom: 48px;
+  padding: 32px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px;
+  border: 2px solid #e51b00;
+  box-shadow: 0 8px 32px rgba(229, 27, 0, 0.15);
+}
+
+.admin-section h3 {
+  color: #e51b00;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .bar-chart-section {
   margin: 0 auto;
   max-width: 700px;
@@ -123,10 +143,68 @@
   background: #282769;
 }
 
+/* Chart Legend Styles */
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #282769;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.chart-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.chart-legend .dot.pending {
+  background: #ffc107;
+}
+
+.chart-legend .dot.approved {
+  background: #28a745;
+}
+
+.chart-legend .dot.rejected {
+  background: #dc3545;
+}
+
+.chart-legend .dot.active {
+  background: #28a745;
+}
+
+.chart-legend .dot.inactive {
+  background: #6c757d;
+}
+
 @media (max-width: 900px) {
   .charts-grid {
     grid-template-columns: 1fr;
     gap: 18px;
+  }
+  
+  .admin-section {
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+  
+  .admin-section h3 {
+    font-size: 1.5rem;
   }
 }
 
@@ -138,6 +216,16 @@
   }
   .chart-section h3 {
     font-size: 1rem;
+  }
+  
+  .chart-legend {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+  
+  .chart-legend .dot {
+    width: 10px;
+    height: 10px;
   }
 }
 
@@ -198,11 +286,22 @@
 
 .heatmap-section {
   grid-column: 1 / -1; /* Span full width */
-  max-width: none;
-  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(40, 39, 105, 0.08);
+  padding: 32px 18px 24px 18px;
+  margin-top: 24px;
 }
 
-/* React Calendar Heatmap specific styles */
+.heatmap-section h3 {
+  color: #282769;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* Heatmap color classes */
 .react-calendar-heatmap .color-empty { fill: #eeeeee; }
 .react-calendar-heatmap .color-scale-1 { fill: #d6e685; }
 .react-calendar-heatmap .color-scale-2 { fill: #8cc665; }
@@ -211,12 +310,142 @@
 
 /* Tooltip styles */
 .react-tooltip {
-  background-color: #282769 !important;
-  color: #fff !important;
-  border-radius: 6px !important;
+  background: rgba(40, 39, 105, 0.9) !important;
+  color: white !important;
+  border-radius: 8px !important;
   padding: 8px 12px !important;
   font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Performance Summary Styles */
+.performance-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(40, 39, 105, 0.1);
+  border: 1px solid #e0e0e0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 39, 105, 0.15);
+}
+
+.summary-card h4 {
+  color: #282769;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-card p {
+  color: #e51b00;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.summary-card span {
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Admin Chart Improvements */
+.admin-section .chart-section {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-section .chart-section:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.admin-section .chart-section h3 {
+  color: #282769;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-align: center;
+  border-bottom: 2px solid #e51b00;
+  padding-bottom: 8px;
+}
+
+/* Event Attendance Rates specific styling */
+.chart-section canvas {
+  max-height: 400px !important;
+  min-height: 300px !important;
+}
+
+/* Filter dropdown styling */
+.chart-section select {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #282769;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.chart-section select:hover {
+  border-color: #e51b00;
+  box-shadow: 0 2px 8px rgba(229, 27, 0, 0.1);
+}
+
+.chart-section select:focus {
+  outline: none;
+  border-color: #e51b00;
+  box-shadow: 0 0 0 3px rgba(229, 27, 0, 0.1);
+}
+
+/* Chart legend improvements */
+.chart-legend {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  margin-top: 16px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.chart-legend span {
   font-weight: 600 !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-  opacity: 1 !important;
+  color: #282769 !important;
+  margin: 4px 0 !important;
+}
+
+/* Event Creation Trends specific styling */
+.chart-section canvas {
+  max-height: 400px !important;
+  min-height: 300px !important;
+}
+
+/* Specific styling for Event Creation Trends chart */
+.event-creation-trends {
+  min-height: 450px !important;
+  max-height: 500px !important;
+}
+
+.event-creation-trends canvas {
+  min-height: 350px !important;
+  max-height: 400px !important;
+  width: 100% !important;
 } 

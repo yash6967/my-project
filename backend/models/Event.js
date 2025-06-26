@@ -68,6 +68,6 @@ const eventSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-});
+}, { timestamps: true }); // Add timestamps to track createdAt and updatedAt
 
 module.exports = mongoose.model('Event', eventSchema);

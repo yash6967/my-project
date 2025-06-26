@@ -37,6 +37,7 @@ const ManageEvents = () => {
       const response = await fetch(`${BACKEND_URL}api/events`);
       const data = await response.json();
       console.log('Fetched events:', data); // Debugging log
+      console.log('First event booked_experts:', data[0]?.booked_experts); // Debug booked experts
       setEvents(data);
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -214,7 +215,23 @@ const ManageEvents = () => {
     doc.text(`Category: ${formatCategoryName(event.category)}`, 20, 80);
     doc.text(`Organizer: ${event.organizer}`, 20, 90);
     doc.text(`Available Seats: ${event.availableSeats}`, 20, 100);
-    
+    {event.booked_experts && event.booked_experts.length > 0 && (
+      <div className="booked-experts-row">
+        <strong>Booked Experts:</strong>
+        {event.booked_experts.map((expert, idx) => (
+          <span key={expert._id || idx} className="expert-avatar-wrapper">
+            <img
+              src={expert.photo || elonMuskImage}
+              alt={expert.name}
+              className="expert-avatar"
+              onClick={() => { setSelectedExpert(expert); setShowExpertModal(true); }}
+              style={{ cursor: 'pointer', width: 36, height: 36, borderRadius: '50%', margin: '0 6px', border: '2px solid #a084e8' }}
+            />
+            <span className="expert-name">{expert.name}</span>
+          </span>
+        ))}
+      </div>
+    )}
     // Add registrations table
     if (registrations && registrations.length > 0) {
       doc.text('Registrations:', 20, 120);
@@ -306,29 +323,54 @@ const ManageEvents = () => {
       </div>
       <button className="create-event-button" onClick={handleCreate}>Create Event</button>
       <div className="events-list">
-        {events.map((event) => (
-          <div key={event._id} className="event-card">
-            <img
-              src={event.image ? `${event.image}` : `${fallBackImage}`}
-              alt="evenet"
-              className="event-image"
-            />
-            {console.log(`${event.image}`)}
-            <h3>{event.title}</h3>
-            <p><strong>Description:</strong> {event.description}</p>
-            <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
-            <p><strong>Time:</strong> {event.time} - {event.endTime}</p>
-            <p><strong>Location:</strong> {event.location}</p>
-            <p><strong>Category:</strong> {formatCategoryName(event.category)}</p>
-            <p><strong>Organizer:</strong> {event.organizer}</p>
-            <p><strong>Available Seats:</strong> {event.availableSeats}</p>
-            <div className="event-actions">
-              <button onClick={() => handleEdit(event)}>Edit</button>
-              <button onClick={() => fetchEventRegistrations(event._id)}>View Registrations</button>
-              <button onClick={() => handleDelete(event._id)}>Delete</button>
+        {events.map((event) => {
+          console.log(`Event "${event.title}" booked_experts:`, event.booked_experts); // Debug each event's booked experts
+          return (
+            <div key={event._id} className="event-card">
+              <img
+                src={event.image ? `${event.image}` : `${fallBackImage}`}
+                alt="evenet"
+                className="event-image"
+              />
+              {console.log(`${event.image}`)}
+              <h3>{event.title}</h3>
+              <p><strong>Description:</strong> {event.description}</p>
+              <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> {event.time} - {event.endTime}</p>
+              <p><strong>Location:</strong> {event.location}</p>
+              <p><strong>Category:</strong> {formatCategoryName(event.category)}</p>
+              <p><strong>Organizer:</strong> {event.organizer}</p>
+              <p><strong>Available Seats:</strong> {event.availableSeats}</p>
+              
+              {/* Display Booked Experts */}
+              {event.booked_experts && event.booked_experts.length > 0 && (
+                <div className="booked-experts-section">
+                  <p><strong>Booked Experts:</strong></p>
+                  <div className="booked-experts-row">
+                    {event.booked_experts.map((expert, idx) => (
+                      <span key={expert._id || idx} className="expert-avatar-wrapper">
+                        <img
+                          src={expert.photo || elonMuskImage}
+                          alt={expert.name}
+                          className="expert-avatar"
+                          onClick={() => handleViewExpert(expert)}
+                          style={{ cursor: 'pointer', width: 36, height: 36, borderRadius: '50%', margin: '0 6px', border: '2px solid #a084e8' }}
+                        />
+                        <span className="expert-name">{expert.name}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="event-actions">
+                <button onClick={() => handleEdit(event)}>Edit</button>
+                <button onClick={() => fetchEventRegistrations(event._id)}>View Registrations</button>
+                <button onClick={() => handleDelete(event._id)}>Delete</button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Registration Info Modal */}

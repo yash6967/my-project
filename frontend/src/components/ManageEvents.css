@@ -312,6 +312,17 @@
   }
 }
 
+.booked-experts-section {
+  margin: 12px 0;
+  padding: 8px 0;
+}
+
+.booked-experts-section p {
+  margin: 0 0 8px 0;
+  color: #282769;
+  font-weight: 600;
+}
+
 .booked-experts-row {
   display: flex;
   align-items: center;
