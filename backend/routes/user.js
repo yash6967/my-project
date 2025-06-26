@@ -59,7 +59,7 @@ router.put('/event', protect, async (req, res) => {
 router.get('/domain-experts', async (req, res) => {
   try {
     const domainExperts = await User.find({ userType: 'domain_expert' })
-      .select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType');
+      .select('name email mobileNumber address gender organization role locationOfWork dateOfBirth linkedinProfile userType Domain');
     
     res.status(200).json(domainExperts);
   } catch (error) {

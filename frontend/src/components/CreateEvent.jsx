@@ -69,12 +69,15 @@ const CreateEvent = () => {
 
   // Show only domain experts whose Domain matches any selected category
   useEffect(() => {
+    // Debug: log current categories and expert domains
+    console.log('Selected categories:', formData.category);
+    console.log('Domain experts:', domainExperts.map(e => e.Domain));
     if (!formData.category || formData.category.length === 0) {
       setFilteredExperts(domainExperts);
     } else {
       setFilteredExperts(
         domainExperts.filter(expert =>
-          formData.category.some(cat => cat === expert.Domain)
+          expert.Domain && formData.category.some(cat => cat.toLowerCase() === expert.Domain.toLowerCase())
         )
       );
     }
