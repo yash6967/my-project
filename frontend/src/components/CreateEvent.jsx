@@ -25,6 +25,8 @@ const CreateEvent = () => {
   const [domainExperts, setDomainExperts] = useState([]);
   const [filteredExperts, setFilteredExperts] = useState([]);
   const [loadingExperts, setLoadingExperts] = useState(false);
+  const [selectedExpert, setSelectedExpert] = useState(null);
+  const [containsExperts, setContainsExperts] = useState(false);
 
   // Available categories
   const availableCategories = [
@@ -233,22 +235,6 @@ const CreateEvent = () => {
           </a>
         )}
         <label>
-          Categories (Select all that apply):
-          <div className="category-checkboxes">
-            {availableCategories.map(category => (
-              <div key={category.value} className="category-checkbox">
-                <input
-                  type="checkbox"
-                  id={category.value}
-                  checked={formData.category.includes(category.value)}
-                  onChange={() => handleCategoryChange(category.value)}
-                />
-                <label htmlFor={category.value}>{category.label}</label>
-              </div>
-            ))}
-          </div>
-        </label>
-        <label>
           Image:
           <input
             type="file"
@@ -284,40 +270,70 @@ const CreateEvent = () => {
             required
           />
         </label>
-        <label>
-          Select Domain Experts:
-          {loadingExperts ? (
-            <span>Loading experts...</span>
-          ) : (
-            <div className="experts-checkboxes">
-              {filteredExperts.length === 0 ? (
-                <span className="no-experts">No available experts for this time</span>
-              ) : (
-                filteredExperts.map(expert => (
-                  <div key={expert._id} className="expert-checkbox">
+        <div className="contains-experts-checkbox">
+          <input
+            type="checkbox"
+            id="containsExperts"
+            checked={containsExperts}
+            onChange={(e) => setContainsExperts(e.target.checked)}
+          />
+          <label htmlFor="containsExperts">Does this event contain experts?</label>
+        </div>
+
+        {containsExperts && (
+          <>
+            <label>
+              Categories (Select all that apply):
+              <div className="category-checkboxes">
+                {availableCategories.map(category => (
+                  <div key={category.value} className="category-checkbox">
                     <input
                       type="checkbox"
-                      id={`expert-${expert._id}`}
-                      checked={formData.booked_experts.includes(expert._id)}
-                      onChange={() => {
-                        const updatedExperts = formData.booked_experts.includes(expert._id)
-                          ? formData.booked_experts.filter(id => id !== expert._id)
-                          : [...formData.booked_experts, expert._id];
-                        setFormData(prev => ({ ...prev, booked_experts: updatedExperts }));
-                      }}
+                      id={category.value}
+                      checked={formData.category.includes(category.value)}
+                      onChange={() => handleCategoryChange(category.value)}
                     />
-                    <label htmlFor={`expert-${expert._id}`}>
-                      <div className="expert-info">
-                        <span className="expert-name">{expert.name}</span>
-                        <span className="expert-email">({expert.email})</span>
-                      </div>
-                    </label>
+                    <label htmlFor={category.value}>{category.label}</label>
                   </div>
-                ))
+                ))}
+              </div>
+            </label>
+            <label>
+              Select Domain Experts:
+              {loadingExperts ? (
+                <span>Loading experts...</span>
+              ) : (
+                <div className="experts-checkboxes">
+                  {filteredExperts.length === 0 ? (
+                    <span className="no-experts">No available experts for this category/time</span>
+                  ) : (
+                    filteredExperts.map(expert => (
+                      <div key={expert._id} className="expert-checkbox">
+                        <input
+                          type="checkbox"
+                          id={`expert-${expert._id}`}
+                          checked={formData.booked_experts.includes(expert._id)}
+                          onChange={() => {
+                            const updatedExperts = formData.booked_experts.includes(expert._id)
+                              ? formData.booked_experts.filter(id => id !== expert._id)
+                              : [...formData.booked_experts, expert._id];
+                            setFormData(prev => ({ ...prev, booked_experts: updatedExperts }));
+                          }}
+                        />
+                        <label htmlFor={`expert-${expert._id}`}>
+                          <div className="expert-info">
+                            <span className="expert-name">{expert.name}</span>
+                            <span className="expert-email">({expert.email})</span>
+                          </div>
+                        </label>
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
-            </div>
-          )}
-        </label>
+            </label>
+          </>
+        )}
         <button type="submit">Create Event</button>
       </form>
     </div>
