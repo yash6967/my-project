@@ -808,3 +808,190 @@
     font-size: 0.9rem;
   }
 }
+
+/* Booked Experts Section */
+.booked-experts-section {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.booked-experts-label {
+  font-weight: 600;
+  color: #282769;
+  margin-right: 8px;
+}
+.booked-experts-avatars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.expert-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e51b00;
+  margin-right: 2px;
+}
+.more-experts {
+  font-size: 0.95rem;
+  color: #e51b00;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.view-experts-btn {
+  margin-left: 10px;
+  padding: 4px 10px;
+  background: #282769;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.view-experts-btn:hover {
+  background: #e51b00;
+}
+
+/* Modal Styles */
+.experts-modal-overlay {
+  background: rgba(40, 39, 105, 0.25) !important;
+  z-index: 1000 !important;
+}
+.experts-modal {
+  background: #fff;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 95vw;
+  margin: 60px auto;
+  padding: 32px 24px 24px 24px;
+  box-shadow: 0 8px 32px rgba(40, 39, 105, 0.18);
+  position: relative;
+  z-index: 1001;
+}
+.close-modal-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: #e51b00;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.close-modal-btn:hover {
+  background: #282769;
+}
+.experts-list-modal {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.expert-modal-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(40, 39, 105, 0.08);
+}
+.expert-avatar-modal {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #282769;
+}
+.expert-details-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 1rem;
+  color: #282769;
+}
+.expert-details-modal a {
+  color: #e51b00;
+  text-decoration: underline;
+  font-size: 0.98rem;
+}
+
+/* Modal for expert info (ManageEvents style) */
+.modal-overlay {
+  background: rgba(40, 39, 105, 0.25) !important;
+  z-index: 1000 !important;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 95vw;
+  margin: 60px auto;
+  padding: 32px 24px 40px 24px;
+  box-shadow: 0 8px 32px rgba(40, 39, 105, 0.18);
+  position: relative;
+  z-index: 1001;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #e51b00;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+}
+.modal-header h3 {
+  color: #282769;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+.modal-body {
+  padding: 0;
+}
+.expert-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  color: #282769;
+}
+.expert-photo {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #282769;
+  margin-bottom: 10px;
+}
+.close-modal-btn {
+  margin-top: 24px;
+  background: #e51b00;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.close-modal-btn:hover {
+  background: #282769;
+}
+.modal-content .ReactModal__Close {
+  display: none !important;
+}

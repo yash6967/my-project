@@ -429,13 +429,13 @@ const ManageEvents = () => {
       >
         <div className="modal-header">
           <h3>Expert Information</h3>
-          <button onClick={() => setShowExpertModal(false)}>×</button>
+          {/* <button onClick={() => setShowExpertModal(false)}>×</button> */}
         </div>
         <div className="modal-body">
           {selectedExpert && (
             <div className="expert-info">
               <img src={selectedExpert.photo || elonMuskImage} alt="Expert" className="expert-photo" />
-              <h4>{selectedExpert.name}</h4>
+              <p><strong>Name:</strong> {selectedExpert.name}</p>
               <p><strong>Email:</strong> {selectedExpert.email}</p>
               <p><strong>Organization:</strong> {selectedExpert.organization || 'N/A'}</p>
               <p><strong>Role:</strong> {selectedExpert.role || 'N/A'}</p>
@@ -443,6 +443,8 @@ const ManageEvents = () => {
               {selectedExpert.linkedinProfile && (
                 <p><strong>LinkedIn:</strong> <a href={selectedExpert.linkedinProfile} target="_blank" rel="noopener noreferrer">View Profile</a></p>
               )}
+              <br />
+                <button onClick={() => setShowExpertModal(false)} className="close-btn">Close</button>
             </div>
           )}
         </div>
@@ -569,14 +571,14 @@ const ManageEvents = () => {
         </table>
       </Modal>
 
-      <Modal
+      {/*<Modal
         isOpen={showExpertModal}
         onRequestClose={() => setShowExpertModal(false)}
         contentLabel="Expert Details"
         className="expert-modal"
         overlayClassName="expert-modal-overlay"
       >
-        {selectedExpert && (
+        {/* {selectedExpert && (
           <div className="expert-details-modal">
             <img
               src={selectedExpert.photo || elonMuskImage}
@@ -592,8 +594,8 @@ const ManageEvents = () => {
             {selectedExpert.linkedinProfile && <p><strong>LinkedIn:</strong> <a href={selectedExpert.linkedinProfile} target="_blank" rel="noopener noreferrer">Profile</a></p>}
             <button onClick={() => setShowExpertModal(false)} className="close-modal-btn">Close</button>
           </div>
-        )}
-      </Modal>
+        )} 
+      </Modal>*/}
     </div>
   );
 };

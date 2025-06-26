@@ -15,6 +15,7 @@ import filterLogo from '../assets/filter_logo.jpg';
 import ConfirmationBox from './ConfirmationBox';
 // import event1 from '../images/event1.png';
 import fallBackImage from '../images/Image-not-found.png';
+import Modal from 'react-modal';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
 const Marketplace = () => {
@@ -302,6 +303,8 @@ const Marketplace = () => {
   const [confirmationTitle, setConfirmationTitle] = useState('');
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [onConfirmHandler, setOnConfirmHandler] = useState(() => () => {});
+  const [showExpertModal, setShowExpertModal] = useState(false);
+  const [selectedExpert, setSelectedExpert] = useState(null);
 
   return (
     <div className="marketplace-container" onClick={handleScreenClick}>
@@ -505,6 +508,29 @@ const Marketplace = () => {
                     </button>
                   )}
                 </div>
+                {/* Booked Experts Section */}
+                {event.booked_experts && event.booked_experts.length > 0 && (
+                  <div className="booked-experts-section">
+                    <span className="booked-experts-label">Booked Experts:</span>
+                    <div className="booked-experts-avatars">
+                      {event.booked_experts.map(expert => (
+                        <img
+                          key={expert._id}
+                          src={expert.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(expert.name || 'Expert')}
+                          alt={expert.name}
+                          className="expert-avatar"
+                          title={expert.name}
+                          style={{ cursor: 'pointer' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setSelectedExpert(expert);
+                            setShowExpertModal(true);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -522,6 +548,37 @@ const Marketplace = () => {
         }}
         onCancel={() => setConfirmBox({ ...confirmBox, isOpen: false })}
       />
+      {/* Experts Modal */}
+      <Modal
+        isOpen={showExpertModal}
+        onRequestClose={() => setShowExpertModal(false)}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h3>Expert Information</h3>
+        </div>
+        <div className="modal-body">
+          {selectedExpert && (
+            <div className="expert-info">
+              <img src={selectedExpert.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(selectedExpert.name || 'Expert')} alt="Expert" className="expert-photo" />
+              <p><strong>Name:</strong> {selectedExpert.name}</p>
+              <p><strong>Email:</strong> {selectedExpert.email}</p>
+              <p><strong>Organization:</strong> {selectedExpert.organization || 'N/A'}</p>
+              <p><strong>Role:</strong> {selectedExpert.role || 'N/A'}</p>
+              <p><strong>Phone:</strong> {selectedExpert.mobileNumber || 'N/A'}</p>
+              {selectedExpert.linkedinProfile && (
+                <p><strong>LinkedIn:</strong> <a href={selectedExpert.linkedinProfile} target="_blank" rel="noopener noreferrer">View Profile</a></p>
+              )}
+              {/* Close button at the bottom, centered */}
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                <button onClick={() => setShowExpertModal(false)} className="">Close</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };
