@@ -493,7 +493,14 @@ const ServiceBooking = () => {
                     <p className="location">📍 {provider.location}</p>
                     <p className="organization">🏢 {provider.organization}</p>
                     <p className="description">{provider.description}</p>
-                    
+                    {provider.linkedinProfile && provider.linkedinProfile !== '#' && (
+                        <p>
+                          <strong>LinkedIn:</strong> 
+                          <a href={provider.linkedinProfile} target="_blank" rel="noopener noreferrer" className="linkedin-profile-link">
+                            View Profile
+                          </a>
+                        </p>
+                      )}
                     <div className="services-list">
                       <h4>Services:</h4>
                       <div className="service-tags">
@@ -506,9 +513,9 @@ const ServiceBooking = () => {
                     </div>
                     
                     <div className="provider-footer">
-                      <div className="hourly-rate">
+                      {/* <div className="hourly-rate">
                         ₹{provider.hourlyRate}/hour
-                      </div>
+                      </div> */}
                       <button 
                         onClick={() => handleProviderSelect(provider)}
                         className="select-provider-btn"

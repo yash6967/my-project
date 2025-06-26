@@ -292,6 +292,29 @@
   text-decoration: underline;
 }
 
+.contains-experts-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f0f4f8;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.contains-experts-checkbox input[type="checkbox"] {
+  width: auto;
+  transform: scale(1.3);
+  cursor: pointer;
+}
+
+.contains-experts-checkbox label {
+  margin: 0;
+  font-weight: 600;
+  color: #282769;
+  cursor: pointer;
+}
+
 /* Responsive design for category checkboxes */
 @media (max-width: 768px) {
   .category-checkboxes {

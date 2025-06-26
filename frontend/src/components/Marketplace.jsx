@@ -174,7 +174,7 @@ const Marketplace = () => {
         },
         body: JSON.stringify({ userId: localStorage.getItem('userId') }),
       });
-
+      console.log(registerEventResponse);
       if (!registerEventResponse.ok) {
         throw new Error('Failed to register for the event');
       }

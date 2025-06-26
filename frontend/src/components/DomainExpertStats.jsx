@@ -4,6 +4,7 @@ import { Pie, Bar, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
+import { useUser } from '../context/UserContext';
 import '../components/EventsStats.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
@@ -17,9 +18,15 @@ const DOMAIN_LABELS = [
 
 const DomainExpertStats = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [experts, setExperts] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Admin-specific state
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [expertSessionsData, setExpertSessionsData] = useState([]);
+  const [activeExpertsData, setActiveExpertsData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,6 +49,63 @@ const DomainExpertStats = () => {
     };
     fetchData();
   }, []);
+
+  // Fetch admin-specific data
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      if (!user || (user.userType !== 'admin' && user.userType !== 'super_admin')) {
+        return;
+      }
+      
+      setAdminLoading(true);
+      try {
+        // Process expert sessions data
+        const expertSessions = experts.map(expert => {
+          const sessionsCount = events.filter(event => 
+            event.booked_experts && 
+            event.booked_experts.some(bookedExpert => 
+              bookedExpert._id === expert._id || bookedExpert === expert._id
+            )
+          ).length;
+          
+          return {
+            ...expert,
+            sessionsCount,
+            isActive: sessionsCount > 0
+          };
+        });
+
+        // Sort by sessions count for the sessions chart
+        const sortedBySessions = [...expertSessions].sort((a, b) => b.sessionsCount - a.sessionsCount);
+        setExpertSessionsData(sortedBySessions);
+
+        // Filter active experts (those with at least 1 session in the last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const activeExperts = expertSessions.filter(expert => {
+          const recentSessions = events.filter(event => {
+            if (!event.date) return false;
+            const eventDate = new Date(event.date);
+            return eventDate >= thirtyDaysAgo && 
+                   event.booked_experts && 
+                   event.booked_experts.some(bookedExpert => 
+                     bookedExpert._id === expert._id || bookedExpert === expert._id
+                   );
+          });
+          return recentSessions.length > 0;
+        });
+        
+        setActiveExpertsData(activeExperts);
+      } catch (error) {
+        console.error('Error processing admin data:', error);
+      } finally {
+        setAdminLoading(false);
+      }
+    };
+    
+    fetchAdminData();
+  }, [user, experts, events]);
 
   // 1. Pie Chart: Domain Experts by Domain
   // Dynamically aggregates experts by their 'Domain' field from the fetched user data.
@@ -183,6 +247,54 @@ const DomainExpertStats = () => {
     count: eventCountsByDate[date],
   }));
 
+  // Admin-specific chart data
+  // 1. Domain Experts According to Sessions Taken
+  const expertSessionsChartData = {
+    labels: expertSessionsData.slice(0, 15).map(expert => expert.name),
+    datasets: [
+      {
+        label: 'Sessions Conducted',
+        data: expertSessionsData.slice(0, 15).map(expert => expert.sessionsCount),
+        backgroundColor: '#282769',
+        borderRadius: 8,
+        borderColor: '#1a1a4a',
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  // 2. Active Domain Experts by Domain
+  const activeExpertsByDomain = activeExpertsData.reduce((acc, expert) => {
+    const domain = expert.Domain || 'Not Specified';
+    acc[domain] = (acc[domain] || 0) + 1;
+    return acc;
+  }, {});
+
+  const activeExpertsPieData = {
+    labels: Object.keys(activeExpertsByDomain).map(domainValue => 
+      domainInfoMap[domainValue]?.label || domainValue.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    ),
+    datasets: [{
+      data: Object.values(activeExpertsByDomain),
+      backgroundColor: Object.keys(activeExpertsByDomain).map(domainValue => 
+        domainInfoMap[domainValue]?.color || getRandomColor()
+      ),
+      borderWidth: 2,
+    }],
+  };
+
+  // 3. Active vs Inactive Experts Comparison
+  const activeCount = activeExpertsData.length;
+  const inactiveCount = experts.length - activeCount;
+  const activeInactiveData = {
+    labels: ['Active Experts', 'Inactive Experts'],
+    datasets: [{
+      data: [activeCount, inactiveCount],
+      backgroundColor: ['#28a745', '#6c757d'],
+      borderWidth: 2,
+    }],
+  };
+
   return (
     <div className="events-stats-container domain-expert-stats-container">
       <button className="back-btn" onClick={() => navigate('/impact')} style={{marginBottom: '18px'}}>
@@ -193,6 +305,135 @@ const DomainExpertStats = () => {
         <div className="loading">Loading...</div>
       ) : (
         <>
+          {/* Admin-specific sections - Moved to top */}
+          {(user?.userType === 'admin' || user?.userType === 'super_admin') && (
+            <>
+              <div className="admin-section">
+                <h3>Admin Analytics - Domain Expert Performance</h3>
+                {adminLoading ? (
+                  <div className="loading">Loading admin data...</div>
+                ) : (
+                  <div className="charts-grid">
+                    {/* 1. Domain Experts According to Sessions Taken */}
+                    <div className="chart-section">
+                      <h3>Top Domain Experts by Sessions Conducted</h3>
+                      <Bar 
+                        data={expertSessionsChartData} 
+                        options={{
+                          plugins: { 
+                            legend: { position: 'top' },
+                            tooltip: {
+                              callbacks: {
+                                label: function(context) {
+                                  return `Sessions: ${context.parsed.y}`;
+                                }
+                              }
+                            }
+                          },
+                          responsive: true,
+                          scales: { 
+                            y: { 
+                              beginAtZero: true,
+                              title: {
+                                display: true,
+                                text: 'Number of Sessions'
+                              }
+                            },
+                            x: {
+                              title: {
+                                display: true,
+                                text: 'Domain Experts'
+                              }
+                            }
+                          },
+                        }} 
+                        className="chart-canvas" 
+                      />
+                      <div className="chart-legend">
+                        <span>Total Experts: {experts.length}</span>
+                        <span>Experts with Sessions: {expertSessionsData.filter(ex => ex.sessionsCount > 0).length}</span>
+                      </div>
+                    </div>
+
+                    {/* 2. Active Domain Experts by Domain */}
+                    <div className="chart-section">
+                      <h3>Active Domain Experts by Domain</h3>
+                      <Pie 
+                        data={activeExpertsPieData} 
+                        options={{
+                          plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                              callbacks: {
+                                label: function(context) {
+                                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                  const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                  return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                              }
+                            }
+                          }
+                        }}
+                        className="chart-canvas" 
+                      />
+                      <div className="chart-legend">
+                        <span>Active Experts: {activeExpertsData.length}</span>
+                        <span>Total Experts: {experts.length}</span>
+                      </div>
+                    </div>
+
+                    {/* 3. Active vs Inactive Experts */}
+                    <div className="chart-section">
+                      <h3>Active vs Inactive Domain Experts</h3>
+                      <Pie 
+                        data={activeInactiveData} 
+                        options={{
+                          plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                              callbacks: {
+                                label: function(context) {
+                                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                  const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                  return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                              }
+                            }
+                          }
+                        }}
+                        className="chart-canvas" 
+                      />
+                      <div className="chart-legend">
+                        <span><span className="dot active"></span>Active: {activeCount}</span>
+                        <span><span className="dot inactive"></span>Inactive: {inactiveCount}</span>
+                      </div>
+                    </div>
+
+                    {/* 4. Active Experts Performance Summary */}
+                    <div className="chart-section">
+                      <h3>Active Experts Performance Summary</h3>
+                      <div className="performance-summary">
+                        <div className="summary-card">
+                          <h4>Most Active Expert</h4>
+                          <p>{expertSessionsData[0]?.name || 'N/A'}</p>
+                          <span>{expertSessionsData[0]?.sessionsCount || 0} sessions</span>
+                        </div>
+                        <div className="summary-card">
+                          <h4>Average Sessions per Expert</h4>
+                          <p>{expertSessionsData.length > 0 ? (expertSessionsData.reduce((sum, expert) => sum + expert.sessionsCount, 0) / expertSessionsData.length).toFixed(1) : 0}</p>
+                        </div>
+                        <div className="summary-card">
+                          <h4>Active Rate</h4>
+                          <p>{experts.length > 0 ? ((activeCount / experts.length) * 100).toFixed(1) : 0}%</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
           <div className="charts-grid">
             <div className="chart-section">
               <h3>Experts by Domain</h3>
@@ -244,4 +485,5 @@ const DomainExpertStats = () => {
   );
 };
 
-export default DomainExpertStats;
+export default DomainExpertStats; 
+ 
