@@ -12,7 +12,9 @@ import 'react-toastify/dist/ReactToastify.css';
 // import event4image from '../../../backend/images/'
 import './Marketplace.css';
 import filterLogo from '../assets/filter_logo.jpg';
-
+import ConfirmationBox from './ConfirmationBox';
+// import event1 from '../images/event1.png';
+import fallBackImage from '../images/Image-not-found.png';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
 const Marketplace = () => {
@@ -295,9 +297,27 @@ const Marketplace = () => {
     setIsAutoPlaying(true);
   };
 
+  const [confirmBox, setConfirmBox] = useState({ isOpen: false, title: '', message: '', onConfirm: null, danger: false });
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [confirmationTitle, setConfirmationTitle] = useState('');
+  const [confirmationMessage, setConfirmationMessage] = useState('');
+  const [onConfirmHandler, setOnConfirmHandler] = useState(() => () => {});
+
   return (
     <div className="marketplace-container" onClick={handleScreenClick}>
-   
+      {/* Confirmation Modal */}
+      <ConfirmationBox
+        isOpen={isConfirmationOpen}
+        title={confirmationTitle}
+        message={confirmationMessage}
+        confirmText="Yes"
+        cancelText="No"
+        onConfirm={() => {
+          onConfirmHandler();
+          setIsConfirmationOpen(false);
+        }}
+        onCancel={() => setIsConfirmationOpen(false)}
+      />
       <div 
         className="hero-section"
         onMouseEnter={handleHeroMouseEnter}
@@ -401,7 +421,7 @@ const Marketplace = () => {
           {filteredEvents.map(event => (
             <div key={event._id} className="event-card">
               <div className="event-image">
-                <img src={event.image} alt={event.title} />
+                <img src={event.image ? `${event.image}`:`${fallBackImage}`} alt={event.title} />
                 <div className="event-category">{formatCategoryName(event.category)}</div>
               </div>
               <div className="event-content">
@@ -431,14 +451,23 @@ const Marketplace = () => {
                   <button 
                     className={`register-button ${registrations.find(reg => reg === event._id) ? 'registered' : ''}`}
                     onClick={() => {
-                      registerForEvent({ event });
-                      setEvents((prevEvents) =>
-                        prevEvents.map((e) =>
-                          e._id === event._id
-                            ? { ...e, availableSeats: e.availableSeats - 1 }
-                            : e
-                        )
-                      );
+                      setConfirmBox({
+                        isOpen: true,
+                        title: 'Register for Event',
+                        message: `Are you sure you want to register for "${event.title}"?`,
+                        onConfirm: () => {
+                          registerForEvent({ event });
+                          setEvents((prevEvents) =>
+                            prevEvents.map((e) =>
+                              e._id === event._id
+                                ? { ...e, availableSeats: e.availableSeats - 1 }
+                                : e
+                            )
+                          );
+                          setConfirmBox((prev) => ({ ...prev, isOpen: false }));
+                        },
+                        danger: false
+                      });
                     }}
                     disabled={event.availableSeats === 0 || registrations.find(reg => reg === event._id)}
                   >
@@ -452,14 +481,23 @@ const Marketplace = () => {
                   {registrations.some((reg) => reg === event._id) && (
                     <button 
                       onClick={() => {
-                        cancelRegistration(event._id);
-                        setEvents((prevEvents) =>
-                          prevEvents.map((e) =>
-                            e._id === event._id
-                              ? { ...e, availableSeats: e.availableSeats + 1 }
-                              : e
-                          )
-                        );
+                        setConfirmBox({
+                          isOpen: true,
+                          title: 'Cancel Registration',
+                          message: `Are you sure you want to cancel your registration for "${event.title}"?`,
+                          onConfirm: () => {
+                            cancelRegistration(event._id);
+                            setEvents((prevEvents) =>
+                              prevEvents.map((e) =>
+                                e._id === event._id
+                                  ? { ...e, availableSeats: e.availableSeats + 1 }
+                                  : e
+                              )
+                            );
+                            setConfirmBox((prev) => ({ ...prev, isOpen: false }));
+                          },
+                          danger: true
+                        });
                       }} 
                       className="cancel-registration-btn"
                     >
@@ -472,6 +510,18 @@ const Marketplace = () => {
           ))}
         </div>
       </div>
+      <ConfirmationBox
+        isOpen={confirmBox.isOpen}
+        title={confirmBox.title}
+        message={confirmBox.message}
+        confirmText="Yes"
+        cancelText="No"
+        danger={!!confirmBox.danger}
+        onConfirm={() => {
+          if (typeof confirmBox.onConfirm === 'function') confirmBox.onConfirm();
+        }}
+        onCancel={() => setConfirmBox({ ...confirmBox, isOpen: false })}
+      />
     </div>
   );
 };

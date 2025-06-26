@@ -1,0 +1,73 @@
+/* ConfirmationBox.css - Simple modal confirmation box */
+.confirmation-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.confirmation-box {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  padding: 28px 32px 24px 32px;
+  min-width: 320px;
+  max-width: 90vw;
+  text-align: center;
+  animation: fadeInConfirm 0.2s;
+}
+@keyframes fadeInConfirm {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.confirmation-title {
+  margin: 0 0 10px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.confirmation-message {
+  margin: 0 0 22px 0;
+  color: #444;
+  font-size: 1rem;
+}
+.confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+.confirmation-cancel {
+  background: #f4f4f4;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.confirmation-cancel:hover {
+  background: #e0e0e0;
+}
+.confirmation-confirm {
+  background: linear-gradient(135deg, #4caf50, #388e3c);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.confirmation-confirm.danger {
+  background: #e74c3c;
+}
+.confirmation-confirm:hover {
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
+}
+.confirmation-confirm.danger:hover {
+  background: #c0392b;
+}

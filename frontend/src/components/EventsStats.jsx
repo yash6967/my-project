@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bar, Doughnut, Line, Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { useUser } from '../context/UserContext';
@@ -25,6 +26,7 @@ const GENDER_LABELS = ['male', 'female', 'other'];
 const ROLE_LABELS = ['normal', 'domain_expert', 'admin', 'super_admin'];
 
 const EventsStats = () => {
+  const navigate = useNavigate();
   const { user } = useUser();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -470,6 +472,9 @@ const EventsStats = () => {
 
   return (
     <div className="events-stats-container">
+      <button className="back-btn" onClick={() => navigate('/impact')} style={{marginBottom: '18px'}}>
+        ← Back
+      </button>
       <h2>Event Statistics</h2>
       {loading ? (
         <div className="loading">Loading...</div>

@@ -4,6 +4,7 @@ import { useUser } from '../context/UserContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Profile.css';
+import ConfirmationBox from './ConfirmationBox';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
@@ -36,6 +37,7 @@ const Profile = () => {
     Domain: user?.Domain || '',
   });
   const [bookedExperts, setBookedExperts] = useState([]);
+  const [confirmBox, setConfirmBox] = useState({ isOpen: false, title: '', message: '', onConfirm: null, danger: false });
 
   useEffect(() => {
     // Check if user is logged in
@@ -402,7 +404,18 @@ const Profile = () => {
                 View Requests
               </button>
             ) : (
-              <button className="apply-domain-expert-btn" onClick={applyForDomainExpert}>
+              <button
+                className="apply-domain-expert-btn"
+                onClick={() => {
+                  setConfirmBox({
+                    isOpen: true,
+                    title: 'Apply for Domain Expert',
+                    message: 'Are you sure you want to apply for Domain Expert? Your profile details will be submitted for review.',
+                    onConfirm: applyForDomainExpert,
+                    danger: false
+                  });
+                }}
+              >
                 Apply for Domain Expert
               </button>
             )
@@ -512,7 +525,18 @@ const Profile = () => {
                       </span>
                     </td>
                     <td>
-                      <button className="cancel-booking-btn" onClick={() => handleCancelBooking(booking)}>
+                      <button
+                        className="cancel-booking-btn"
+                        onClick={() => {
+                          setConfirmBox({
+                            isOpen: true,
+                            title: 'Cancel Booking',
+                            message: 'Are you sure you want to cancel this booking?',
+                            onConfirm: () => handleCancelBooking(booking),
+                            danger: true
+                          });
+                        }}
+                      >
                         Cancel
                       </button>
                     </td>
@@ -528,32 +552,30 @@ const Profile = () => {
           {registeredEvents.length === 0 ? (
             <p className="no-events">No events registered yet.</p>
           ) : (
-            <div className="events-table-container">
-              <table className="events-table">
-                <thead>
-                  <tr>
-                    <th>Event Title</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Location</th>
-                    <th>Category</th>
-                    <th>Organizer</th>
+            <table className="booked-experts-table">
+              <thead>
+                <tr>
+                  <th>Event Title</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Location</th>
+                  <th>Category</th>
+                  <th>Organizer</th>
+                </tr>
+              </thead>
+              <tbody>
+                {registeredEvents.map((event) => (
+                  <tr key={event._id}>
+                    <td>{event.title}</td>
+                    <td>{formatDate(event.date)}</td>
+                    <td>{formatTime(event.time)} - {formatTime(event.endTime)}</td>
+                    <td>{event.location}</td>
+                    <td>{event.category}</td>
+                    <td>{event.organizer}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {registeredEvents.map((event) => (
-                    <tr key={event._id}>
-                      <td>{event.title}</td>
-                      <td>{formatDate(event.date)}</td>
-                      <td>{formatTime(event.time)} - {formatTime(event.endTime)}</td>
-                      <td>{event.location}</td>
-                      <td>{event.category}</td>
-                      <td>{event.organizer}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
@@ -562,7 +584,14 @@ const Profile = () => {
       {isEditModalOpen && (
         <div className="modal">
           <div className="modal-content">
-            <h3>Edit Profile</h3>
+            <button
+              className="back-btn"
+              style={{ position: 'absolute', left: 16, top: 16 }}
+              onClick={closeEditModal}
+            >
+              ← Back
+            </button>
+            <h3 style={{ marginTop: 0 }}>Edit Profile</h3>
             {isLoadingUserData ? (
               <div className="loading-indicator">
                 <p>Loading user data...</p>
@@ -688,6 +717,21 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      {/* Confirmation Box */}
+      <ConfirmationBox
+        isOpen={confirmBox.isOpen}
+        title={confirmBox.title}
+        message={confirmBox.message}
+        confirmText="Yes"
+        cancelText="No"
+        danger={!!confirmBox.danger}
+        onConfirm={() => {
+          if (typeof confirmBox.onConfirm === 'function') confirmBox.onConfirm();
+          setConfirmBox((prev) => ({ ...prev, isOpen: false }));
+        }}
+        onCancel={() => setConfirmBox((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

@@ -693,14 +693,14 @@ const ServiceBooking = () => {
                 <span>Time:</span>
                 <span>{selectedSlot.startTime} - {selectedSlot.endTime}</span>
               </div>
-              <div className="summary-item">
+              {/* <div className="summary-item">
                 <span>Price:</span>
                 <span>₹{selectedSlot.price}</span>
-              </div>
+              </div> */}
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); handleBookingSubmit(); }}>
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label>Your Name:</label>
                 <input
                   type="text"
@@ -708,9 +708,9 @@ const ServiceBooking = () => {
                   onChange={(e) => setBookingForm({...bookingForm, clientName: e.target.value})}
                   required
                 />
-              </div>
+              </div> */}
 
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label>Email:</label>
                 <input
                   type="email"
@@ -718,7 +718,7 @@ const ServiceBooking = () => {
                   onChange={(e) => setBookingForm({...bookingForm, clientEmail: e.target.value})}
                   required
                 />
-              </div>
+              </div> */}
 
               <div className="form-group">
                 <label>Additional Notes (Optional):</label>

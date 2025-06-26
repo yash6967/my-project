@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Pie, Bar, Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import CalendarHeatmap from 'react-calendar-heatmap';
@@ -16,6 +17,7 @@ const DOMAIN_LABELS = [
 ];
 
 const DomainExpertStats = () => {
+  const navigate = useNavigate();
   const { user } = useUser();
   const [experts, setExperts] = useState([]);
   const [events, setEvents] = useState([]);
@@ -295,6 +297,9 @@ const DomainExpertStats = () => {
 
   return (
     <div className="events-stats-container domain-expert-stats-container">
+      <button className="back-btn" onClick={() => navigate('/impact')} style={{marginBottom: '18px'}}>
+        ← Back
+      </button>
       <h2>Domain Expert Statistics</h2>
       {loading ? (
         <div className="loading">Loading...</div>
