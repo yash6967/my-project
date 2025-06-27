@@ -6,6 +6,7 @@ import './Dashboard.css';
 import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ConfirmationBox from './ConfirmationBox';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
 
@@ -44,6 +45,7 @@ const Dashboard = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [expertBookings, setExpertBookings] = useState([]);
+  const [confirmBox, setConfirmBox] = useState({ isOpen: false, title: '', message: '', onConfirm: null, danger: false });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -413,25 +415,33 @@ const Dashboard = () => {
                                   }}
                                   onMouseOver={e => (e.currentTarget.style.background = '#219150')}
                                   onMouseOut={e => (e.currentTarget.style.background = '#27ae60')}
-                                  onClick={async () => {
-                                    const token = localStorage.getItem('token');
-                                    await fetch(`${BACKEND_URL}api/slots/booking-status`, {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
+                                  onClick={() => {
+                                    setConfirmBox({
+                                      isOpen: true,
+                                      title: 'Accept Booking',
+                                      message: 'Are you sure you want to accept this booking?',
+                                      onConfirm: async () => {
+                                        const token = localStorage.getItem('token');
+                                        await fetch(`${BACKEND_URL}api/slots/booking-status`, {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${token}`
+                                          },
+                                          body: JSON.stringify({
+                                            date: booking.date,
+                                            startTime: booking.startTime,
+                                            endTime: booking.endTime,
+                                            userId: booking.userId,
+                                            isAccepted: true,
+                                            isRejected: false
+                                          })
+                                        });
+                                        fetchExpertBookings();
+                                        setConfirmBox(prev => ({ ...prev, isOpen: false }));
                                       },
-                                      body: JSON.stringify({
-                                        date: booking.date,
-                                        startTime: booking.startTime,
-                                        endTime: booking.endTime,
-                                        userId: booking.userId,
-                                        isAccepted: true,
-                                        isRejected: false
-                                      })
+                                      danger: false
                                     });
-                                    // Refresh bookings
-                                    fetchExpertBookings();
                                   }}
                                 >
                                   Accept
@@ -449,25 +459,33 @@ const Dashboard = () => {
                                   }}
                                   onMouseOver={e => (e.currentTarget.style.background = '#c0392b')}
                                   onMouseOut={e => (e.currentTarget.style.background = '#e74c3c')}
-                                  onClick={async () => {
-                                    const token = localStorage.getItem('token');
-                                    await fetch(`${BACKEND_URL}api/slots/booking-status`, {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
+                                  onClick={() => {
+                                    setConfirmBox({
+                                      isOpen: true,
+                                      title: 'Reject Booking',
+                                      message: 'Are you sure you want to reject this booking?',
+                                      onConfirm: async () => {
+                                        const token = localStorage.getItem('token');
+                                        await fetch(`${BACKEND_URL}api/slots/booking-status`, {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${token}`
+                                          },
+                                          body: JSON.stringify({
+                                            date: booking.date,
+                                            startTime: booking.startTime,
+                                            endTime: booking.endTime,
+                                            userId: booking.userId,
+                                            isAccepted: false,
+                                            isRejected: true
+                                          })
+                                        });
+                                        fetchExpertBookings();
+                                        setConfirmBox(prev => ({ ...prev, isOpen: false }));
                                       },
-                                      body: JSON.stringify({
-                                        date: booking.date,
-                                        startTime: booking.startTime,
-                                        endTime: booking.endTime,
-                                        userId: booking.userId,
-                                        isAccepted: false,
-                                        isRejected: true
-                                      })
+                                      danger: true
                                     });
-                                    // Refresh bookings
-                                    fetchExpertBookings();
                                   }}
                                 >
                                   Reject
@@ -736,6 +754,18 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      <ConfirmationBox
+        isOpen={confirmBox.isOpen}
+        title={confirmBox.title}
+        message={confirmBox.message}
+        confirmText="Yes"
+        cancelText="No"
+        danger={!!confirmBox.danger}
+        onConfirm={() => {
+          if (typeof confirmBox.onConfirm === 'function') confirmBox.onConfirm();
+        }}
+        onCancel={() => setConfirmBox(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

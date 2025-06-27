@@ -502,7 +502,7 @@ const Profile = () => {
                   <th>Date</th>
                   <th>Time Slot</th>
                   <th>Status</th>
-                  <th>Action</th>
+                  {/* <th>Action</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -524,7 +524,7 @@ const Profile = () => {
                           : 'Pending'}
                       </span>
                     </td>
-                    <td>
+                    {/* <td>
                       <button
                         className="cancel-booking-btn"
                         onClick={() => {
@@ -539,7 +539,7 @@ const Profile = () => {
                       >
                         Cancel
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
@@ -579,6 +579,8 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      
 
       {/* Edit Modal */}
       {isEditModalOpen && (

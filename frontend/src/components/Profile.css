@@ -121,10 +121,11 @@
 
 .booked-experts-section {
   grid-area: booked-experts-section;
-  background: #fff;
-  border-radius: 15px;
+  background: white;
+  border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
 }
 
 .profile-details h2,
@@ -475,4 +476,4 @@
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(229, 27, 0, 0.18);
-} 
+}

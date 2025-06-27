@@ -27,6 +27,7 @@ const CreateEvent = () => {
   const [loadingExperts, setLoadingExperts] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState(null);
   const [containsExperts, setContainsExperts] = useState(false);
+  const [expertSearch, setExpertSearch] = useState("");
 
   // Available categories
   const availableCategories = [
@@ -82,6 +83,12 @@ const CreateEvent = () => {
       );
     }
   }, [domainExperts, formData.category]);
+
+  // Filtered experts with search
+  const displayedExperts = filteredExperts.filter(expert =>
+    expert.name.toLowerCase().includes(expertSearch.toLowerCase()) ||
+    expert.email.toLowerCase().includes(expertSearch.toLowerCase())
+  );
 
   const navigate = useNavigate();
 
@@ -303,14 +310,21 @@ const CreateEvent = () => {
             </label>
             <label>
               Select Domain Experts:
+              <input
+                type="text"
+                placeholder="Search experts by name or email..."
+                value={expertSearch}
+                onChange={e => setExpertSearch(e.target.value)}
+                style={{ margin: '10px 0', padding: '8px', width: '100%', borderRadius: '6px', border: '1px solid #ccc' }}
+              />
               {loadingExperts ? (
                 <span>Loading experts...</span>
               ) : (
                 <div className="experts-checkboxes">
-                  {filteredExperts.length === 0 ? (
+                  {displayedExperts.length === 0 ? (
                     <span className="no-experts">No available experts for this category/time</span>
                   ) : (
-                    filteredExperts.map(expert => (
+                    displayedExperts.map(expert => (
                       <div key={expert._id} className="expert-checkbox">
                         <input
                           type="checkbox"
