@@ -29,6 +29,7 @@ app.use('/api/register', require('./routes/user'));
 app.use('/api/user',require('./routes/user'));
 app.use('/api/sessions', require('./routes/session'));
 app.use('/api/slots', require('./routes/slot'));
+app.use('/api/sparc', require('./routes/sparc.js'));
 app.get('/api/test', (req, res) => {
   res.json({ message: 'URL working' });
 });
