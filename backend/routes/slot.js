@@ -79,6 +79,12 @@ router.post('/date-availability', protect, async (req, res) => {
       return res.status(400).json({ error: 'Date and slots array are required' });
     }
 
+    // Ensure each slot has a message field (optional)
+    const slotsWithMessage = slots.map(slot => ({
+      ...slot,
+      message: slot.message || ''
+    }));
+
     let slot = await Slot.findOne({ expertId: req.user.id });
     
     if (!slot) {
@@ -98,7 +104,7 @@ router.post('/date-availability', protect, async (req, res) => {
       });
     }
 
-    await slot.addDateAvailability(req.user.id, date, slots);
+    await slot.addDateAvailability(req.user.id, date, slotsWithMessage);
     
     res.json({
       message: 'Date availability added successfully',
@@ -149,7 +155,12 @@ router.get('/availability/:date', async (req, res) => {
       organization: slot.expertId.organization,
       role: slot.expertId.role,
       date: date,
-      slots: slot.dateAvailability.find(da => da.date === date)?.slots || []
+      slots: (slot.dateAvailability.find(da => da.date === date)?.slots || []).map(s => ({
+        startTime: s.startTime,
+        endTime: s.endTime,
+        message: s.message || '',
+        booked_by: s.booked_by || []
+      }))
     }));
 
     res.json(availability);
@@ -194,8 +205,8 @@ router.get('/expert/:expertId/range', async (req, res) => {
 // Book a specific slot for a user
 router.post('/book', protect, async (req, res) => {
   try {
-    const { expertId, date, startTime, endTime } = req.body;
-    if (!expertId || !date || !startTime || !endTime) {
+    const { expertId, date, startTime, endTime, message } = req.body;
+    if (!expertId || !date || !startTime || !endTime || !message){
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -231,9 +242,15 @@ router.post('/book', protect, async (req, res) => {
       isRejected: false
     });
 
+    // Optionally update the message if provided
+    if (typeof message === 'string') {
+      slot.message = message;
+      // console.log("message", message);
+    }
+
     await slotDoc.save();
 
-    res.json({ message: 'Slot booked successfully', slotDoc });
+    res.json({ message: `Slot bookasdfed successfully`, slotDoc });
   } catch (error) {
     console.error('Error booking slot:', error);
     res.status(500).json({ error: 'Failed to book slot' });
@@ -261,6 +278,7 @@ router.get('/booked-by-user', protect, async (req, res) => {
                   date: dateAvail.date,
                   startTime: slot.startTime,
                   endTime: slot.endTime,
+                  message: slot.message || '',
                   isAccepted: b.isAccepted,
                   isRejected: b.isRejected
                 });
@@ -326,8 +344,9 @@ router.get('/bookings-for-expert', protect, async (req, res) => {
               date: dateAvail.date,
               startTime: slot.startTime,
               endTime: slot.endTime,
+              message: slot.message || '', // Added the message field
               isAccepted: b.isAccepted,
-              isRejected: b.isRejected
+              isRejected: b.isRejected,
             });
           }
         }
@@ -392,6 +411,42 @@ router.post('/booking-status', protect, async (req, res) => {
   } catch (error) {
     console.error('Error updating booking status:', error);
     res.status(500).json({ error: 'Failed to update booking status' });
+  }
+});
+
+// Edit the message field of a specific slot (by expert)
+router.put('/edit-message', protect, async (req, res) => {
+  try {
+    if (req.user.userType !== 'domain_expert') {
+      return res.status(403).json({ error: 'Only domain experts can edit slot messages' });
+    }
+
+    const { date, startTime, endTime, message } = req.body;
+    if (!date || !startTime || !endTime) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Find the expert's slot document
+    const slotDoc = await Slot.findOne({ expertId: req.user.id });
+    if (!slotDoc) return res.status(404).json({ error: 'Slot document not found' });
+
+    // Find the date availability
+    const dateAvail = slotDoc.dateAvailability.find(da => da.date === date && da.isActive);
+    if (!dateAvail) return res.status(404).json({ error: 'No availability for this date' });
+
+    // Find the slot
+    const slot = dateAvail.slots.find(s => s.startTime === startTime && s.endTime === endTime);
+    if (!slot) return res.status(404).json({ error: 'Time slot not found' });
+
+    // Update the message
+    slot.message = message || '';
+
+    await slotDoc.save();
+
+    res.json({ message: 'Slot message updated successfully', slot });
+  } catch (error) {
+    console.error('Error updating slot message:', error);
+    res.status(500).json({ error: 'Failed to update slot message' });
   }
 });
 
