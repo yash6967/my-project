@@ -140,9 +140,21 @@ npm run dev
 - **Book Experts**: Select a domain expert, pick a slot, and add an optional message.
 - **Profile**: View your bookings, registered events, and update your info.
 - **Statistics**: See charts and impact metrics on the Impact/Stats pages.
-
+- **Admin**:can view 1->how user can interact with the events
+                     2->how user can intereact with domain expert page.
+                     3->Create, edit , delete and info events through manage events page.
+                     4->view details of user, domain experts , request to become domain expert(can also handel them)
+                     5->Also has persnolized graphs for domain expert to view the overall performance of every category.
+                     credentials: id->admin@gmail.com
+                                  password->123456  
+- **User**:can view , events , book them , view domain experts , book there slots , can also ask any query related to domain expert.
+      credentials:id->normal@gmail.com
+                  password->123456
+- **domain expert**:can view , events , book them , view book and ask queries to other domain experts also , can set/list its free slot for sessions and events.  
+                    credentials:id->expert@gmail.com
+                                password->123456
 ### Responsive Design
-- All major pages/components are mobile and tablet friendly.
+- All  pages/components are mobile and tablet friendly.
 - Tables (Booked Experts, Registered Events) are horizontally scrollable on small screens.
 - NavBar and Profile page have matching widths and alignment.
 - Hamburger menu for navigation on mobile.
