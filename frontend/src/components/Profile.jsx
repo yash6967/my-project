@@ -506,7 +506,7 @@ const Profile = () => {
                     <th>Date</th>
                     <th>Time Slot</th>
                     <th>Status</th>
-                    <th>Action</th>
+                    {/* <th>Action</th> */}
                     <th>Message</th>
                   </tr>
                 </thead>
@@ -529,7 +529,7 @@ const Profile = () => {
                             : 'Pending'}
                         </span>
                       </td>
-                      <td>
+                      {/* <td>
                         <button
                           className="cancel-booking-btn"
                           onClick={() => {
@@ -544,7 +544,7 @@ const Profile = () => {
                         >
                           Cancel
                         </button>
-                      </td>
+                      </td> */}
                       <td>{booking.message}</td>
                     </tr>
                   ))}

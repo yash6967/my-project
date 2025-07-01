@@ -116,25 +116,25 @@ const NavBar = () => {
         <FaBars size={22} />
       </button>
       <div className={`navbar-links${menuOpen ? ' open' : ''}`}>
-        <Link to="/events" className={`navbar-link${location.pathname === '/events' ? ' active' : ''}`}>Events</Link>
-        <Link to="/impact" className={`navbar-link${location.pathname === '/impact' ? ' active' : ''}`}>Impact</Link>
-        <Link to="/service-booking" className={`navbar-link${location.pathname === '/service-booking' ? ' active' : ''}`}>Domain Experts</Link>
+        <Link to="/events" className={`navbar-link${location.pathname === '/events' ? ' active' : ''}`} onClick={() => setMenuOpen(false)}>Events</Link>
+        <Link to="/impact" className={`navbar-link${location.pathname === '/impact' ? ' active' : ''}`} onClick={() => setMenuOpen(false)}>Impact</Link>
+        <Link to="/service-booking" className={`navbar-link${location.pathname === '/service-booking' ? ' active' : ''}`} onClick={() => setMenuOpen(false)}>Domain Experts</Link>
         {isLoggedIn && (
-          <Link to="/dashboard" className={`navbar-link${location.pathname === '/dashboard' ? ' active' : ''}`}>Dashboard</Link>
+          <Link to="/dashboard" className={`navbar-link${location.pathname === '/dashboard' ? ' active' : ''}`} onClick={() => setMenuOpen(false)}>Dashboard</Link>
         )}
         {(isLoggedIn && (user?.userType === 'admin' || user?.userType === 'super_admin')) && (
-          <Link to="/manage-events" className="navbar-link">Manage Events</Link>
+          <Link to="/manage-events" className="navbar-link" onClick={() => setMenuOpen(false)}>Manage Events</Link>
         )}
         {!isLoggedIn ? (
-          <Link to="/login" className={`navbar-link${location.pathname === '/login' ? ' active' : ''}`}>Login</Link>
+          <Link to="/login" className={`navbar-link${location.pathname === '/login' ? ' active' : ''}`} onClick={() => setMenuOpen(false)}>Login</Link>
         ) : (
-          <button className="navbar-link logout-btn" onClick={handleLogout}>Logout</button>
+          <button className="navbar-link logout-btn" onClick={() => { setMenuOpen(false); handleLogout(); }}>Logout</button>
         )}
         {!isLoggedIn && (
-          <Link to="/signup" className={`navbar-link${location.pathname === '/signup' ? ' active' : ''}`}>Signup</Link>
+          <Link to="/signup" className={`navbar-link${location.pathname === '/signup' ? ' active' : ''}`} onClick={() => setMenuOpen(false)}>Signup</Link>
         )}
         {isLoggedIn && (
-          <div className="profile-icon" onClick={handleProfileClick}>👤</div>
+          <div className="profile-icon" onClick={() => { setMenuOpen(false); handleProfileClick(); }}>👤</div>
         )}
       </div>
 
