@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Profile.css';
 import ConfirmationBox from './ConfirmationBox';
-
+import defaultProfileImage from '../images/default-profile.png';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/';
 
 const DOMAIN_OPTIONS = [
@@ -38,6 +38,8 @@ const Profile = () => {
   });
   const [bookedExperts, setBookedExperts] = useState([]);
   const [confirmBox, setConfirmBox] = useState({ isOpen: false, title: '', message: '', onConfirm: null, danger: false });
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -384,6 +386,62 @@ const Profile = () => {
     }
   };
 
+  // Upload profile image
+  const handleProfileImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await fetch(`${BACKEND_URL}api/user/upload-photo`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success('Profile image uploaded!');
+        fetchUserDetails();
+      } else {
+        toast.error(data.message || 'Failed to upload image');
+      }
+    } catch (err) {
+      toast.error('Error uploading image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Change (replace) profile image
+  const handleProfileImageReplace = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await fetch(`${BACKEND_URL}api/user/reupload-photo`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success('Profile image replaced!');
+        fetchUserDetails();
+      } else {
+        toast.error(data.message || 'Failed to replace image');
+      }
+    } catch (err) {
+      toast.error('Error replacing image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (!user) {
     return <div className="profile-loading">Loading...</div>;
   }
@@ -392,14 +450,38 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-header">
         <h1>Profile</h1>
+        <div className="profile-photo-section">
+          <img
+            src={`${BACKEND_URL}profile_photo/${user.photo}`}
+            alt="Profile"
+            className="profile-photo"
+            style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', border: '3px solid #764ba2', background: '#f3f3f3', boxShadow: '0 2px 8px rgba(44,62,80,0.08)', aspectRatio: '1/1', overflow: 'hidden' }}
+            onError={e => { e.target.onerror = null; e.target.src = defaultProfileImage; }}
+          />
+          <div style={{ marginTop: 8 }}>
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={user.image ? handleProfileImageReplace : handleProfileImageUpload}
+            />
+            <button
+              className="upload-photo-btn"
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              disabled={uploading}
+            >
+              {uploading ? 'Uploading...' : user.image ? 'Change Photo' : 'Upload Photo'}
+            </button>
+          </div>
+        </div>
         <div className="profile-actions">
           <button className="edit-profile-btn" onClick={openEditModal}>
             Edit Profile
           </button>
-          {user.userType === 'normal' && 
-        //   !isCheckingApplication && 
-          (
-            hasAppliedForDomainExpert ? (
+          {/* ...existing domain expert buttons... */}
+          {user.userType === 'normal' &&
+            (hasAppliedForDomainExpert ? (
               <button className="view-requests-btn" onClick={() => navigate('/dashboard?view=requests')}>
                 View Requests
               </button>
@@ -418,8 +500,7 @@ const Profile = () => {
               >
                 Apply for Domain Expert
               </button>
-            )
-          )}
+            ))}
         </div>
       </div>
 
