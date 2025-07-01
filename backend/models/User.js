@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    required: false
+    required: false // Stores the filename of the uploaded user image
   },
   organization: {
     type: String,

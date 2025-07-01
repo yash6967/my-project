@@ -13,8 +13,9 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// Serve static files from the images directory
+// Serve static files from the images and profile_photo directories
 app.use('/images', express.static('images'));
+app.use('/profile_photo', express.static('profile_photo'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
