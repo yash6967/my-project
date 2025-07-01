@@ -490,60 +490,67 @@ const Profile = () => {
 
         {/* Booked Experts Section */}
         <div className="booked-experts-section">
-          <h2>Booked Experts</h2>
           {bookedExperts.length === 0 ? (
-            <p>You have not booked any experts yet.</p>
+            <>
+              <h2>Booked Experts</h2>
+              <p>You have not booked any experts yet.</p>
+            </>
           ) : (
-            <table className="booked-experts-table">
-              <thead>
-                <tr>
-                  <th>Expert Name</th>
-                  <th>Organization</th>
-                  <th>Date</th>
-                  <th>Time Slot</th>
-                  <th>Status</th>
-                  {/* <th>Action</th> */}
-                </tr>
-              </thead>
-              <tbody>
-                {bookedExperts.map((booking, idx) => (
-                  <tr key={idx}>
-                    <td>{booking.expert?.name || 'N/A'}</td>
-                    <td>{booking.expert?.organization || 'N/A'}</td>
-                    <td>{booking.date}</td>
-                    <td>{booking.startTime} - {booking.endTime}</td>
-                    <td>
-                      <span style={{
-                        color: booking.isAccepted ? 'green' : booking.isRejected ? 'red' : 'orange',
-                        fontWeight: 600
-                      }}>
-                        {booking.isAccepted
-                          ? 'Accepted'
-                          : booking.isRejected
-                          ? 'Rejected'
-                          : 'Pending'}
-                      </span>
-                    </td>
-                    {/* <td>
-                      <button
-                        className="cancel-booking-btn"
-                        onClick={() => {
-                          setConfirmBox({
-                            isOpen: true,
-                            title: 'Cancel Booking',
-                            message: 'Are you sure you want to cancel this booking?',
-                            onConfirm: () => handleCancelBooking(booking),
-                            danger: true
-                          });
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </td> */}
+            <div style={{overflowX: 'auto', width: '100%'}}>
+              <h2>Booked Experts</h2>
+              <table className="booked-experts-table">
+                <thead>
+                  <tr>
+                    <th>Expert Name</th>
+                    <th>Organization</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                    <th>Message</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {bookedExperts.map((booking, idx) => (
+                    <tr key={idx}>
+                      <td>{booking.expert?.name || 'N/A'}</td>
+                      <td>{booking.expert?.organization || 'N/A'}</td>
+                      <td>{booking.date}</td>
+                      <td>{booking.startTime} - {booking.endTime}</td>
+                      <td>
+                        <span style={{
+                          color: booking.isAccepted ? 'green' : booking.isRejected ? 'red' : 'orange',
+                          fontWeight: 600
+                        }}>
+                          {booking.isAccepted
+                            ? 'Accepted'
+                            : booking.isRejected
+                            ? 'Rejected'
+                            : 'Pending'}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="cancel-booking-btn"
+                          onClick={() => {
+                            setConfirmBox({
+                              isOpen: true,
+                              title: 'Cancel Booking',
+                              message: 'Are you sure you want to cancel this booking?',
+                              onConfirm: () => handleCancelBooking(booking),
+                              danger: true
+                            });
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </td>
+                      <td>{booking.message}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
@@ -552,30 +559,32 @@ const Profile = () => {
           {registeredEvents.length === 0 ? (
             <p className="no-events">No events registered yet.</p>
           ) : (
-            <table className="booked-experts-table">
-              <thead>
-                <tr>
-                  <th>Event Title</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Location</th>
-                  <th>Category</th>
-                  <th>Organizer</th>
-                </tr>
-              </thead>
-              <tbody>
-                {registeredEvents.map((event) => (
-                  <tr key={event._id}>
-                    <td>{event.title}</td>
-                    <td>{formatDate(event.date)}</td>
-                    <td>{formatTime(event.time)} - {formatTime(event.endTime)}</td>
-                    <td>{event.location}</td>
-                    <td>{event.category}</td>
-                    <td>{event.organizer}</td>
+            <div style={{overflowX: 'auto', width: '100%'}}>
+              <table className="booked-experts-table">
+                <thead>
+                  <tr>
+                    <th>Event Title</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Organizer</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {registeredEvents.map((event) => (
+                    <tr key={event._id}>
+                      <td>{event.title}</td>
+                      <td>{formatDate(event.date)}</td>
+                      <td>{formatTime(event.time)} - {formatTime(event.endTime)}</td>
+                      <td>{event.location}</td>
+                      <td>{event.category}</td>
+                      <td>{event.organizer}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

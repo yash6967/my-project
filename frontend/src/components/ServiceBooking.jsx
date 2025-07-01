@@ -328,7 +328,8 @@ const ServiceBooking = () => {
             expertId: selectedProvider._id,
             date: selectedSlot.date,
             startTime: selectedSlot.startTime,
-            endTime: selectedSlot.endTime
+            endTime: selectedSlot.endTime,
+            message: bookingForm.notes // send additional notes as message
           })
         });
         const data = await response.json();

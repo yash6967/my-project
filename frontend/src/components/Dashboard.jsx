@@ -48,6 +48,9 @@ const Dashboard = () => {
   const [confirmBox, setConfirmBox] = useState({ isOpen: false, title: '', message: '', onConfirm: null, danger: false });
   const navigate = useNavigate();
   const location = useLocation();
+  const [editingMessageIdx, setEditingMessageIdx] = useState(null);
+  const [editedMessage, setEditedMessage] = useState('');
+  const [savingMessage, setSavingMessage] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -377,6 +380,7 @@ const Dashboard = () => {
                         <th>Time Slot</th>
                         <th>Status</th>
                         <th>Action</th>
+                        <th>Message</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -491,6 +495,82 @@ const Dashboard = () => {
                                   Reject
                                 </button>
                               </>
+                            )}
+                          </td>
+                          <td data-label="Message">
+                            {editingMessageIdx === idx ? (
+                              <div className="message-edit-row" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                <input
+                                  type="text"
+                                  value={editedMessage}
+                                  onChange={e => setEditedMessage(e.target.value)}
+                                  style={{ minWidth: 120, flex: '1 1 120px', maxWidth: '100%' }}
+                                  disabled={savingMessage}
+                                />
+                                <button
+                                className='action-btn approve-btn'
+                                  onClick={async () => {
+                                    setSavingMessage(true);
+                                    try {
+                                      const token = localStorage.getItem('token');
+                                      const res = await fetch(`${BACKEND_URL}api/slots/edit-message`, {
+                                        method: 'PUT',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          'Authorization': `Bearer ${token}`
+                                        },
+                                        body: JSON.stringify({
+                                          date: booking.date,
+                                          startTime: booking.startTime,
+                                          endTime: booking.endTime,
+                                          message: editedMessage
+                                        })
+                                      });
+                                      if (res.ok) {
+                                        toast.success('Message updated!');
+                                        setEditingMessageIdx(null);
+                                        setEditedMessage('');
+                                        fetchExpertBookings();
+                                      } else {
+                                        const data = await res.json();
+                                        toast.error(data.error || 'Failed to update message');
+                                      }
+                                    } catch (err) {
+                                      toast.error('Failed to update message');
+                                    }
+                                    setSavingMessage(false);
+                                  }}
+                                  disabled={savingMessage}
+                                  // style={{ marginLeft: 4, marginTop: 4, flex: '0 0 auto' }}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                className="action-btn reject-btn"
+                                  onClick={() => {
+                                    setEditingMessageIdx(null);
+                                    setEditedMessage('');
+                                  }}
+                                  disabled={savingMessage}
+                                  style={{ marginLeft: 4, marginTop: 4, flex: '0 0 auto' }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                <span>{booking.message || <span style={{ color: '#aaa' }}>No message</span>}</span>
+                                <button
+                                className="message-edit-btn"
+                                  onClick={() => {
+                                    setEditingMessageIdx(idx);
+                                    setEditedMessage(booking.message || '');
+                                  }}
+                                  // style={{ marginLeft: 4, fontSize: 12, padding: '2px 8px', marginTop: 4, flex: '0 0 auto' }}
+                                >
+                                  Edit
+                                </button>
+                              </div>
                             )}
                           </td>
                         </tr>

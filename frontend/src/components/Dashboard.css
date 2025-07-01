@@ -1200,3 +1200,60 @@
     color: #333;
   }
 }
+
+/* Message Edit Buttons */
+.message-edit-row button,
+.message-edit-btn,
+.message-save-btn,
+.message-cancel-btn {
+  background: #eeeeee;
+  color: #282769;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 2px 2px 2px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.message-edit-row .message-save-btn {
+  background: linear-gradient(135deg, #27ae60, #219150);
+  color: #fff;
+  border: none;
+}
+
+.message-edit-row .message-cancel-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+  border: none;
+}
+
+.message-edit-row .message-edit-btn {
+  background: linear-gradient(135deg, #282769, #1a1a4a);
+  color: #fff;
+  border: none;
+}
+
+.message-edit-row button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .message-edit-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .message-edit-row input {
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  .message-edit-row button {
+    width: 100%;
+    margin: 0 0 4px 0;
+  }
+}

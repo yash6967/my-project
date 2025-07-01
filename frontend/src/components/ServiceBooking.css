@@ -784,85 +784,92 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 15px;
+@media (max-width: 900px) {
+  .booking-content {
+    padding: 18px 4px;
   }
-
-  .booking-header h1 {
-    font-size: 1.5rem;
-  }
-
   .providers-grid {
     grid-template-columns: 1fr;
+    gap: 18px;
   }
-
-  .provider-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .provider-card {
+    margin-bottom: 18px;
   }
-
-  .selected-provider-info {
-    align-self: center;
-  }
-
-  .slots-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .booking-card {
-    padding: 15px;
-  }
-
-  .booking-details {
-    font-size: 0.85rem;
-  }
-
-  .modal-actions {
-    flex-direction: column;
+  .slots-section {
+    padding: 18px 4px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+  .service-booking-container {
+    padding-bottom: 20px;
+  }
   .booking-content {
-    padding: 20px 15px;
+    padding: 8px 2px;
   }
-
+  .providers-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
   .provider-card {
-    margin: 0 10px;
+    border-radius: 10px;
+    padding: 0 2px;
   }
-
+  .provider-image img {
+    width: 80px;
+    height: 80px;
+  }
   .provider-info {
-    padding: 20px;
+    padding: 12px 4px;
   }
-
-  .service-tags {
-    gap: 5px;
+  .slots-section {
+    padding: 8px 2px;
+    border-radius: 8px;
   }
-
-  .provider-footer {
-    flex-direction: column;
-    gap: 15px;
-    align-items: stretch;
+  .slot-booking-card {
+    padding: 8px 2px 8px 2px;
+    border-radius: 8px;
   }
-
-  .select-provider-btn {
-    width: 100%;
+  .date-list {
+    gap: 6px;
   }
-
-  .slot-footer {
-    flex-direction: column;
-    gap: 15px;
-    align-items: stretch;
+  .date-btn {
+    min-width: 48px;
+    min-height: 36px;
+    font-size: 0.85rem;
+    padding: 0 4px;
   }
-
-  .book-slot-btn {
-    width: 100%;
+  .time-slot-row {
+    gap: 8px;
   }
-
+  .time-btn {
+    min-width: 60px;
+    min-height: 32px;
+    font-size: 0.95rem;
+    padding: 4px 2px;
+  }
   .modal-content {
-    padding: 20px;
+    width: 98vw !important;
+    min-width: 0 !important;
+    max-width: 99vw !important;
+    padding: 8px 2px !important;
+    border-radius: 8px !important;
+  }
+  .booking-summary, .form-group, .modal-actions {
+    padding: 0 2px;
+  }
+}
+
+@media (max-width: 400px) {
+  .provider-info h3 {
+    font-size: 1.1rem;
+  }
+  .provider-title, .specialization, .organization, .experience, .location, .description {
+    font-size: 0.85rem;
+  }
+  .select-provider-btn, .confirm-details-btn {
+    font-size: 0.85rem;
+    padding: 8px 10px;
   }
 }
 
@@ -1126,4 +1133,35 @@
 .provider-date-filter select:focus {
   border-color: #a084e8;
   background: #f6f2ff;
+}
+
+@media (max-width: 700px) {
+  .provider-date-filter {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 6px;
+    font-size: 0.98rem;
+  }
+  .provider-date-filter label {
+    margin-left: 0 !important;
+    margin-bottom: 2px;
+  }
+  .provider-date-filter input[type="date"],
+  .provider-date-filter select {
+    width: 100%;
+    margin-left: 0 !important;
+    margin-bottom: 6px;
+    font-size: 1rem;
+  }
+  .provider-date-filter button {
+    width: 100%;
+    margin-bottom: 6px;
+  }
+}
+@media (max-width: 400px) {
+  .provider-date-filter {
+    padding: 6px 2px;
+    font-size: 0.92rem;
+  }
 }

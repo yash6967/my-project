@@ -448,4 +448,119 @@
   min-height: 350px !important;
   max-height: 400px !important;
   width: 100% !important;
-} 
+}
+
+@media (max-width: 600px) {
+  .events-stats-container {
+    padding: 12px 2vw;
+    margin: 10px 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .total-events {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 1rem;
+    padding: 10px 0;
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .chart-section {
+    min-width: 0;
+    max-width: 100vw;
+    padding: 4px 0 4px 0;
+    border-radius: 8px;
+    box-shadow: none;
+    margin: 0 auto 10px auto;
+  }
+  .chart-section h3 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+  .doughnut-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .doughnut-numbers {
+    font-size: 0.95rem;
+    gap: 4px;
+  }
+  .chart-legend {
+    font-size: 0.75rem;
+    padding: 6px;
+    margin-top: 8px;
+  }
+  .bottom-charts-row {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+    align-items: stretch;
+  }
+  .bottom-charts-row .bar-chart-section,
+  .bottom-charts-row .role-pie-section {
+    min-width: 0;
+    max-width: 100vw;
+    min-height: 220px;
+    max-height: 320px;
+    padding: 8px 0 8px 0;
+    border-radius: 8px;
+    box-shadow: none;
+  }
+  .chart-canvas,
+  .chart-section canvas,
+  .event-creation-trends canvas {
+    width: 98vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    min-height: 180px !important;
+    max-height: 220px !important;
+  }
+  .event-creation-trends {
+    min-height: 220px !important;
+    max-height: 320px !important;
+  }
+  .admin-section {
+    padding: 8px 2vw;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+  .admin-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+  .bar-chart-section h3,
+  .role-pie-section h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  select {
+    font-size: 0.95rem !important;
+    padding: 3px 6px !important;
+    border-radius: 4px !important;
+  }
+}
+
+/* Prevent chart label overlap and improve readability on small screens */
+@media (max-width: 600px) {
+  .chart-section .chart-canvas,
+  .chart-section canvas {
+    font-size: 10px !important;
+  }
+  .chart-section .chartjs-render-monitor {
+    font-size: 10px !important;
+  }
+}
+
+/* Hide overflow and allow horizontal scroll for wide charts on mobile */
+@media (max-width: 600px) {
+  .chart-section,
+  .bar-chart-section,
+  .role-pie-section,
+  .event-creation-trends {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
