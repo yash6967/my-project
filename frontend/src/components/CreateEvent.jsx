@@ -19,6 +19,7 @@ const CreateEvent = () => {
     availableSeats: '',
     organizer: '',
     booked_experts: [],
+    urls: [''], // Add urls as an array of strings
   });
   const [users, setUsers] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
@@ -127,6 +128,29 @@ const CreateEvent = () => {
     return null;
   };
 
+  // Handler for changing a specific URL
+  const handleUrlChange = (index, value) => {
+    setFormData((prev) => {
+      const newUrls = [...(prev.urls || [])];
+      newUrls[index] = value;
+      return { ...prev, urls: newUrls };
+    });
+  };
+
+  // Handler to add a new URL input
+  const handleAddUrl = () => {
+    setFormData((prev) => ({ ...prev, urls: [...(prev.urls || []), ''] }));
+  };
+
+  // Handler to remove a URL input
+  const handleRemoveUrl = (index) => {
+    setFormData((prev) => {
+      const newUrls = [...(prev.urls || [])];
+      newUrls.splice(index, 1);
+      return { ...prev, urls: newUrls };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -142,6 +166,8 @@ const CreateEvent = () => {
         value.forEach(id => formDataToSend.append('booked_experts', id));
       } else if (key === 'category' && Array.isArray(value)) {
         value.forEach(cat => formDataToSend.append('category', cat));
+      } else if (key === 'urls' && Array.isArray(value)) {
+        value.filter(Boolean).forEach(url => formDataToSend.append('urls', url));
       } else if (value) {
         formDataToSend.append(key, value);
       }
@@ -289,10 +315,8 @@ const CreateEvent = () => {
           />
           <label htmlFor="containsExperts">Does this event contain experts?</label>
         </div>
-
-        {containsExperts && (
-          <>
-            <label>
+        <div>
+          <label>
               Categories (Select all that apply):
               <div className="category-checkboxes">
                 {availableCategories.map(category => (
@@ -308,6 +332,11 @@ const CreateEvent = () => {
                 ))}
               </div>
             </label>
+        </div>
+
+        {containsExperts && (
+          <>
+            
             <label>
               Select Domain Experts:
               <input
@@ -351,6 +380,25 @@ const CreateEvent = () => {
             </label>
           </>
         )}
+        <label>
+          Resource URLs (optional):
+          {formData.urls && formData.urls.map((url, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+              <input
+                type="url"
+                name={`url-${idx}`}
+                value={url}
+                onChange={e => handleUrlChange(idx, e.target.value)}
+                placeholder="https://example.com/resource.pdf"
+                style={{ flex: 1, marginRight: 8 }}
+              />
+              {formData.urls.length > 1 && (
+                <button type="button" onClick={() => handleRemoveUrl(idx)} style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>✖</button>
+              )}
+            </div>
+          ))}
+          <button type="button" onClick={handleAddUrl} style={{ marginTop: 4, background: '#eee', border: '1px solid #ccc', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }}>Add URL</button>
+        </label>
         <button type="submit">Create Event</button>
       </form>
     </div>

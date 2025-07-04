@@ -115,7 +115,11 @@ const ManageEvents = () => {
       'endTime',
       'location',
       'organizer',
-      'availableSeats'
+      'availableSeats',
+      'urls',
+      'category',
+      'booked_experts',
+      'registeredUsers',
     ];
   
     allowedFields.forEach((field) => {
@@ -127,6 +131,20 @@ const ManageEvents = () => {
     // Handle categories separately
     if (editEvent.category && Array.isArray(editEvent.category)) {
       editEvent.category.forEach(cat => formDataToSend.append('category', cat));
+    } else if (editEvent.category) {
+      formDataToSend.append('category', editEvent.category);
+    }
+    // Handle urls separately
+    if (editEvent.urls && Array.isArray(editEvent.urls)) {
+      editEvent.urls.filter(Boolean).forEach(url => formDataToSend.append('urls', url));
+    }
+    // Handle booked_experts separately
+    if (editEvent.booked_experts && Array.isArray(editEvent.booked_experts)) {
+      editEvent.booked_experts.forEach(id => formDataToSend.append('booked_experts', id));
+    }
+    // Handle registeredUsers separately
+    if (editEvent.registeredUsers && Array.isArray(editEvent.registeredUsers)) {
+      editEvent.registeredUsers.forEach(id => formDataToSend.append('registeredUsers', id));
     }
   
     // ✅ Add image if selected
@@ -163,7 +181,7 @@ const ManageEvents = () => {
       const response = await fetch(`${BACKEND_URL}api/events/${eventId}/registrations`);
       if (response.ok) {
         const data = await response.json();
-        setInfoModal({ isOpen: true, registrations: data });
+        setInfoModal({ isOpen: true, registrations: data, eventId }); // <-- set eventId here
       } else {
         console.error('Error fetching registrations:', await response.text());
       }
@@ -201,48 +219,54 @@ const ManageEvents = () => {
 
   const exportToPDF = async (event, registrations) => {
     const doc = new jsPDF();
-    
+    let y = 20;
     // Add title
     doc.setFontSize(20);
-    doc.text(event.title, 20, 20);
-    
+    doc.text(event.title, 20, y);
+    y += 15;
     // Add event details
     doc.setFontSize(12);
-    doc.text(`Description: ${event.description}`, 20, 40);
-    doc.text(`Date: ${new Date(event.date).toLocaleDateString()}`, 20, 50);
-    doc.text(`Time: ${event.time} - ${event.endTime}`, 20, 60);
-    doc.text(`Location: ${event.location}`, 20, 70);
-    doc.text(`Category: ${formatCategoryName(event.category)}`, 20, 80);
-    doc.text(`Organizer: ${event.organizer}`, 20, 90);
-    doc.text(`Available Seats: ${event.availableSeats}`, 20, 100);
-    {event.booked_experts && event.booked_experts.length > 0 && (
-      <div className="booked-experts-row">
-        <strong>Booked Experts:</strong>
-        {event.booked_experts.map((expert, idx) => (
-          <span key={expert._id || idx} className="expert-avatar-wrapper">
-            <img
-              src={expert.photo || elonMuskImage}
-              alt={expert.name}
-              className="expert-avatar"
-              onClick={() => { setSelectedExpert(expert); setShowExpertModal(true); }}
-              style={{ cursor: 'pointer', width: 36, height: 36, borderRadius: '50%', margin: '0 6px', border: '2px solid #a084e8' }}
-            />
-            <span className="expert-name">{expert.name}</span>
-          </span>
-        ))}
-      </div>
-    )}
+    doc.text(`Description: ${event.description}`, 20, y); y += 10;
+    doc.text(`Date: ${new Date(event.date).toLocaleDateString()}`, 20, y); y += 10;
+    doc.text(`Time: ${event.time} - ${event.endTime}`, 20, y); y += 10;
+    doc.text(`Location: ${event.location}`, 20, y); y += 10;
+    doc.text(`Category: ${formatCategoryName(event.category)}`, 20, y); y += 10;
+    doc.text(`Organizer: ${event.organizer}`, 20, y); y += 10;
+    doc.text(`Available Seats: ${event.availableSeats}`, 20, y); y += 10;
+    // Add resource URLs
+    if (event.urls && event.urls.length > 0) {
+      doc.text('Resources:', 20, y); y += 8;
+      event.urls.forEach((url, idx) => {
+        doc.text(`Link${idx + 1}: ${url}`, 25, y);
+        y += 7;
+      });
+    }
+    // Add booked experts
+    if (event.booked_experts && event.booked_experts.length > 0) {
+      doc.text('Experts:', 20, y); y += 8;
+      event.booked_experts.forEach((expert, idx) => {
+        doc.text(`${expert.name} (${expert.email || ''})`, 25, y);
+        y += 7;
+      });
+    }
     // Add registrations table
     if (registrations && registrations.length > 0) {
-      doc.text('Registrations:', 20, 120);
-      const tableData = registrations.map(r => [r.name, r.email, r.phoneNumber || 'N/A']);
+      y += 5;
+      doc.text('Registrations:', 20, y); y += 5;
+      const tableData = registrations.map(r => [
+        r.name || '',
+        r.email || '',
+        r.phoneNumber || r.phone || 'N/A',
+      ]);
       autoTable(doc, {
         head: [['Name', 'Email', 'Phone Number']],
         body: tableData,
-        startY: 130,
+        startY: y + 5,
       });
+    } else {
+      y += 5;
+      doc.text('Registrations: None', 20, y);
     }
-    
     doc.save(`${event.title}_report.pdf`);
   };
 
@@ -341,11 +365,26 @@ const ManageEvents = () => {
               <p><strong>Category:</strong> {formatCategoryName(event.category)}</p>
               <p><strong>Organizer:</strong> {event.organizer}</p>
               <p><strong>Available Seats:</strong> {event.availableSeats}</p>
+              {/* Show resource URLs if present */}
+              {event.urls && event.urls.length > 0 && (
+                <div className="event-urls">
+                  <strong>Resources:</strong>
+                  <ul style={{ margin: '6px 0 0 0', padding: 0, listStyle: 'none' }}>
+                    {event.urls.map((url, idx) => (
+                      <li key={idx} style={{ marginBottom: 4 }}>
+                        <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#667eea', textDecoration: 'underline', wordBreak: 'break-all' }}>
+                          {url}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               
               {/* Display Booked Experts */}
               {event.booked_experts && event.booked_experts.length > 0 && (
                 <div className="booked-experts-section">
-                  <p><strong>Booked Experts:</strong></p>
+                  <p><strong>Experts:</strong></p>
                   <div className="booked-experts-row">
                     {event.booked_experts.map((expert, idx) => (
                       <span key={expert._id || idx} className="expert-avatar-wrapper">
@@ -365,7 +404,8 @@ const ManageEvents = () => {
               
               <div className="event-actions">
                 <button onClick={() => handleEdit(event)}>Edit</button>
-                <button onClick={() => fetchEventRegistrations(event._id)}>View Registrations</button>
+                <button onClick={() => fetchEventRegistrations(event._id)}>Registrations</button>
+                <button onClick={() => exportToPDF(event, event.registrations || [])}>Event Report</button>
                 <button onClick={() => handleDelete(event._id)}>Delete</button>
               </div>
             </div>
@@ -384,17 +424,11 @@ const ManageEvents = () => {
           <h3>Event Registrations</h3>
           <button onClick={closeInfoModal}>×</button>
         </div>
+        
         <div className="modal-body">
           {infoModal.registrations.length > 0 ? (
             <div>
-              <div className="export-buttons">
-                <button onClick={() => exportToPDF(events.find(e => e._id === infoModal.eventId), infoModal.registrations)}>
-                  Export to PDF
-                </button>
-                <button onClick={() => exportToWord(events.find(e => e._id === infoModal.eventId), infoModal.registrations)}>
-                  Export to Word
-                </button>
-              </div>
+              <p>Total Registrations: {infoModal.registrations.length}</p>
               <table>
                 <thead>
                   <tr>
@@ -533,6 +567,33 @@ const ManageEvents = () => {
                   name="image"
                   onChange={(e) => setEditEvent({ ...editEvent, photo: e.target.files[0] })}
                 />
+              </label>
+              <label>
+                Resource URLs (optional):
+                {editEvent.urls && editEvent.urls.map((url, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+                    <input
+                      type="url"
+                      name={`url-${idx}`}
+                      value={url}
+                      onChange={e => {
+                        const newUrls = [...editEvent.urls];
+                        newUrls[idx] = e.target.value;
+                        setEditEvent({ ...editEvent, urls: newUrls });
+                      }}
+                      placeholder="https://example.com/resource.pdf"
+                      style={{ flex: 1, marginRight: 8 }}
+                    />
+                    {editEvent.urls.length > 1 && (
+                      <button type="button" onClick={() => {
+                        const newUrls = [...editEvent.urls];
+                        newUrls.splice(idx, 1);
+                        setEditEvent({ ...editEvent, urls: newUrls });
+                      }} style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}>✖</button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={() => setEditEvent({ ...editEvent, urls: [...(editEvent.urls || []), ''] })} style={{ marginTop: 4, background: '#eee', border: '1px solid #ccc', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }}>Add URL</button>
               </label>
               <button type="submit">Save Changes</button>
               <button type="button" onClick={() => setEditEvent(null)}>Cancel</button>

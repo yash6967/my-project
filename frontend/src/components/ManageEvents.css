@@ -120,27 +120,33 @@
 
 .event-actions {
   display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   gap: 10px;
+  margin-top: 15px;
 }
 
 .event-actions button {
+  flex: 1 1 120px;
+  min-width: 100px;
+  max-width: 160px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 0;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  transition: background 0.3s, box-shadow 0.3s;
+  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.10);
+  margin-bottom: 5px;
 }
 
 .event-actions button:hover {
   background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .event-actions button:last-child {

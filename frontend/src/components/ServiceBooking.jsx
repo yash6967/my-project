@@ -30,6 +30,7 @@ const ServiceBooking = () => {
   const [filterDate, setFilterDate] = useState('');
   const [filterLocation, setFilterLocation] = useState('');
   const [expertsWithSlots, setExpertsWithSlots] = useState([]);
+  const [bookingLoading, setBookingLoading] = useState(false);
   const navigate = useNavigate();
 
   // Sample service providers data as fallback
@@ -311,10 +312,23 @@ const ServiceBooking = () => {
 
   const handleBookingSubmit = async () => {
     if (selectedSlot && bookingForm.clientName && bookingForm.clientEmail) {
+      // Prevent double booking (client-side)
+      const alreadyBooked = myBookings.some(b =>
+        b.providerId === selectedProvider._id &&
+        b.date === selectedSlot.date &&
+        b.startTime === selectedSlot.startTime &&
+        b.endTime === selectedSlot.endTime
+      );
+      if (alreadyBooked) {
+        alert('You have already booked this slot.');
+        return;
+      }
+      setBookingLoading(true);
       try {
         const token = localStorage.getItem('token');
         if (!token) {
           alert('You must be logged in to book a slot.');
+          setBookingLoading(false);
           return;
         }
         // Call backend to book the slot
@@ -329,7 +343,7 @@ const ServiceBooking = () => {
             date: selectedSlot.date,
             startTime: selectedSlot.startTime,
             endTime: selectedSlot.endTime,
-            message: bookingForm.notes // send additional notes as message
+            ...(bookingForm.notes ? { message: bookingForm.notes } : {}) // Only include message if provided
           })
         });
         const data = await response.json();
@@ -364,6 +378,8 @@ const ServiceBooking = () => {
         alert('🎉 Booking request submitted successfully! The service provider will confirm shortly.');
       } catch (err) {
         alert(err.message || 'Failed to book slot. Please try again.');
+      } finally {
+        setBookingLoading(false);
       }
     }
   };
@@ -621,13 +637,13 @@ const ServiceBooking = () => {
                           // Determine if slot is available for booking
                           const available = !Array.isArray(slot.booked_by) || slot.booked_by.length === 0
                             ? true
-                            : !slot.booked_by.some(b => b.isAccepted);
+                            : !slot.booked_by.some(b => b.isAccepted === true);
 
                           return (
                             <button
                               key={slot.startTime}
                               className={`time-btn${selectedTime === slot.startTime ? ' selected' : ''}${!available ? ' disabled' : ''}`}
-                              onClick={() => setSelectedTime(slot.startTime)}
+                              onClick={() => available && setSelectedTime(slot.startTime)}
                               disabled={!available}
                             >
                               {slot.startTime} - {slot.endTime}
@@ -732,12 +748,12 @@ const ServiceBooking = () => {
               </div>
 
               <div className="modal-actions">
-                <button type="submit" className="confirm-booking-btn">
-                  Confirm Booking
+                <button type="submit" className="confirm-booking-btn" disabled={bookingLoading}>
+                  {bookingLoading ? 'Booking...' : 'Confirm Booking'}
                 </button>
                 <button 
                   type="button" 
-                  onClick={() => setShowBookingModal(false)}
+                  onClick={() => { setShowBookingModal(false); setSelectedSlot(null); setBookingForm({ clientName: 'John Doe', clientEmail: 'user@example.com', notes: '' }); }}
                   className="cancel-btn"
                 >
                   Cancel

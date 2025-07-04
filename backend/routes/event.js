@@ -5,6 +5,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const mongoose = require('mongoose');
+const { createLog } = require('../controllers/logHelper');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -54,6 +55,11 @@ router.post('/', upload.single('image'), async (req, res) => {
         ? Array.isArray(req.body.booked_experts)
           ? req.body.booked_experts
           : [req.body.booked_experts]
+        : [],
+      urls: req.body.urls
+        ? Array.isArray(req.body.urls)
+          ? req.body.urls
+          : [req.body.urls]
         : [],
     };
 
@@ -128,6 +134,11 @@ router.put('/:id', upload.single('image'), async (req, res) => {
       ...req.body,
       category: categories,
       image: req.file ? `${req.file.filename}` : req.body.image, // Update image if a new one is uploaded
+      urls: req.body.urls
+        ? Array.isArray(req.body.urls)
+          ? req.body.urls
+          : [req.body.urls]
+        : [],
     };
 
     const event = await Event.findByIdAndUpdate(req.params.id, updatedData, {
@@ -172,6 +183,19 @@ router.put('/:id/register', async (req, res) => {
     event.registeredUsers.push(userId);
     // console.log("c");
     await event.save();
+    // Log registration
+    try {
+      console.log('Attempting to log event registration...');
+      await createLog({
+        userId,
+        action: 'event_register',
+        details: { eventId: event._id, eventTitle: event.title }
+      });
+      console.log('Event registration logged.');
+    } catch (logErr) {
+      console.error('Failed to log event registration:', logErr);
+    }
+
     // console.log("d");
 
     res.status(200).json({ message: 'User registered successfully', event });
@@ -204,7 +228,18 @@ router.put('/:id/cancel-register', async (req, res) => {
     
     console.log("c");
     await event.save();
-    console.log("d");
+    // Log cancellation
+    try {
+      console.log('Attempting to log event cancellation...');
+      await createLog({
+        userId,
+        action: 'event_cancel_registration',
+        details: { eventId: event._id, eventTitle: event.title }
+      });
+      console.log('Event cancellation logged.');
+    } catch (logErr) {
+      console.error('Failed to log event cancellation:', logErr);
+    }
     await User.findByIdAndUpdate(
       userId,
       { $pull: { events: new mongoose.Types.ObjectId(req.params.id) } }

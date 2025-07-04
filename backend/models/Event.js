@@ -68,6 +68,11 @@ const eventSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    urls: {
+        type: [String],
+        required: false, // Optional array of URLs (e.g., PDF links, resources)
+        default: [],
+    },
 }, { timestamps: true }); // Add timestamps to track createdAt and updatedAt
 
 module.exports = mongoose.model('Event', eventSchema);

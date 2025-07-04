@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Slot = require('../models/slot');
 const { protect } = require('../middleware/auth');
+const { createLog } = require('../controllers/logHelper');
 
 // Get expert's availability
 router.get('/expert/:expertId', async (req, res) => {
@@ -206,7 +207,8 @@ router.get('/expert/:expertId/range', async (req, res) => {
 router.post('/book', protect, async (req, res) => {
   try {
     const { expertId, date, startTime, endTime, message } = req.body;
-    if (!expertId || !date || !startTime || !endTime || !message){
+    // message should be optional
+    if (!expertId || !date || !startTime || !endTime) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -249,6 +251,12 @@ router.post('/book', protect, async (req, res) => {
     }
 
     await slotDoc.save();
+    // Log expert booking
+    await createLog({
+      userId: req.user.id,
+      action: 'expert_booking',
+      details: { expertId, date, startTime, endTime }
+    });
 
     res.json({ message: `Slot bookasdfed successfully`, slotDoc });
   } catch (error) {
@@ -316,6 +324,12 @@ router.delete('/cancel-booking', protect, async (req, res) => {
       slot.booked_by = slot.booked_by.filter(b => !b.userId || b.userId.toString() !== req.user.id);
     }
     await slotDoc.save();
+    // Log expert booking cancellation
+    await createLog({
+      userId: req.user.id,
+      action: 'expert_booking_cancel',
+      details: { expertId, date, startTime, endTime }
+    });
     res.json({ message: 'Booking cancelled successfully' });
   } catch (error) {
     console.error('Error cancelling booking:', error);
@@ -407,6 +421,32 @@ router.post('/booking-status', protect, async (req, res) => {
     }
 
     await slotDoc.save();
+
+    // Log accept/reject action
+    const User = require('../models/User');
+    const expert = await User.findById(req.user.id).select('name email');
+    const logDetails = {
+      expertId: req.user.id,
+      expertName: expert?.name || '',
+      userId,
+      date,
+      startTime,
+      endTime
+    };
+    if (isAccepted) {
+      await createLog({
+        userId: req.user.id,
+        action: 'booking_accepted',
+        details: logDetails
+      });
+    } else if (isRejected) {
+      await createLog({
+        userId: req.user.id,
+        action: 'booking_rejected',
+        details: logDetails
+      });
+    }
+
     res.json({ message: 'Booking status updated', slotDoc });
   } catch (error) {
     console.error('Error updating booking status:', error);

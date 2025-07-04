@@ -45,6 +45,7 @@ const Dashboard = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [expertBookings, setExpertBookings] = useState([]);
+  const [logs, setLogs] = useState([]); // For admin logs view
   const [confirmBox, setConfirmBox] = useState({ isOpen: false, title: '', message: '', onConfirm: null, danger: false });
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,7 +65,7 @@ const Dashboard = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const viewParam = urlParams.get('view');
-    if (viewParam && ['users', 'experts', 'requests'].includes(viewParam)) {
+    if (viewParam && ['users', 'experts', 'requests', 'logs'].includes(viewParam)) {
       setView(viewParam);
     }
   }, [location.search]);
@@ -98,6 +99,29 @@ const Dashboard = () => {
     }
   };
 
+  // Fetch logs for admin
+  const fetchLogs = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const response = await fetch(`${BACKEND_URL}api/logs`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data);
+      } else {
+        setLogs([]);
+      }
+    } catch (error) {
+      setLogs([]);
+    }
+  };
+
   useEffect(() => {
     if (userType === 'admin' || userType === 'super_admin') {
       if (view === 'users') {
@@ -106,6 +130,8 @@ const Dashboard = () => {
         fetchUsers('domain_expert');
       } else if (view === 'requests') {
         fetchRequests();
+      } else if (view === 'logs') {
+        fetchLogs();
       }
     } else {
       fetchRequests();
@@ -301,6 +327,16 @@ const Dashboard = () => {
       request.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.requested_user_type?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const filteredLogs = logs.filter((log) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      (log.userId?.name && log.userId.name.toLowerCase().includes(search)) ||
+      (log.userId?.email && log.userId.email.toLowerCase().includes(search)) ||
+      (log.action && log.action.toLowerCase().includes(search)) ||
+      (typeof log.details === 'object' && log.details !== null &&
+        Object.values(log.details).some(v => String(v).toLowerCase().includes(search)))
+    );
+  });
 
   return (
     <div className="dashboard-container">
@@ -338,6 +374,9 @@ const Dashboard = () => {
               </label>
               <label className={view === 'requests' ? 'selected' : ''}>
                 <input type="radio" name="view" value="requests" checked={view === 'requests'} onChange={() => setView('requests')} /> Requests
+              </label>
+              <label className={view === 'logs' ? 'selected' : ''}>
+                <input type="radio" name="view" value="logs" checked={view === 'logs'} onChange={() => setView('logs')} /> Logs
               </label>
             </div>
           )}
@@ -677,6 +716,39 @@ const Dashboard = () => {
                           </td>
                         </tr>
                       ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {view === 'logs' && (
+                <div>
+                  <h3>System Logs</h3>
+                  <table className="logs-table">
+                    <thead>
+                      <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredLogs.length === 0 ? (
+                        <tr><td colSpan="4">No logs found.</td></tr>
+                      ) : (
+                        filteredLogs.map((log) => (
+                          <tr key={log._id}>
+                            <td>{new Date(log.timestamp).toLocaleString()}</td>
+                            <td>{log.userId?.name || log.userId?.email || log.userId || 'N/A'}</td>
+                            <td>{log.action}</td>
+                            <td>{
+                              typeof log.details === 'object' && log.details !== null
+                                ? Object.entries(log.details).map(([k, v]) => `${k}: ${v}`).join(', ')
+                                : String(log.details)
+                            }</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>

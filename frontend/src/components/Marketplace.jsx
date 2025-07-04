@@ -511,7 +511,7 @@ const Marketplace = () => {
                 {/* Booked Experts Section */}
                 {event.booked_experts && event.booked_experts.length > 0 && (
                   <div className="booked-experts-section">
-                    <span className="booked-experts-label">Booked Experts:</span>
+                    <span className="booked-experts-label">Experts:</span>
                     <div className="booked-experts-avatars">
                       {event.booked_experts.map(expert => (
                         <img
@@ -529,6 +529,21 @@ const Marketplace = () => {
                         />
                       ))}
                     </div>
+                  </div>
+                )}
+                {/* Resource URLs Section */}
+                {event.urls && event.urls.length > 0 && (
+                  <div className="event-urls">
+                    <span className="event-urls-label">Resources:</span>
+                    <ul style={{ margin: '6px 0 0 0', padding: 0, listStyle: 'none', display: 'flex', gap: 8 }}>
+                      {event.urls.map((url, idx) => (
+                        <li key={idx} style={{ display: 'inline' }}>
+                          <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#667eea', textDecoration: 'underline', fontWeight: 500 }}>
+                            Link{idx + 1}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
