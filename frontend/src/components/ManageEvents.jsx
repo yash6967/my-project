@@ -373,7 +373,7 @@ const ManageEvents = () => {
                     {event.urls.map((url, idx) => (
                       <li key={idx} style={{ marginBottom: 4 }}>
                         <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#667eea', textDecoration: 'underline', wordBreak: 'break-all' }}>
-                          {url}
+                          {`Link${idx + 1}`}
                         </a>
                       </li>
                     ))}
@@ -405,7 +405,20 @@ const ManageEvents = () => {
               <div className="event-actions">
                 <button onClick={() => handleEdit(event)}>Edit</button>
                 <button onClick={() => fetchEventRegistrations(event._id)}>Registrations</button>
-                <button onClick={() => exportToPDF(event, event.registrations || [])}>Event Report</button>
+                <button
+                  onClick={async () => {
+                    // Always fetch latest registrations before exporting
+                    const response = await fetch(`${BACKEND_URL}api/events/${event._id}/registrations`);
+                    let registrations = [];
+                    if (response.ok) {
+                      registrations = await response.json();
+                    }
+                    exportToPDF(event, registrations);
+                  }}
+                  // style={{ background: '#007bff', color: '#fff', border: 'none', borderRadius: 4, padding: '6px 16px', fontWeight: 600, cursor: 'pointer', marginLeft: 8 }}
+                >
+                  Export PDF
+                </button>
                 <button onClick={() => handleDelete(event._id)}>Delete</button>
               </div>
             </div>
@@ -424,11 +437,19 @@ const ManageEvents = () => {
           <h3>Event Registrations</h3>
           <button onClick={closeInfoModal}>×</button>
         </div>
-        
         <div className="modal-body">
           {infoModal.registrations.length > 0 ? (
             <div>
               <p>Total Registrations: {infoModal.registrations.length}</p>
+              {/* <button
+                style={{ marginBottom: 12, background: '#007bff', color: '#fff', border: 'none', borderRadius: 4, padding: '6px 16px', fontWeight: 600, cursor: 'pointer' }}
+                onClick={() => {
+                  const event = events.find(e => e._id === infoModal.eventId);
+                  exportToPDF(event, infoModal.registrations);
+                }}
+              >
+                Export PDF
+              </button> */}
               <table>
                 <thead>
                   <tr>
