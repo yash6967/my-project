@@ -273,7 +273,11 @@ const ServiceBooking = () => {
             !blockedDateStrings.includes(slot.date)
           );
         }
-        
+
+        // Filter out slots with dates in the past (only today and future)
+        const todayString = new Date().toISOString().split('T')[0];
+        transformedSlots = transformedSlots.filter(slot => slot.date >= todayString);
+
         // Sort slots by date and time
         transformedSlots.sort((a, b) => {
           if (a.date !== b.date) {
