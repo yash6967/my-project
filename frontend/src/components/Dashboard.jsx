@@ -419,7 +419,7 @@ const Dashboard = () => {
                         <th>Time Slot</th>
                         <th>Status</th>
                         <th>Action</th>
-                        <th>Message</th>
+                        <th>Meeting Link</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -566,16 +566,16 @@ const Dashboard = () => {
                                         })
                                       });
                                       if (res.ok) {
-                                        toast.success('Message updated!');
+                                        toast.success('Meeting link updated!');
                                         setEditingMessageIdx(null);
                                         setEditedMessage('');
                                         fetchExpertBookings();
                                       } else {
                                         const data = await res.json();
-                                        toast.error(data.error || 'Failed to update message');
+                                        toast.error(data.error || 'Failed to update meeting link');
                                       }
                                     } catch (err) {
-                                      toast.error('Failed to update message');
+                                      toast.error('Failed to update meeting link');
                                     }
                                     setSavingMessage(false);
                                   }}
@@ -598,7 +598,7 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                                <span>{booking.message || <span style={{ color: '#aaa' }}>No message</span>}</span>
+                                <span>{booking.message || <span style={{ color: '#aaa' }}>Add link</span>}</span>
                                 <button
                                 className="message-edit-btn"
                                   onClick={() => {

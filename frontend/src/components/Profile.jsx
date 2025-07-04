@@ -588,7 +588,7 @@ const Profile = () => {
                     <th>Time Slot</th>
                     <th>Status</th>
                     {/* <th>Action</th> */}
-                    <th>Message</th>
+                    <th>Meeting Link</th>
                   </tr>
                 </thead>
                 <tbody>
