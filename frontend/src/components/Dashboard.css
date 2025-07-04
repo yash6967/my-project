@@ -1257,3 +1257,29 @@
     margin: 0 0 4px 0;
   }
 }
+
+.logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.logs-table th {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.logs-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.logs-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.logs-table tr:hover {
+  background-color: #f1f1f1;
+}

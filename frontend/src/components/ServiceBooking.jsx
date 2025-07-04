@@ -108,10 +108,10 @@ const ServiceBooking = () => {
             rating: 4.5, // Default rating since API doesn't provide it
             experience: '5+ years', // Default experience
             location: expert.locationOfWork || 'India',
-            image: elonMuskImage, // Default image - you might want to add profile images to your user model
-            services: ['Consultation', 'Technical Support', 'Training Session'], // Default services
+            image: expert.photo ? `${BACKEND_URL}profile_photo/${expert.photo}` : elonMuskImage, // Use backend photo or fallback
+            services: [expert.Domain || 'Domain Expert'], // Use domain as the service
             hourlyRate: 10000, // Default hourly rate
-            description: `Expert in ${expert.role || 'domain expertise'} with extensive experience in ${expert.organization || 'various organizations'}.`,
+            description: `Expert in ${expert.Domain || 'domain expertise'} with extensive experience in ${expert.organization || 'various organizations'}.`,
             organization: expert.organization || 'Professional Organization',
             mobileNumber: expert.mobileNumber || 'N/A',
             linkedinProfile: expert.linkedinProfile || '#',
@@ -416,7 +416,7 @@ const ServiceBooking = () => {
   const filteredProviders = serviceProviders.filter(provider => {
     const matchesCategory = selectedCategory === 'all' || provider.services.includes(selectedCategory);
     const matchesSearch = provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      provider.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
       provider.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       provider.organization.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -505,7 +505,7 @@ const ServiceBooking = () => {
                   
                   <div className="provider-info">
                     <h3>{provider.name}</h3>
-                    <p className="specialization">{provider.role}</p>
+                    <p className="specialization">{provider.domain}</p>
                     <p className="experience">{provider.experience} experience</p>
                     <p className="location">📍 {provider.location}</p>
                     <p className="organization">🏢 {provider.organization}</p>
@@ -559,7 +559,7 @@ const ServiceBooking = () => {
                 <img src={selectedProvider.image} alt={selectedProvider.name} />
                 <div>
                   <h2>{selectedProvider.name}</h2>
-                  <p>{selectedProvider.role}</p>
+                  <p>{selectedProvider.domain}</p>
                   <p className="provider-organization">{selectedProvider.organization}</p>
                 </div>
               </div>
@@ -737,7 +737,7 @@ const ServiceBooking = () => {
                 />
               </div> */}
 
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label>Additional Notes (Optional):</label>
                 <textarea
                   value={bookingForm.notes}
@@ -745,7 +745,7 @@ const ServiceBooking = () => {
                   rows="3"
                   placeholder="Any specific requirements or questions..."
                 />
-              </div>
+              </div> */}
 
               <div className="modal-actions">
                 <button type="submit" className="confirm-booking-btn" disabled={bookingLoading}>

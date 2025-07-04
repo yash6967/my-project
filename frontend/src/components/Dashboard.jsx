@@ -3,19 +3,11 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import aicteLogo from '../assets/aicte_logo.png';
 import './Dashboard.css';
-import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationBox from './ConfirmationBox';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
-
-const exportToExcel = (data, fileName) => {
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-  XLSX.writeFile(workbook, `${fileName}.xlsx`);
-};
 
 const Dashboard = () => {
   const { user } = useUser();
@@ -630,7 +622,6 @@ const Dashboard = () => {
             <div className="dashboard-content">
               {view === 'users' && (
                 <div>
-                  <button className="export-button" onClick={() => exportToExcel(filteredUsers, 'Users')}>Export Users</button>
                   <table className="users-table">
                     <thead>
                       <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
@@ -649,7 +640,6 @@ const Dashboard = () => {
               )}
               {view === 'experts' && (
                 <div>
-                  <button className="export-button" onClick={() => exportToExcel(filteredUsers, 'Experts')}>Export Experts</button>
                   <table className="experts-table">
                     <thead>
                       <tr><th>Name</th><th>Mobile Number</th><th>Email</th></tr>
@@ -668,7 +658,6 @@ const Dashboard = () => {
               )}
               {view === 'requests' && (
                 <div>
-                  <button className="export-button" onClick={() => exportToExcel(filteredRequests, 'Requests')}>Export Requests</button>
                   <table className="requests-table">
                     <thead>
                       <tr>
@@ -739,7 +728,11 @@ const Dashboard = () => {
                         filteredLogs.map((log) => (
                           <tr key={log._id}>
                             <td>{new Date(log.timestamp).toLocaleString()}</td>
-                            <td>{log.userId?.name || log.userId?.email || log.userId || 'N/A'}</td>
+                            <td>{
+                              log.userId && typeof log.userId === 'object'
+                                ? `${log.userId.name || log.userId.email || log.userId._id || 'N/A'} (${log.userId._id || 'N/A'})`
+                                : log.userId || 'N/A'
+                            }</td>
                             <td>{log.action}</td>
                             <td>{
                               typeof log.details === 'object' && log.details !== null
